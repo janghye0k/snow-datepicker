@@ -2,7 +2,8 @@ import { babel } from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
 import { dts } from 'rollup-plugin-dts';
 import postcss from 'rollup-plugin-postcss';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json';
+import json from '@rollup/plugin-json';
 import postcssConfig from './postcss.config.mjs';
 
 const BUILD_FILENAME = 'datepicker';
@@ -30,6 +31,7 @@ export default [
     input: './src/index.js',
     output: { file: pkg.main, format: 'cjs', sourcemap: false },
     plugins: [
+      json(),
       terser(),
       babel({
         babelHelpers: 'bundled',

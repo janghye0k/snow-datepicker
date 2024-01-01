@@ -5,4 +5,4 @@ const id = 'picker';
 const selector = `#${id}`;
 document.body.innerHTML = `<div id="${id}"></div>`;
 
-const picker = new DatePicker(selector);
+const picker = new DatePicker(selector, {});
