@@ -15,8 +15,7 @@ export function error(title, body) {
  * @returns {boolean}
  */
 export function isDate(value) {
-  if (dayjs.isDayjs(value)) return true;
-  return !isNaN(/** @type {any} */ (new Date(value)));
+  return !isNaN(/** @type {any} */ (dayjs(value).toDate()));
 }
 
 /**
