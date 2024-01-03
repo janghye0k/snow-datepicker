@@ -8,9 +8,9 @@ import { isDate, error, isUndefined, isString, isObject } from './util';
  * @type {Options['titleFormat']}
  */
 const DEFAULT_TITLE_FORMAT = {
-  days: 'MMM, <i>yyyy</i>',
-  months: 'yyyy',
-  years: 'yyyy1 - yyyy2',
+  days: 'MMMM, <i>YYYY</i>',
+  months: 'YYYY',
+  years: 'YYYY1 - YYYY2',
 };
 
 /**
@@ -32,14 +32,16 @@ const DEFUALT_OPTIONS = {
 };
 
 /**
- * @callback OptionValidator
- * @param {unknown} val
- * @returns {boolean}
+ * @typedef {Record<string, (value: unknown) => any>} ValidateMap
  */
 
 /**
- * @typedef {Record<string, { validator: OptionValidator; type: string | string[] }>} ValidateMap
+ * @param {string} key
+ * @param {string} message
  */
+function inValid(key, message) {
+  error(`Invalid options`, `options.${key} should be ${message}`);
+}
 
 /**
  * @type {ValidateMap}
@@ -47,46 +49,51 @@ const DEFUALT_OPTIONS = {
 const VALIDATE_MAP = {
   ...Object.entries(DEFUALT_OPTIONS).reduce((obj, [key, value]) => {
     const type = typeof value;
-    obj[key] = { validator: (val) => typeof val === type, type };
-    return obj;
-  }, /** @type {ValidateMap} */ ({})),
-  ...['minDate', 'maxDate', 'selectedDate'].reduce((obj, item) => {
-    obj[item] = {
-      validator: (val) => isUndefined(val) || isDate(val),
-      type: ['string', 'number', 'Date', 'Dayjs'],
+    obj[key] = (val) => {
+      if (typeof val === type) return;
+      inValid(key, type);
     };
     return obj;
   }, /** @type {ValidateMap} */ ({})),
-  className: {
-    validator: (val) => isUndefined(val) || isString(val),
-    type: 'string',
+  ...['minDate', 'maxDate', 'selectedDate'].reduce((obj, item) => {
+    obj[item] = (val) => {
+      if (isUndefined(val) || isDate(val)) return;
+      inValid(item, ['string', 'number', 'Date'].join(' | '));
+    };
+    return obj;
+  }, /** @type {ValidateMap} */ ({})),
+  className: (val) => {
+    if (isUndefined(val) || isString(val)) return;
+    inValid('className', 'string');
   },
-  titleFormat: {
-    validator: /** @param {any} val */ (val) => {
-      if (isUndefined(val)) return true;
-      if (!isObject(val)) return false;
-      return Object.keys(DEFAULT_TITLE_FORMAT).every((key) =>
-        ['string', 'undefined'].includes(typeof val[key])
+  titleFormat: /** @param {any} val */ (val) => {
+    if (isUndefined(val)) return;
+    if (!isObject(val))
+      return inValid(
+        'titleFormat',
+        '{ dayjs?: string; months?: string; years?: string }'
       );
-    },
-    type: 'TitleFormat { days?: string; months?: string; years?: string }',
+    Object.keys(DEFAULT_TITLE_FORMAT).forEach((key) => {
+      const matcher = ['string', 'undefined'];
+      if (matcher.includes(typeof val[key])) return;
+      inValid(`titleFormat.${key}`, matcher.join(' | '));
+    });
   },
 };
 
 /**
  * @param {Partial<Options>} options
- * @returns {Options}
+ * @returns {import('../index').InternalOptions}
  */
 export default function checkSchema(options) {
+  /** @type {any} */
   const opt = { ...DEFUALT_OPTIONS, ...options };
 
   // Validate
   Object.entries(opt).forEach(([key, value]) => {
-    const { validator, type } = VALIDATE_MAP[key];
+    const validator = VALIDATE_MAP[key];
     if (!validator) return;
-    const errorMessage = isString(type) ? type : type.join(' or ');
-    if (!validator(value))
-      error(`Invalid options`, `options.${key} should be ${errorMessage}`);
+    validator(value);
   });
 
   // Set titleFormat
