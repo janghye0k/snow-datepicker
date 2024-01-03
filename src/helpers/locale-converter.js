@@ -105,7 +105,9 @@ class LocaleConverter {
    * @returns {string}
    */
   date(value) {
-    return dayjs(value).format(this.dateFormat ?? this.locale.formats.date);
+    return isDate(value)
+      ? dayjs(value).format(this.dateFormat ?? this.locale.formats.date)
+      : '';
   }
 }
 

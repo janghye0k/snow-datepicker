@@ -50,7 +50,7 @@ import LocaleConverter from './helpers/locale-converter';
  * @property {boolean} setSelected If true, then clicking on the active cell will remove the selection from it
  * @property {boolean} shortcuts Enables keyboard navigation.
  * @property {string} position Position of the calendar relative to the text field.
- * @property {string} view The initial view of the calendar. (e.g. days | months | years)
+ * @property {string} unit The initial unit of the calendar. (e.g. days | months | years)
  * @property {boolean} showOtherMonths If true, dates from other months will be displayed in days view.
  * @property {boolean} selectOtherMonths If true, it will be possible to select dates from other months.
  * @property {boolean} moveOtherMonths If true , then selecting dates from another month will be causing transition to this month.
@@ -108,6 +108,11 @@ class DatePicker {
   converter = new LocaleConverter(defaultLocale);
 
   /**
+   * @type {'days' | 'months' | 'years'}
+   */
+  currentUnit = 'days';
+
+  /**
    * @param {Element | string} element
    * @param {Partial<Options>} [options]
    */
@@ -119,6 +124,7 @@ class DatePicker {
 
     // Check options schema & initialize datepicker
     this.options = checkSchema(options);
+    this.setCurrentUnit(this.options.unit);
 
     // Convert element
     this.$input = this.#convertToInput(/** @type {HTMLElement} */ ($target));
@@ -253,7 +259,7 @@ class DatePicker {
         </div>
       </div>
       <div class="${PREFIX}-body">
-        <div class="${PREFIX}-days show">
+        <div class="${PREFIX}-days">
           <div class="${PREFIX}-weekdays"></div>
           <div class="${PREFIX}-days-content"></div>
         </div>
@@ -264,6 +270,11 @@ class DatePicker {
     $calendar.replaceChildren(
       ...parser.parseFromString(calendarText, 'text/html').body.children
     );
+
+    // Set current unit
+    $calendar
+      .querySelector(`.${PREFIX}-${this.currentUnit}`)
+      ?.classList.add('show');
 
     // Bind move event
     $calendar.querySelectorAll(`.${PREFIX}-nav-btn`).forEach(($el, index) =>
@@ -309,11 +320,72 @@ class DatePicker {
       .join('');
   }
 
-  #renderDays() {}
+  /**
+   * Rendering days & show days view
+   * @param {number} year
+   * @param {number} month
+   */
+  #renderDays(year, month) {
+    const firstDate = new Date(year, month, 1);
+    const lastDate = new Date(year, month + 1, 0);
+    const firstDateDay = firstDate.getDay();
+    const lastDateDay = lastDate.getDay();
+
+    const { weekStart = 0 } = this.converter.locale;
+    const preDays =
+      (firstDateDay + 7 - weekStart) % 7 || (lastDate.getDate() === 28 ? 7 : 0);
+    const postDays = (lastDateDay + 7 - weekStart) % 7;
+
+    /** @type {{d: number; m: number}[]} */
+    const days = [];
+    const displayPrevStart = new Date(year, month, 0).getDate() - preDays + 1;
+
+    /**
+     * @param {number} length
+     * @param {number} m
+     * @param {number} [adder]
+     */
+    const pushData = (length, m, adder = 1) =>
+      Array.from({ length }, (_, i) => days.push({ d: adder + i, m }));
+    pushData(preDays, (month - 1 + 12) % 12, displayPrevStart);
+    pushData(lastDate.getDate(), month), pushData(postDays, (month + 1) % 12);
+
+    const $target = this.$calendar.querySelector(`.${PREFIX}-days-content`);
+    if (!$target) return;
+    $target.innerHTML = days
+      .map(
+        ({ d, m }) =>
+          `<span class="${PREFIX}-pickable-item ${
+            m === month ? '' : 'other'
+          }" data-month="${m}" data-day="${d}">${d}</span>`
+      )
+      .join('');
+  }
 
   refresh() {
     // Update weekdays text
     this.#renderLocaleItems();
+    this.#renderDays(2024, 0);
+  }
+
+  /**
+   * Set current unit of calendar
+   * @param {string} unit
+   */
+  setCurrentUnit(unit) {
+    const unitList = ['days', 'months', 'years'];
+    this.currentUnit = unitList.includes(unit)
+      ? /** @type {'days' | 'months' | 'years'} */ (unit)
+      : 'days';
+
+    if (!this.$calendar) return;
+    const $items = this.$calendar.querySelectorAll(`.${PREFIX}-body > *`);
+    const $target = this.$calendar.querySelector(
+      `.${PREFIX}-${this.currentUnit}`
+    );
+
+    $items.forEach(($el) => $el.classList.remove('show'));
+    if ($target) $target.classList.add('show');
   }
 
   /**
@@ -342,17 +414,12 @@ class DatePicker {
   }
 
   /**
-   * Convert value to datepicker format
+   * Convert value to datepicker locale
    * @param {any} value
    * @returns {string}
    */
   formatValue(value) {
-    const dateLike = isDate(value)
-      ? value
-      : isDate(this.#prevDate)
-        ? this.#prevDate
-        : null;
-    return isNull(dateLike) ? '' : this.converter.date(value);
+    return this.converter.date(value);
   }
 }
 

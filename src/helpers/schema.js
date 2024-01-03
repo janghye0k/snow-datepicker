@@ -21,7 +21,7 @@ const DEFUALT_OPTIONS = {
   setSelected: true,
   shortcuts: true,
   position: 'bottom left',
-  view: 'days',
+  unit: 'days',
   showOtherMonths: true,
   selectOtherMonths: true,
   moveOtherMonths: true,

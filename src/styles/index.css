@@ -133,6 +133,7 @@
 .hye0k-datepicker-weekday {
   text-align: center;
   color: #fb9052;
+  cursor: default;
 }
 
 .hye0k-datepicker-pickable-item {
@@ -141,6 +142,15 @@
   justify-content: center;
   border-radius: 2px;
   cursor: pointer;
+}
+
+.hye0k-datepicker-pickable-item.other {
+  color: var(--hye0k-datepicker-border-color);
+}
+
+.hye0k-datepicker-pickable-item.active {
+  color: var(--hye0k-datepicker-bg);
+  background-color: var(--hye0k-datepicker-main-color);
 }
 
 .hye0k-datepicker-pickable-item:hover {
