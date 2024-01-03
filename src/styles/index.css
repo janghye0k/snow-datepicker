@@ -1,5 +1,6 @@
 .hye0k-datepicker {
-  --hye0k-datepicker-color: #000;
+  --hye0k-datepicker-color: #333;
+  --hye0k-datepicker-bg: #fff;
   --hye0k-datepicker-border-color: #cfcfcf;
   --hye0k-datepicker-main-color: #3d9ff0;
 }
@@ -10,9 +11,10 @@
   height: 2rem;
   font-size: 0.875rem;
   padding-inline: 0.75rem;
-  border-radius: 0.25rem;
-  transition: ease-out all 0.2s;
-  background-color: inherit;
+  border-radius: 4px;
+  color: var(--hye0k-datepicker-color);
+  background-color: var(--hye0k-datepicker-bg);
+  transition: ease-out all 0.1s;
 }
 
 .hye0k-datepicker-input:hover {
@@ -46,11 +48,123 @@
     transparent
   );
   opacity: 0;
-  transition: ease-out opacity 0.2s;
+  transition: ease-out opacity 0.1s;
 }
 
 .hye0k-datepicker-backdrop.active {
   width: 100%;
   height: 100%;
   opacity: 1;
+}
+
+.hye0k-datepicker-calendar {
+  width: 16rem;
+  border: 1px solid var(--hye0k-datepicker-border-color);
+  border-radius: 4px;
+  color: var(--hye0k-datepicker-color);
+  background-color: var(--hye0k-datepicker-bg);
+}
+
+.hye0k-datepicker-header {
+  padding: 4px;
+  border-bottom: 1px solid var(--hye0k-datepicker-border-color);
+}
+
+.hye0k-datepicker-nav {
+  display: flex;
+  align-items: center;
+}
+
+.hye0k-datepicker-nav-title {
+  margin-inline: auto;
+  font-size: 0.875rem;
+}
+
+.hye0k-datepicker-nav-btn {
+  padding: 0.25rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.hye0k-datepicker-nav-btn > svg {
+  flex-grow: 1;
+  color: color-mix(in srgb, var(--hye0k-datepicker-color) 66%, transparent);
+}
+
+.hye0k-datepicker-nav-btn:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--hye0k-datepicker-color) 9%,
+    transparent
+  );
+}
+
+.hye0k-datepicker-nav-btn:active {
+  background-color: color-mix(
+    in srgb,
+    var(--hye0k-datepicker-color) 14%,
+    transparent
+  );
+}
+
+.hye0k-datepicker-body {
+  padding: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.hye0k-datepicker-body > *:not(.show) {
+  display: none;
+}
+
+.hye0k-datepicker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-block: 0.5rem 0.25rem;
+}
+
+.hye0k-datepicker-weekday {
+  text-align: center;
+  color: #fb9052;
+}
+
+.hye0k-datepicker-pickable-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.hye0k-datepicker-pickable-item:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--hye0k-datepicker-color) 9%,
+    transparent
+  );
+}
+
+.hye0k-datepicker-days-content {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 2rem;
+}
+
+.hye0k-datepicker-months {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 2.5rem;
+}
+
+.hye0k-datepicker-years {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 3.5rem;
 }

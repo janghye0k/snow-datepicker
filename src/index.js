@@ -4,13 +4,14 @@ import {
   isDate,
   isNull,
   isObject,
-  isString,
   isUndefined,
   on,
 } from './helpers/util';
-import dayjs from 'dayjs';
 import defaultLocale from './locale/en';
 import localeInfo from './locale.json';
+import ChevronLeft from './icons/chevron-left';
+import ChevronRight from './icons/chevron-right';
+import LocaleConverter from './helpers/locale-converter';
 
 /**
  * @typedef {object} LocaleFormats
@@ -38,13 +39,13 @@ import localeInfo from './locale.json';
 
 /**
  * @typedef {object} TitleFormat
- * @property {string} [days]
- * @property {string} [months]
- * @property {string} [years]
+ * @property {string} days
+ * @property {string} months
+ * @property {string} years
  */
 
 /**
- * @typedef {object} Options
+ * @typedef {object} InternalOptions
  * @property {string} format Get the formatted date according to the string of tokens passed in.
  * @property {boolean} setSelected If true, then clicking on the active cell will remove the selection from it
  * @property {boolean} shortcuts Enables keyboard navigation.
@@ -71,6 +72,10 @@ import localeInfo from './locale.json';
  * @property {Event} [onBlur]
  */
 
+/**
+ * @typedef {Partial<Omit<InternalOptions, 'titleFormat'>> & { titleFormat: Partial<TitleFormat> }} Options
+ */
+
 const PREFIX = 'hye0k-datepicker';
 
 class DatePicker {
@@ -80,14 +85,27 @@ class DatePicker {
 
   /**
    * @private
-   * @type {Options & { locale: Locale }}
+   * @type {HTMLElement}
    */
-  options = /** @type {any} */ ({});
+  $hide = document.createElement('body');
+
+  /**
+   * @private
+   * @type {InternalOptions}
+   */
+  options;
 
   /**
    * @type {HTMLInputElement}
    */
-  $element = document.createElement('input');
+  $input = document.createElement('input');
+
+  /**
+   * @type {HTMLDivElement}
+   */
+  $calendar;
+
+  converter = new LocaleConverter(defaultLocale);
 
   /**
    * @param {Element | string} element
@@ -100,36 +118,28 @@ class DatePicker {
       throw error('constructor element shoul be CSS selector or Element');
 
     // Check options schema & initialize datepicker
-    this.#init($target, checkSchema(options));
-  }
-
-  /**
-   * Initialize datepicker
-   * @param {Element} $target
-   * @param {Options} options
-   */
-  async #init($target, options) {
-    // Set locale
-    const locale = await this.#getLocale(options.locale);
-    this.options = { ...options, locale };
+    this.options = checkSchema(options);
 
     // Convert element
-    this.$element = this.#convertToInput(/** @type {HTMLElement} */ ($target));
-    this.#bindEvents();
+    this.$input = this.#convertToInput(/** @type {HTMLElement} */ ($target));
+    this.#bindInputEvents();
 
     // Create datepicker container
     this.#createContainer();
 
     // Create calendar
-    this.#createCalendar();
+    this.$calendar = this.#createCalendar();
+    this.refresh();
+
+    // Set locale
+    this.#setLocale(this.options.locale);
   }
 
   /**
    * Get datepicker (browser) locale
    * @param {string | Locale} [locale]
-   * @returns {Promise<Locale>}
    */
-  async #getLocale(locale) {
+  async #setLocale(locale) {
     if (isObject(locale)) {
       return { ...defaultLocale, ...locale };
     }
@@ -149,7 +159,10 @@ class DatePicker {
       localeList.find((key) => localeKey.includes(key)) ??
       'en';
 
-    return (await import(`./locale/${localeKey}.js`)).default;
+    const { default: localeData } = await import(`./locale/${localeKey}.js`);
+    this.converter = new LocaleConverter(localeData, this.options.format);
+
+    this.refresh();
   }
 
   /**
@@ -167,9 +180,10 @@ class DatePicker {
       // @ts-ignore
       val?.length ? ($el[key] = val) : false
     );
-    $el.classList.add('hye0k-datepicker');
-    $el.classList.add('hye0k-datepicker-input');
-    $el.placeholder = this.options.locale.placeholder;
+    $el.classList.add(PREFIX), $el.classList.add(`${PREFIX}-input`);
+
+    $el.placeholder = this.converter.locale.placeholder;
+    $el.value = this.formatValue(this.options.selectedDate);
     element.replaceWith($el);
 
     return $el;
@@ -178,28 +192,11 @@ class DatePicker {
   /**
    * Bind default events
    */
-  #bindEvents() {
-    /**
-     * Convert element value to formatted date
-     * @param {any} event
-     */
-    const convertValue = (event) => {
-      const value = event.currentTarget.value;
-      const dateLike = isDate(value)
-        ? value
-        : isDate(this.#prevDate)
-          ? this.#prevDate
-          : null;
-      const convertedValue = isNull(dateLike)
-        ? ''
-        : dayjs(dateLike).format(this.options.format);
-      event.currentTarget.value = convertedValue;
-    };
-
-    on(this.$element, 'keypress', (event) => {
+  #bindInputEvents() {
+    on(this.$input, 'keypress', (event) => {
       if (event.key === 'Enter' || event.key === 'Escape') {
         event.preventDefault();
-        convertValue(event);
+        event.currentTarget.value = this.formatValue(event.currentTarget.value);
         return false;
       }
 
@@ -210,7 +207,14 @@ class DatePicker {
       }
     });
 
-    on(this.$element, 'blur', convertValue);
+    on(
+      this.$input,
+      'blur',
+      (event) =>
+        (event.currentTarget.value = this.formatValue(
+          event.currentTarget.value
+        ))
+    );
   }
 
   /**
@@ -224,12 +228,132 @@ class DatePicker {
     $container.role = 'presentation';
     $container.innerHTML = /*html*/ `
       <div role="presentation" class="${PREFIX}-backdrop"></div>
-      <div class="${PREFIX}-popup"></div>
     `;
     document.body.appendChild($container);
   }
 
-  #createCalendar() {}
+  /**
+   * Create calendar element
+   * @returns {HTMLDivElement}
+   */
+  #createCalendar() {
+    const { className } = this.options;
+
+    const $calendar = document.createElement('div');
+    $calendar.classList.add(PREFIX);
+    $calendar.classList.add(`${PREFIX}-calendar`);
+    if (className) $calendar.classList.add(className);
+
+    const calendarText = /*html*/ `
+      <div class="${PREFIX}-header">
+        <div class="${PREFIX}-nav">
+          <button class="${PREFIX}-nav-btn" data-action="prev">${ChevronLeft}</button>
+          <span class="${PREFIX}-nav-title"></span>
+          <button class="${PREFIX}-nav-btn" data-action="next">${ChevronRight}</button>
+        </div>
+      </div>
+      <div class="${PREFIX}-body">
+        <div class="${PREFIX}-days show">
+          <div class="${PREFIX}-weekdays"></div>
+          <div class="${PREFIX}-days-content"></div>
+        </div>
+        <div class="${PREFIX}-months"></div>
+        <div class="${PREFIX}-years"></div>
+      </div>`;
+    const parser = new DOMParser();
+    $calendar.replaceChildren(
+      ...parser.parseFromString(calendarText, 'text/html').body.children
+    );
+
+    // Bind move event
+    $calendar.querySelectorAll(`.${PREFIX}-nav-btn`).forEach(($el, index) =>
+      on(/** @type {HTMLElement} */ ($el), 'click', (event) => {
+        const { action } = event.currentTarget.dataset;
+        const isPrev = isUndefined(action) ? !index : action === 'prev';
+        isPrev ? this.prev() : this.next();
+      })
+    );
+
+    return $calendar;
+  }
+
+  #renderLocaleItems() {
+    const {
+      locale: { weekdaysMin, weekStart = 0, monthsShort, placeholder },
+      weekIndexes,
+    } = this.converter;
+
+    // Update placeholder text
+    this.$input.placeholder = placeholder;
+
+    // Render weekdays
+    const $weekdays = this.$calendar.querySelector(`.${PREFIX}-weekdays`);
+    if (!$weekdays) return;
+
+    $weekdays.innerHTML = weekIndexes
+      .map((index) => {
+        const dayindex = (index + weekStart) % 7;
+        return `<span class="${PREFIX}-weekday" data-dayindex="${dayindex}">${weekdaysMin[index]}</span>`;
+      })
+      .join('');
+
+    // Render months
+    const $months = this.$calendar.querySelector(`.${PREFIX}-months`);
+    if (!$months) return;
+
+    $months.innerHTML = monthsShort
+      .map(
+        (month, index) =>
+          `<span class="${PREFIX}-pickable-item" data-month="${index}">${month}</span>`
+      )
+      .join('');
+  }
+
+  #renderDays() {}
+
+  refresh() {
+    // Update weekdays text
+    this.#renderLocaleItems();
+  }
+
+  /**
+   * Move to next month/years/decade
+   */
+  next() {}
+
+  /**
+   * Move to previous month/years/decade
+   */
+  prev() {}
+
+  /**
+   * Hide calendar
+   */
+  hide() {
+    this.$hide.replaceChildren(this.$calendar);
+  }
+
+  /**
+   * Show calendar
+   */
+  show() {
+    const $conatiner = document.getElementById(DatePicker.containerId);
+    if ($conatiner) $conatiner.appendChild(this.$calendar);
+  }
+
+  /**
+   * Convert value to datepicker format
+   * @param {any} value
+   * @returns {string}
+   */
+  formatValue(value) {
+    const dateLike = isDate(value)
+      ? value
+      : isDate(this.#prevDate)
+        ? this.#prevDate
+        : null;
+    return isNull(dateLike) ? '' : this.converter.date(value);
+  }
 }
 
 export default DatePicker;
