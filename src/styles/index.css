@@ -1,0 +1,56 @@
+.hye0k-datepicker {
+  --hye0k-datepicker-color: #000;
+  --hye0k-datepicker-border-color: #cfcfcf;
+  --hye0k-datepicker-main-color: #3d9ff0;
+}
+
+.hye0k-datepicker-input {
+  border: 1px solid var(--hye0k-datepicker-border-color);
+  outline: 0;
+  height: 2rem;
+  font-size: 0.875rem;
+  padding-inline: 0.75rem;
+  border-radius: 0.25rem;
+  transition: ease-out all 0.2s;
+  background-color: inherit;
+}
+
+.hye0k-datepicker-input:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--hye0k-datepicker-main-color) 7%,
+    transparent
+  );
+}
+
+.hye0k-datepicker-input.active {
+  background-color: inherit;
+  border-color: var(--hye0k-datepicker-main-color);
+}
+
+.hye0k-datepicker-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.hye0k-datepicker-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 0;
+  height: 0;
+  background-color: color-mix(
+    in srgb,
+    var(--hye0k-datepicker-color) 33%,
+    transparent
+  );
+  opacity: 0;
+  transition: ease-out opacity 0.2s;
+}
+
+.hye0k-datepicker-backdrop.active {
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+}

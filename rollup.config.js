@@ -8,19 +8,24 @@ import postcssConfig from './postcss.config.mjs';
 
 const BUILD_FILENAME = 'datepicker';
 
+const postcssPluginOptions = {
+  include: '**/*.css',
+  extract: true,
+  plugins: postcssConfig.plugins,
+  minimize: false,
+};
+
 /** @type {import('rollup').RollupOptions[]} */
 export default [
   {
-    input: 'src/index.css',
+    input: 'src/styles/index.css',
     output: { file: `dist/${BUILD_FILENAME}.css` },
-    plugins: [
-      postcss({
-        include: '**/*.css',
-        extract: true,
-        plugins: postcssConfig.plugins,
-        minimize: false,
-      }),
-    ],
+    plugins: [postcss(postcssPluginOptions)],
+  },
+  {
+    input: 'src/styles/dark.css',
+    output: { file: `dist/${BUILD_FILENAME}-dark.css` },
+    plugins: [postcss(postcssPluginOptions)],
   },
   {
     input: './src/index.js',

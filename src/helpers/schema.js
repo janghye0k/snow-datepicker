@@ -1,7 +1,7 @@
 import { isDate, error, isUndefined, isString, isObject } from './util';
 
 /**
- * @typedef {import('./index').Options} Options
+ * @typedef {import('../index').Options} Options
  */
 
 /**
@@ -27,6 +27,7 @@ const DEFUALT_OPTIONS = {
   moveOtherMonths: true,
   navigationLoop: true,
   autoClose: true,
+  readOnly: true,
   titleFormat: {},
 };
 

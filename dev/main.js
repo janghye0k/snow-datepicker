@@ -1,5 +1,6 @@
 import DatePicker from '../src/index.js';
-import '../src/index.css';
+import '../src/styles/index.css';
+import '../src/styles/dark.css';
 
 const id = 'picker';
 const selector = `#${id}`;

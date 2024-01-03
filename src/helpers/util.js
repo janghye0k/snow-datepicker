@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-
 /**
  * @param {string} title
  * @param {string} [body]
@@ -15,7 +13,7 @@ export function error(title, body) {
  * @returns {boolean}
  */
 export function isDate(value) {
-  return !isNaN(/** @type {any} */ (dayjs(value).toDate()));
+  return !isNaN(/** @type {any} */ (new Date(value)));
 }
 
 /**
