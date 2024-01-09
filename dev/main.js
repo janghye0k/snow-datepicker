@@ -8,5 +8,4 @@ document.body.innerHTML = `<div id="${id}"></div>`;
 
 const picker = new DatePicker(selector, {});
 
-picker.hide();
 picker.show();

@@ -1,6 +1,7 @@
-import checkSchema from './helpers/schema';
+import checkSchema, { checkUnit, isUnit } from './helpers/schema';
 import {
   error,
+  getToday,
   isDate,
   isNull,
   isObject,
@@ -12,6 +13,7 @@ import localeInfo from './locale.json';
 import ChevronLeft from './icons/chevron-left';
 import ChevronRight from './icons/chevron-right';
 import LocaleConverter from './helpers/locale-converter';
+import { effect, observable } from '@janghye0k/observable';
 
 /**
  * @typedef {object} LocaleFormats
@@ -34,6 +36,12 @@ import LocaleConverter from './helpers/locale-converter';
  */
 
 /**
+ * @template {keyof HTMLElementEventMap} K
+ * @template {HTMLElement} [T = HTMLElement]
+ * @typedef {import('./helpers/util').Evt<K, T>} Evt
+ */
+
+/**
  * @typedef {string | number | Date} DateLike
  */
 
@@ -49,8 +57,9 @@ import LocaleConverter from './helpers/locale-converter';
  * @property {string} format Get the formatted date according to the string of tokens passed in.
  * @property {boolean} setSelected If true, then clicking on the active cell will remove the selection from it
  * @property {boolean} shortcuts Enables keyboard navigation.
- * @property {string} position Position of the calendar relative to the text field.
+ * @property {string} position Position of the calendar relative to the input field.
  * @property {string} unit The initial unit of the calendar. (e.g. days | months | years)
+ * @property {string} minUnit The minimum unit of the calendar. The values are same as unit
  * @property {boolean} showOtherMonths If true, dates from other months will be displayed in days view.
  * @property {boolean} selectOtherMonths If true, it will be possible to select dates from other months.
  * @property {boolean} moveOtherMonths If true , then selecting dates from another month will be causing transition to this month.
@@ -79,9 +88,18 @@ import LocaleConverter from './helpers/locale-converter';
 const PREFIX = 'hye0k-datepicker';
 
 class DatePicker {
-  static containerId = `${PREFIX}-container`;
+  #datepicker;
 
-  #prevDate = '';
+  #input = document.createElement('input');
+
+  #converter = new LocaleConverter(defaultLocale);
+
+  #state = {
+    unit: observable({ currentUnit: 'days', unitDate: new Date() }),
+    date: /** @type {import('@janghye0k/observable').Observable<null | Date>} */ (
+      observable(null)
+    ),
+  };
 
   /**
    * @private
@@ -96,21 +114,62 @@ class DatePicker {
   options;
 
   /**
-   * @type {HTMLInputElement}
+   * ID of datepicker elements container
    */
-  $input = document.createElement('input');
+  static containerId = `${PREFIX}-container`;
 
   /**
-   * @type {HTMLDivElement}
+   * Element on which datepicker was initialized.
    */
-  $calendar;
-
-  converter = new LocaleConverter(defaultLocale);
+  get $input() {
+    return this.#input;
+  }
 
   /**
-   * @type {'days' | 'months' | 'years'}
+   * Datepicker element
+   * @returns {HTMLDivElement}
    */
-  currentUnit = 'days';
+  get $datepicker() {
+    return this.#datepicker;
+  }
+
+  /**
+   * LocaleConverter instance for convert date to datepicker's locale format
+   */
+  get converter() {
+    return this.#converter;
+  }
+
+  /**
+   * Current unit of calendar
+   */
+  get currentUnit() {
+    return /** @type {'days' | 'months' | 'years'} */ (
+      this.#state.unit().currentUnit
+    );
+  }
+
+  /**
+   * Current unit date
+   */
+  get unitDate() {
+    return new Date(this.#state.unit().unitDate);
+  }
+
+  /**
+   * Selected date
+   */
+  get selectedDate() {
+    const selectedDate = this.#state.date();
+    return isNull(selectedDate) ? null : new Date(selectedDate);
+  }
+
+  /**
+   * Datepicker calendar is visible
+   */
+  get visible() {
+    return !this.$hide.contains(this.$datepicker);
+  }
 
   /**
    * @param {Element | string} element
@@ -124,21 +183,37 @@ class DatePicker {
 
     // Check options schema & initialize datepicker
     this.options = checkSchema(options);
-    this.setCurrentUnit(this.options.unit);
 
     // Convert element
-    this.$input = this.#convertToInput(/** @type {HTMLElement} */ ($target));
-    this.#bindInputEvents();
+    this.#input = this.#convertToInput(/** @type {HTMLElement} */ ($target));
 
     // Create datepicker container
     this.#createContainer();
 
     // Create calendar
-    this.$calendar = this.#createCalendar();
-    this.refresh();
+    this.#datepicker = this.#createDatepicker();
 
     // Set locale
     this.#setLocale(this.options.locale);
+
+    // Subscribe listener
+    effect(
+      () => this.#render(),
+      [this.#state.unit],
+      (state) => {
+        return `${state.currentUnit}__${Number(state.unitDate)}`;
+      }
+    );
+
+    // Set data
+    this.#state.unit({
+      currentUnit: this.options.unit,
+      unitDate: new Date(this.options.selectedDate ?? Date.now()),
+    });
+    this.setSelectedDate(this.options.selectedDate);
+
+    // Render
+    this.refresh();
   }
 
   /**
@@ -147,7 +222,11 @@ class DatePicker {
    */
   async #setLocale(locale) {
     if (isObject(locale)) {
-      return { ...defaultLocale, ...locale };
+      this.#converter = new LocaleConverter(
+        { ...defaultLocale, ...locale },
+        this.options.format
+      );
+      return;
     }
 
     let localeKey = locale || '';
@@ -166,9 +245,7 @@ class DatePicker {
       'en';
 
     const { default: localeData } = await import(`./locale/${localeKey}.js`);
-    this.converter = new LocaleConverter(localeData, this.options.format);
-
-    this.refresh();
+    this.#converter = new LocaleConverter(localeData, this.options.format);
   }
 
   /**
@@ -179,26 +256,19 @@ class DatePicker {
   #convertToInput(element) {
     const { id, className } = element;
 
-    const $el = document.createElement('input');
-    $el.type = 'text';
-    $el.readOnly = this.options.readOnly;
+    const $input = document.createElement('input');
+    $input.type = 'text';
+    $input.readOnly = this.options.readOnly;
     Object.entries({ id, className }).forEach(([key, val]) =>
       // @ts-ignore
-      val?.length ? ($el[key] = val) : false
+      val?.length ? ($input[key] = val) : false
     );
-    $el.classList.add(PREFIX), $el.classList.add(`${PREFIX}-input`);
+    $input.classList.add(PREFIX), $input.classList.add(`${PREFIX}-input`);
 
-    $el.placeholder = this.converter.locale.placeholder;
-    $el.value = this.formatValue(this.options.selectedDate);
-    element.replaceWith($el);
+    $input.placeholder = this.converter.locale.placeholder;
+    $input.value = this.formatValue(this.options.selectedDate);
+    element.replaceWith($input);
 
-    return $el;
-  }
-
-  /**
-   * Bind default events
-   */
-  #bindInputEvents() {
     on(this.$input, 'keypress', (event) => {
       if (event.key === 'Enter' || event.key === 'Escape') {
         event.preventDefault();
@@ -221,6 +291,8 @@ class DatePicker {
           event.currentTarget.value
         ))
     );
+
+    return $input;
   }
 
   /**
@@ -239,18 +311,18 @@ class DatePicker {
   }
 
   /**
-   * Create calendar element
+   * Create datepicker element
    * @returns {HTMLDivElement}
    */
-  #createCalendar() {
+  #createDatepicker() {
     const { className } = this.options;
 
-    const $calendar = document.createElement('div');
-    $calendar.classList.add(PREFIX);
-    $calendar.classList.add(`${PREFIX}-calendar`);
-    if (className) $calendar.classList.add(className);
+    const $datepicker = document.createElement('div');
+    $datepicker.classList.add(PREFIX);
+    $datepicker.classList.add(`${PREFIX}-calendar`);
+    if (className) $datepicker.classList.add(className);
 
-    const calendarText = /*html*/ `
+    const datepickerText = /*html*/ `
       <div class="${PREFIX}-header">
         <div class="${PREFIX}-nav">
           <button class="${PREFIX}-nav-btn" data-action="prev">${ChevronLeft}</button>
@@ -267,17 +339,21 @@ class DatePicker {
         <div class="${PREFIX}-years"></div>
       </div>`;
     const parser = new DOMParser();
-    $calendar.replaceChildren(
-      ...parser.parseFromString(calendarText, 'text/html').body.children
+    $datepicker.replaceChildren(
+      ...parser.parseFromString(datepickerText, 'text/html').body.children
     );
 
-    // Set current unit
-    $calendar
-      .querySelector(`.${PREFIX}-${this.currentUnit}`)
-      ?.classList.add('show');
+    // Bind unit change event
+    /** @type {HTMLElement | null} */
+    const $navTitle = $datepicker.querySelector(`.${PREFIX}-nav-title`);
+    if ($navTitle)
+      on($navTitle, 'click', () => {
+        const nextUnit = this.currentUnit === 'days' ? 'months' : 'years';
+        this.setCurrentUnit(nextUnit);
+      });
 
     // Bind move event
-    $calendar.querySelectorAll(`.${PREFIX}-nav-btn`).forEach(($el, index) =>
+    $datepicker.querySelectorAll(`.${PREFIX}-nav-btn`).forEach(($el, index) =>
       on(/** @type {HTMLElement} */ ($el), 'click', (event) => {
         const { action } = event.currentTarget.dataset;
         const isPrev = isUndefined(action) ? !index : action === 'prev';
@@ -285,12 +361,12 @@ class DatePicker {
       })
     );
 
-    return $calendar;
+    return $datepicker;
   }
 
   #renderLocaleItems() {
     const {
-      locale: { weekdaysMin, weekStart = 0, monthsShort, placeholder },
+      locale: { weekdaysMin, placeholder },
       weekIndexes,
     } = this.converter;
 
@@ -298,34 +374,25 @@ class DatePicker {
     this.$input.placeholder = placeholder;
 
     // Render weekdays
-    const $weekdays = this.$calendar.querySelector(`.${PREFIX}-weekdays`);
+    const $weekdays = this.$datepicker.querySelector(`.${PREFIX}-weekdays`);
     if (!$weekdays) return;
 
     $weekdays.innerHTML = weekIndexes
-      .map((index) => {
-        const dayindex = (index + weekStart) % 7;
-        return `<span class="${PREFIX}-weekday" data-dayindex="${dayindex}">${weekdaysMin[index]}</span>`;
-      })
-      .join('');
-
-    // Render months
-    const $months = this.$calendar.querySelector(`.${PREFIX}-months`);
-    if (!$months) return;
-
-    $months.innerHTML = monthsShort
       .map(
-        (month, index) =>
-          `<span class="${PREFIX}-pickable-item" data-month="${index}">${month}</span>`
+        (index) =>
+          `<span class="${PREFIX}-weekday" data-dayindex="${index}">${weekdaysMin[index]}</span>`
       )
       .join('');
   }
 
   /**
-   * Rendering days & show days view
-   * @param {number} year
-   * @param {number} month
+   * Rendering days
+   * @param {Date} unitDate
    */
-  #renderDays(year, month) {
+  #renderDays(unitDate) {
+    const year = unitDate.getFullYear();
+    const month = unitDate.getMonth();
+
     const firstDate = new Date(year, month, 1);
     const lastDate = new Date(year, month + 1, 0);
     const firstDateDay = firstDate.getDay();
@@ -334,7 +401,7 @@ class DatePicker {
     const { weekStart = 0 } = this.converter.locale;
     const preDays =
       (firstDateDay + 7 - weekStart) % 7 || (lastDate.getDate() === 28 ? 7 : 0);
-    const postDays = (lastDateDay + 7 - weekStart) % 7;
+    const postDays = 6 - lastDateDay;
 
     /** @type {{d: number; m: number}[]} */
     const days = [];
@@ -350,59 +417,294 @@ class DatePicker {
     pushData(preDays, (month - 1 + 12) % 12, displayPrevStart);
     pushData(lastDate.getDate(), month), pushData(postDays, (month + 1) % 12);
 
-    const $target = this.$calendar.querySelector(`.${PREFIX}-days-content`);
+    if (!this.$datepicker) return;
+    const $target = this.$datepicker.querySelector(`.${PREFIX}-days-content`);
     if (!$target) return;
-    $target.innerHTML = days
-      .map(
-        ({ d, m }) =>
-          `<span class="${PREFIX}-pickable-item ${
-            m === month ? '' : 'other'
-          }" data-month="${m}" data-day="${d}">${d}</span>`
-      )
-      .join('');
-  }
 
-  refresh() {
-    // Update weekdays text
-    this.#renderLocaleItems();
-    this.#renderDays(2024, 0);
+    const selectedDate = this.selectedDate;
+    const selected = { month: -1, day: -1 };
+    if (!isNull(selectedDate)) {
+      selected.day = selectedDate.getDate();
+      selected.month = selectedDate.getMonth();
+    }
+    const todays = getToday();
+
+    // Render days
+    $target.innerHTML = '';
+    days.forEach(({ d, m }) => {
+      const $day = document.createElement('div');
+
+      $day.classList.add(`${PREFIX}-pickable-item`);
+      if (m !== month) $day.classList.add('other');
+      if (selected.day === d && selected.month === m) {
+        $day.classList.add('active');
+      }
+      if (todays[0] === year && todays[1] === m && todays[2] === d) {
+        $day.classList.add('today');
+      }
+      $day.dataset.year = `${year}`;
+      $day.dataset.monthindex = `${m}`;
+      $day.dataset.day = `${d}`;
+      $day.innerHTML = `${d}`;
+
+      $target.appendChild($day);
+
+      on($day, 'click', (event) => this.#onClickPickableItem(event));
+    });
   }
 
   /**
-   * Set current unit of calendar
-   * @param {string} unit
+   * Rendering months
+   * @param {Date} unitDate
    */
-  setCurrentUnit(unit) {
-    const unitList = ['days', 'months', 'years'];
-    this.currentUnit = unitList.includes(unit)
-      ? /** @type {'days' | 'months' | 'years'} */ (unit)
-      : 'days';
+  #renderMonths(unitDate) {
+    const year = unitDate.getFullYear();
+    const { monthsShort } = this.converter.locale;
 
-    if (!this.$calendar) return;
-    const $items = this.$calendar.querySelectorAll(`.${PREFIX}-body > *`);
-    const $target = this.$calendar.querySelector(
+    // Render months
+    if (!this.$datepicker) return;
+    const $months = this.$datepicker.querySelector(`.${PREFIX}-months`);
+    if (!$months) return;
+    $months.innerHTML = '';
+
+    const selectedDate = this.selectedDate;
+    const selectedMonthIndex = isNull(selectedDate)
+      ? -1
+      : selectedDate.getMonth();
+    const todays = getToday();
+
+    monthsShort.forEach((monthShort, index) => {
+      const $month = document.createElement('div');
+      $month.classList.add(`${PREFIX}-pickable-item`);
+      if (selectedMonthIndex === index) $month.classList.add('active');
+      if (todays[0] === year && todays[1] === index) {
+        $month.classList.add('today');
+      }
+      $month.dataset.monthindex = `${index}`;
+      $month.dataset.year = `${year}`;
+      $month.innerHTML = monthShort;
+
+      $months.appendChild($month);
+
+      on($month, 'click', (event) => this.#onClickPickableItem(event));
+    });
+  }
+
+  /**
+   * Rendering decade
+   * @param {Date} unitDate
+   */
+  #renderDecade(unitDate) {
+    if (!this.$datepicker) return;
+    const $years = this.$datepicker.querySelector(`.${PREFIX}-years`);
+    if (!$years) return;
+    $years.innerHTML = '';
+
+    const selectedDate = this.selectedDate;
+    const selectedYear = isNull(selectedDate)
+      ? Infinity
+      : selectedDate.getFullYear();
+    const todays = getToday();
+
+    const [start, end] = this.converter.decade(unitDate);
+    const years = Array.from({ length: end - start }, (_, i) => i + start);
+    years.forEach((year) => {
+      const $year = document.createElement('div');
+      $year.classList.add(`${PREFIX}-pickable-item`);
+      if (selectedYear === year) $year.classList.add('active');
+      if (todays[0] === year) $year.classList.add('today');
+      $year.dataset.year = `${year}`;
+      $year.innerHTML = `${year}`;
+
+      $years.appendChild($year);
+
+      on($year, 'click', (event) => this.#onClickPickableItem(event));
+    });
+  }
+
+  /**
+   * @param {string} currentUnit
+   * @param {Date} unitDate
+   * @returns
+   */
+  #renderNavTitle(currentUnit, unitDate) {
+    if (!this.$datepicker) return;
+    const $title = this.$datepicker.querySelector(`.${PREFIX}-nav-title`);
+    if (!$title) return;
+
+    let format =
+      this.options.titleFormat[
+        /** @type {'days' | 'months' | 'years'} */ (currentUnit)
+      ];
+    if (currentUnit === 'years') {
+      const [start, end] = this.converter.decade(unitDate);
+      format = format.replaceAll('YYYY1', start.toString());
+      format = format.replaceAll('YYYY2', end.toString());
+      format = format.replaceAll('YY1', start.toString().substring(2));
+      format = format.replaceAll('YY2', end.toString().substring(2));
+    }
+    $title.innerHTML = this.converter.format(unitDate, format);
+  }
+
+  #render() {
+    const { currentUnit, unitDate } = this.#state.unit();
+    this.#renderNavTitle(currentUnit, unitDate);
+
+    switch (currentUnit) {
+      case 'days':
+        this.#renderDays(unitDate);
+        break;
+      case 'months':
+        this.#renderMonths(unitDate);
+        break;
+      case 'years':
+        this.#renderDecade(unitDate);
+        break;
+    }
+
+    if (!this.$datepicker) return;
+    const $items = this.$datepicker.querySelectorAll(`.${PREFIX}-body > *`);
+    const $target = this.$datepicker.querySelector(
       `.${PREFIX}-${this.currentUnit}`
     );
-
     $items.forEach(($el) => $el.classList.remove('show'));
     if ($target) $target.classList.add('show');
   }
 
   /**
+   *
+   * @param {Evt<'click'>} event
+   */
+  #onClickPickableItem(event) {
+    let existValueCount = 0;
+    const datasetKeys = ['year', 'monthindex', 'day'];
+    const params = /** @type {[number, number, number]} */ (
+      datasetKeys.map((key) => {
+        const item = event.currentTarget.dataset[key];
+        if (isUndefined(item)) return 1;
+        existValueCount += 1;
+        return Number(item);
+      })
+    );
+
+    const nextUnit = existValueCount === 1 ? 'months' : 'days';
+
+    const prevDate = this.selectedDate;
+    const date = new Date(...params);
+    if (this.#onBeforeSelect(date, prevDate)) {
+      this.setSelectedDate(date);
+      this.#onSelect(date, prevDate);
+    }
+    this.setUnitDate(date);
+    if (this.currentUnit !== nextUnit) this.setCurrentUnit(nextUnit);
+  }
+
+  /**
+   * @param {Date} date
+   * @param {Date | null} [prevDate]
+   * @returns {boolean}
+   */
+  #onBeforeSelect(date, prevDate = null) {
+    return true;
+  }
+
+  /**
+   * @param {Date} date
+   * @param {Date | null} [prevDate]
+   */
+  #onSelect(date, prevDate = null) {}
+
+  /**
+   * Rerender datepicker element's calendar
+   */
+  refresh() {
+    // Update weekdays text
+    this.#renderLocaleItems();
+    this.#render();
+  }
+
+  /**
+   * Set current unit of datepicker
+   * @param {string} unit
+   */
+  setCurrentUnit(unit) {
+    const nextUnit = /** @type {'days' | 'months' | 'years'} */ (
+      isUnit(unit) ? unit : this.options.minUnit
+    );
+    if (!checkUnit(unit, this.options.minUnit)) return;
+    this.#state.unit({ ...this.#state.unit(), currentUnit: nextUnit });
+  }
+
+  /**
+   * Set unit date of datepicker
+   * @param {Date} date
+   */
+  setUnitDate(date) {
+    this.#state.unit({ ...this.#state.unit(), unitDate: date });
+  }
+
+  /**
+   * @param {*} date
+   */
+  setSelectedDate(date) {
+    this.#state.date(isDate(date) ? new Date(date) : null);
+  }
+
+  /**
    * Move to next month/years/decade
    */
-  next() {}
+  next() {
+    const date = this.unitDate;
+    let year = date.getFullYear();
+    let month = date.getMonth();
+    switch (this.currentUnit) {
+      case 'days': {
+        month++;
+        break;
+      }
+      case 'months': {
+        year++;
+        break;
+      }
+      case 'years': {
+        year = Math.floor(year / 10) * 10 + 10;
+        break;
+      }
+    }
+
+    this.setUnitDate(new Date(year, month));
+  }
 
   /**
    * Move to previous month/years/decade
    */
-  prev() {}
+  prev() {
+    const date = this.unitDate;
+    let year = date.getFullYear();
+    let month = date.getMonth();
+    switch (this.currentUnit) {
+      case 'days': {
+        month--;
+        break;
+      }
+      case 'months': {
+        year--;
+        break;
+      }
+      case 'years': {
+        year = Math.floor(year / 10) * 10 - 10;
+        break;
+      }
+    }
+
+    this.setUnitDate(new Date(year, month));
+  }
 
   /**
    * Hide calendar
    */
   hide() {
-    this.$hide.replaceChildren(this.$calendar);
+    this.$hide.replaceChildren(this.$datepicker);
   }
 
   /**
@@ -410,7 +712,7 @@ class DatePicker {
    */
   show() {
     const $conatiner = document.getElementById(DatePicker.containerId);
-    if ($conatiner) $conatiner.appendChild(this.$calendar);
+    if ($conatiner) $conatiner.appendChild(this.$datepicker);
   }
 
   /**
