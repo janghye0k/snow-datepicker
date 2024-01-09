@@ -1,6 +1,8 @@
 import DatePicker from '../src';
 
-let $el, datepicker;
+let $el;
+/** @type {DatePicker} */
+let datepicker;
 
 /**
  * @param {Element} element
@@ -19,14 +21,29 @@ afterEach(() => {
   datepicker = null;
 });
 
-describe('DEFAULT TESTS', () => {
+describe('COMMON TESTS', () => {
   it('initialized with default options', () => {
     create($el);
     expect(datepicker).toBeInstanceOf(DatePicker);
   });
 
-  it('calendar container should be created', () => {
+  it('datepicker container should be created', () => {
     create($el);
     expect(document.getElementById(DatePicker.containerId)).not.toBeNull();
+  });
+
+  it('datepicker should be added to the container when visible', async () => {
+    create($el);
+    expect(
+      document
+        .getElementById(DatePicker.containerId)
+        .contains(datepicker.$datepicker)
+    ).toBe(false);
+    datepicker.show();
+    expect(
+      document
+        .getElementById(DatePicker.containerId)
+        .contains(datepicker.$datepicker)
+    ).toBe(true);
   });
 });
