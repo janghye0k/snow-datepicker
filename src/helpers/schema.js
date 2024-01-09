@@ -5,6 +5,17 @@ import { isDate, error, isUndefined, isString, isObject } from './util';
  */
 
 /**
+ * @type {Record<string, number>}
+ */
+const UNIT_ORDER = {
+  days: 1,
+  months: 2,
+  years: 3,
+};
+
+const UNIT_LIST = ['days', 'months', 'years'];
+
+/**
  * @type {Options['titleFormat']}
  */
 const DEFAULT_TITLE_FORMAT = {
@@ -22,6 +33,7 @@ const DEFUALT_OPTIONS = {
   shortcuts: true,
   position: 'bottom left',
   unit: 'days',
+  minUnit: 'days',
   showOtherMonths: true,
   selectOtherMonths: true,
   moveOtherMonths: true,
@@ -55,6 +67,13 @@ const VALIDATE_MAP = {
     };
     return obj;
   }, /** @type {ValidateMap} */ ({})),
+  ...['unit', 'minUnit'].reduce((obj, item) => {
+    obj[item] = (val) => {
+      if (isUnit(val)) return;
+      inValid(item, UNIT_LIST.join(' | '));
+    };
+    return obj;
+  }, /** @type {ValidateMap} */ ({})),
   ...['minDate', 'maxDate', 'selectedDate'].reduce((obj, item) => {
     obj[item] = (val) => {
       if (isUndefined(val) || isDate(val)) return;
@@ -82,12 +101,29 @@ const VALIDATE_MAP = {
 };
 
 /**
+ * @param {*} unit
+ */
+export function isUnit(unit) {
+  return isString(unit) && UNIT_LIST.includes(unit);
+}
+
+/**
+ * @param {string} unit
+ * @param {string} [minUnit]
+ */
+export function checkUnit(unit, minUnit) {
+  if (!minUnit) return true;
+  return UNIT_ORDER[unit] >= UNIT_ORDER[minUnit];
+}
+
+/**
  * @param {Partial<Options>} options
  * @returns {import('../index').InternalOptions}
  */
 export default function checkSchema(options) {
   /** @type {any} */
   const opt = { ...DEFUALT_OPTIONS, ...options };
+  if (!checkUnit(opt.unit, opt.minUnit)) opt.unit = opt.minUnit;
 
   // Validate
   Object.entries(opt).forEach(([key, value]) => {

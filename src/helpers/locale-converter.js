@@ -109,6 +109,18 @@ class LocaleConverter {
       ? dayjs(value).format(this.dateFormat ?? this.locale.formats.date)
       : '';
   }
+
+  /**
+   *
+   * @param {Date} date
+   */
+  decade(date) {
+    const currentUnitYear = date.getFullYear();
+    const yearPerDecade = Math.floor(currentUnitYear / 10);
+    const start = yearPerDecade * 10;
+    const end = start + 9;
+    return [start, end];
+  }
 }
 
 export default LocaleConverter;

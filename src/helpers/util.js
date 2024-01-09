@@ -59,43 +59,41 @@ export const isFunction = (value) => typeof value === 'function';
 export const isObject = (value) => !isNull(value) && typeof value === 'object';
 
 /**
- * @template {HTMLElement} T
  * @template {keyof HTMLElementEventMap} K
+ * @template {HTMLElement} [T = HTMLElement]
  * @typedef {HTMLElementEventMap[K] & { currentTarget: T }} Evt
  */
 
 /**
- * @template {HTMLElement} T
  * @template {keyof HTMLElementEventMap} K
+ * @template {HTMLElement} [T = HTMLElement]
  * @callback EvtListener
  * @param {T} this
- * @param {Evt<T, K>} event
+ * @param {Evt<K, T>} event
  */
 
 /**
- * @template {HTMLElement} T
  * @template {keyof HTMLElementEventMap} K
+ * @template {HTMLElement} [T = HTMLElement]
  * @param {T} element
  * @param {K} eventType
- * @param {EvtListener<T, K>} listener
+ * @param {EvtListener<K, T>} listener
  * @param {AddEventListenerOptions} [options]
  */
 export const on = (element, eventType, listener, options) =>
-  element.addEventListener(
-    eventType,
-    /** @type {EventListenerOrEventListenerObject} */ (listener),
-    options
-  );
+  element.addEventListener(eventType, /** @type {any} */ (listener), options);
 
 /**
  * @template {HTMLElement} T
  * @template {keyof HTMLElementEventMap} K
  * @param {T} element
  * @param {K} eventType
- * @param {EvtListener<T, K>} listener
+ * @param {EvtListener<K, T>} listener
  */
 export const off = (element, eventType, listener) =>
-  element.removeEventListener(
-    eventType,
-    /** @type {EventListenerOrEventListenerObject} */ (listener)
-  );
+  element.removeEventListener(eventType, /** @type {any} */ (listener));
+
+export const getToday = () => {
+  const date = new Date();
+  return [date.getFullYear(), date.getMonth(), date.getDate()];
+};
