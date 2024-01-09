@@ -46,7 +46,7 @@ export default [
             {
               useBuiltIns: 'usage',
               corejs: '3.34.0',
-              targets: '> 0.3%, defaults, not IE < 11',
+              targets: '> 0.2%, defaults, not IE < 11',
             },
           ],
         ],

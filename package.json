@@ -83,6 +83,7 @@
     "vite": "^5.0.10"
   },
   "dependencies": {
+    "@janghye0k/observable": "^1.0.1",
     "dayjs": "^1.11.10"
   }
 }

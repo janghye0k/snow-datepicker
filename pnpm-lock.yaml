@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@janghye0k/observable':
+    specifier: ^1.0.1
+    version: 1.0.1
   dayjs:
     specifier: ^1.11.10
     version: 1.11.10
@@ -2812,6 +2815,13 @@ packages:
       }
     engines: { node: '>=8' }
     dev: true
+
+  /@janghye0k/observable@1.0.1:
+    resolution:
+      {
+        integrity: sha512-xADijsdvLOpWyBSc6Kncy3f5+k0GRoc4WWUbsRJBNeicO8zJsF1oCW/P4DNVxikMLvtuwe1GjIihKDZ3E1gtCw==,
+      }
+    dev: false
 
   /@jest/console@29.7.0:
     resolution:

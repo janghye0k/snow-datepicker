@@ -8,8 +8,7 @@ const config = {
   plugins: [
     postcssImport,
     postcssPresetEnv({
-      autoprefixer: { grid: 'autoplace' },
-      browsers: '> 0.3%, defaults, not IE < 11',
+      browsers: '> 0.2%, defaults, not IE < 11',
     }),
     autoprefixer,
     cssnano,
