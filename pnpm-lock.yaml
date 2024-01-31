@@ -11,6 +11,9 @@ dependencies:
   dayjs:
     specifier: ^1.11.10
     version: 1.11.10
+  doumi:
+    specifier: ^1.0.1
+    version: 1.0.1
 
 devDependencies:
   '@babel/cli':
@@ -5607,6 +5610,13 @@ packages:
       find-up: 3.0.0
       minimatch: 3.1.2
     dev: true
+
+  /doumi@1.0.1:
+    resolution:
+      {
+        integrity: sha512-+9g49rTETvzIpHaCL3AKYLDQF/qHNB0YEl/xgsArw+kVo9AuBl0R5DjN9NF8zbPyTAe2MAFHqDapRGQcjbdEyw==,
+      }
+    dev: false
 
   /eastasianwidth@0.2.0:
     resolution:

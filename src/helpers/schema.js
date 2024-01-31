@@ -1,4 +1,5 @@
-import { isDate, error, isUndefined, isString, isObject } from './util';
+import { error } from './util';
+import { isDateLike, isUndefined, isString, isObject } from 'doumi';
 
 /**
  * @typedef {import('../index').Options} Options
@@ -7,7 +8,7 @@ import { isDate, error, isUndefined, isString, isObject } from './util';
 /**
  * @type {Record<string, number>}
  */
-const UNIT_ORDER = {
+export const UNIT_ORDER = {
   days: 1,
   months: 2,
   years: 3,
@@ -76,7 +77,7 @@ const VALIDATE_MAP = {
   }, /** @type {ValidateMap} */ ({})),
   ...['minDate', 'maxDate', 'selectedDate'].reduce((obj, item) => {
     obj[item] = (val) => {
-      if (isUndefined(val) || isDate(val)) return;
+      if (isUndefined(val) || isDateLike(val)) return;
       inValid(item, ['string', 'number', 'Date'].join(' | '));
     };
     return obj;

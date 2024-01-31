@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
-import { isDate } from './util';
+import { isDateLike } from 'doumi';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 class LocaleConverter {
   /**
@@ -20,12 +22,16 @@ class LocaleConverter {
     this.dateFormat = dateFormat;
   }
 
+  /**
+   * Locale week order
+   */
   get weekIndexes() {
     const { weekStart = 0 } = this.locale;
     return Array.from({ length: 7 }, (_, i) => (i + weekStart) % 7);
   }
 
   /**
+   * Convert date to locale month string
    * @param {any} value
    * @param {boolean} [short]
    * @returns {string}
@@ -36,7 +42,7 @@ class LocaleConverter {
   }
 
   /**
-   *
+   * Convert date to locale weekday string
    * @param {any} value
    * @param {'short' | 'min'} [options]
    */
@@ -52,12 +58,13 @@ class LocaleConverter {
   }
 
   /**
+   * Format date
    * @param {*} value
    * @param {string} format
    * @returns {string}
    */
   format(value, format) {
-    if (!isDate(value)) return '';
+    if (!isDateLike(value)) return '';
     let arr = [{ text: format, convert: false }];
     /** @type {Array<[string, () => string]>} */
     const items = [
@@ -93,6 +100,7 @@ class LocaleConverter {
   }
 
   /**
+   * Convert date to locale time format
    * @param {*} value
    * @returns {string}
    */
@@ -101,17 +109,18 @@ class LocaleConverter {
   }
 
   /**
+   * Convert date to options date format (defaults locale date format)
    * @param {*} value
    * @returns {string}
    */
   date(value) {
-    return isDate(value)
+    return isDateLike(value)
       ? dayjs(value).format(this.dateFormat ?? this.locale.formats.date)
       : '';
   }
 
   /**
-   *
+   * Get decade array from date
    * @param {Date} date
    */
   decade(date) {
@@ -120,6 +129,18 @@ class LocaleConverter {
     const start = yearPerDecade * 10;
     const end = start + 9;
     return [start, end];
+  }
+
+  /**
+   * Check date is matched with options date format (or locale date format)
+   * @param {*} date
+   */
+  isValid(date) {
+    return dayjs(
+      date,
+      this.dateFormat ?? this.locale.formats.date,
+      true
+    ).isValid();
   }
 }
 

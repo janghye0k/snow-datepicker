@@ -4,8 +4,13 @@ import '../src/styles/index.css';
 
 const id = 'picker';
 const selector = `#${id}`;
-document.body.innerHTML = `<div id="${id}"></div>`;
+document.body.innerHTML = `
+    <div id="${id}"></div>
+    <button id="show">show</button>
+    <button id="hide">hide</button>
+`;
 
-const picker = new DatePicker(selector, {});
+const picker = new DatePicker(selector, { readOnly: false });
 
-picker.show();
+document.getElementById('show').onclick = () => picker.show();
+document.getElementById('hide').onclick = () => picker.hide();

@@ -84,6 +84,7 @@
   },
   "dependencies": {
     "@janghye0k/observable": "^1.0.1",
-    "dayjs": "^1.11.10"
+    "dayjs": "^1.11.10",
+    "doumi": "^1.0.1"
   }
 }

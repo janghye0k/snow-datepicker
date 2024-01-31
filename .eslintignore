@@ -5,5 +5,4 @@ coverage
 dist
 dist-ssr
 node_modules
-vite.config.ts
 /types/**/*

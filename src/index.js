@@ -1,13 +1,6 @@
 import checkSchema, { checkUnit, isUnit } from './helpers/schema';
-import {
-  error,
-  getToday,
-  isDate,
-  isNull,
-  isObject,
-  isUndefined,
-  on,
-} from './helpers/util';
+import { error, getToday } from './helpers/util';
+import { isDateLike, isNull, isUndefined, isObject, on } from 'doumi';
 import defaultLocale from './locale/en';
 import localeInfo from './locale.json';
 import ChevronLeft from './icons/chevron-left';
@@ -37,8 +30,8 @@ import { effect, observable } from '@janghye0k/observable';
 
 /**
  * @template {keyof HTMLElementEventMap} K
- * @template {HTMLElement} [T = HTMLElement]
- * @typedef {import('./helpers/util').Evt<K, T>} Evt
+ * @template {Element} [T = HTMLElement]
+ * @typedef {import('doumi').Evt<K, T>} Evt
  */
 
 /**
@@ -204,6 +197,15 @@ class DatePicker {
         return `${state.currentUnit}__${Number(state.unitDate)}`;
       }
     );
+    effect(
+      (state) => {
+        this.$input.value = isDateLike(this.converter.date(state))
+          ? this.converter.date(state)
+          : '';
+      },
+      [this.#state.date],
+      (s) => Number(s)
+    );
 
     // Set data
     this.#state.unit({
@@ -246,6 +248,7 @@ class DatePicker {
 
     const { default: localeData } = await import(`./locale/${localeKey}.js`);
     this.#converter = new LocaleConverter(localeData, this.options.format);
+    this.refresh();
   }
 
   /**
@@ -266,31 +269,43 @@ class DatePicker {
     $input.classList.add(PREFIX), $input.classList.add(`${PREFIX}-input`);
 
     $input.placeholder = this.converter.locale.placeholder;
-    $input.value = this.formatValue(this.options.selectedDate);
     element.replaceWith($input);
 
-    on(this.$input, 'keypress', (event) => {
-      if (event.key === 'Enter' || event.key === 'Escape') {
+    on($input, 'keydown', (event) => {
+      if (event.key === 'Escape') {
         event.preventDefault();
-        event.currentTarget.value = this.formatValue(event.currentTarget.value);
+        const selectedDate = this.selectedDate;
+        event.currentTarget.value = isNull(selectedDate)
+          ? ''
+          : this.converter.date(this.selectedDate);
         return false;
       }
 
-      const regex = /[\\/?.,;:|*~`!^\-_+@\\#$%&\\\\=0-9]/g;
-      if (!regex.test(event.currentTarget.value + event.key)) {
+      if (event.key === 'Enter') {
         event.preventDefault();
+        if (this.converter.isValid(event.currentTarget.value)) {
+          this.setSelectedDate(new Date(event.currentTarget.value));
+        } else {
+          const selectedDate = this.selectedDate;
+          event.currentTarget.value = isNull(selectedDate)
+            ? ''
+            : this.converter.date(this.selectedDate);
+        }
         return false;
       }
     });
 
-    on(
-      this.$input,
-      'blur',
-      (event) =>
-        (event.currentTarget.value = this.formatValue(
-          event.currentTarget.value
-        ))
-    );
+    on($input, 'blur', (event) => {
+      if (this.options.readOnly) return;
+      if (!this.converter.isValid(event.currentTarget.value)) {
+        const selectedDate = this.selectedDate;
+        event.currentTarget.value = isNull(selectedDate)
+          ? ''
+          : this.converter.date(this.selectedDate);
+        return;
+      }
+      this.setSelectedDate(new Date(event.currentTarget.value));
+    });
 
     return $input;
   }
@@ -647,7 +662,7 @@ class DatePicker {
    * @param {*} date
    */
   setSelectedDate(date) {
-    this.#state.date(isDate(date) ? new Date(date) : null);
+    this.#state.date(isDateLike(date) ? new Date(date) : null);
   }
 
   /**
@@ -713,15 +728,6 @@ class DatePicker {
   show() {
     const $conatiner = document.getElementById(DatePicker.containerId);
     if ($conatiner) $conatiner.appendChild(this.$datepicker);
-  }
-
-  /**
-   * Convert value to datepicker locale
-   * @param {any} value
-   * @returns {string}
-   */
-  formatValue(value) {
-    return this.converter.date(value);
   }
 }
 
