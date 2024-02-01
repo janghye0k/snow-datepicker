@@ -1,6 +1,17 @@
-import checkSchema, { checkUnit, isUnit } from './helpers/schema';
-import { error, getToday } from './helpers/util';
-import { isDateLike, isNull, isUndefined, isObject, on } from 'doumi';
+import checkSchema, { UNIT_ORDER, checkUnit, isUnit } from './helpers/schema';
+import { error, parseDate } from './helpers/util';
+import {
+  isDateLike,
+  isNullish,
+  isNull,
+  isUndefined,
+  isObject,
+  on,
+  create$,
+  find$,
+  findAll$,
+  entries,
+} from 'doumi';
 import defaultLocale from './locale/en';
 import localeInfo from './locale.json';
 import ChevronLeft from './icons/chevron-left';
@@ -47,21 +58,21 @@ import { effect, observable } from '@janghye0k/observable';
 
 /**
  * @typedef {object} InternalOptions
- * @property {string} format Get the formatted date according to the string of tokens passed in.
- * @property {boolean} setSelected If true, then clicking on the active cell will remove the selection from it
- * @property {boolean} shortcuts Enables keyboard navigation.
- * @property {string} position Position of the calendar relative to the input field.
- * @property {string} unit The initial unit of the calendar. (e.g. days | months | years)
- * @property {string} minUnit The minimum unit of the calendar. The values are same as unit
- * @property {boolean} showOtherMonths If true, dates from other months will be displayed in days view.
- * @property {boolean} selectOtherMonths If true, it will be possible to select dates from other months.
- * @property {boolean} moveOtherMonths If true , then selecting dates from another month will be causing transition to this month.
- * @property {boolean} navigationLoop Whether to enable navigation when the maximum/minimum date is exceeded
- * @property {boolean} autoClose If true, the calendar will be hidden after selecting the date
- * @property {TitleFormat} titleFormat
+ * @property {string} format Get the formatted date according to the string of tokens passed in. By default, `YYYY-MM-DD`
+ * @property {boolean} toggleSelected If `true`, then clicking on the active cell will remove the selection from it. By default, `true`
+ * @property {boolean} shortcuts Enables keyboard navigation. By default, `true`
+ * @property {string} position Position of the calendar relative to the input field. By default, `bottom left`
+ * @property {string} unit The initial unit of the calendar. (e.g. days | months | years) By default, `days`
+ * @property {string} minUnit The minimum unit of the calendar. The values are same as unit. By default, `days`
+ * @property {boolean} showOtherMonths If `true`, dates from other months will be displayed in days view. By default, `true`
+ * @property {boolean} selectOtherMonths If `true`, it will be possible to select dates from other months. By default, `true`
+ * @property {boolean} moveOtherMonths If `true` , then selecting dates from another month will be causing transition to this month. By default, `true`
+ * @property {boolean} navigationLoop Whether to enable navigation when the maximum/minimum date is exceeded. By default, `true`
+ * @property {boolean} autoClose If `true`, the calendar will be hidden after selecting the date. By default, `true`
+ * @property {TitleFormat} titleFormat Title templates in the calendar navigation.
  * @property {string | string[]} [buttons]
- * @property {boolean} readOnly If false, it will be able to edit dates at input field
- * @property {string} [className] Add custom classes
+ * @property {boolean} readOnly If `false`, it will be able to edit dates at input field.
+ * @property {string} [className] Add custom classes.
  * @property {string | Locale} [locale] Language of the calendar.
  * @property {DateLike} [minDate] The minimum date of calendar
  * @property {DateLike} [maxDate] The maximum date of calendar
@@ -83,13 +94,13 @@ const PREFIX = 'hye0k-datepicker';
 class DatePicker {
   #datepicker;
 
-  #input = document.createElement('input');
+  #input = create$('input');
 
   #converter = new LocaleConverter(defaultLocale);
 
   #state = {
     unit: observable({ currentUnit: 'days', unitDate: new Date() }),
-    date: /** @type {import('@janghye0k/observable').Observable<null | Date>} */ (
+    date: /** @type {import('@janghye0k/observable').Observable<null | undefined | Date>} */ (
       observable(null)
     ),
   };
@@ -98,7 +109,7 @@ class DatePicker {
    * @private
    * @type {HTMLElement}
    */
-  $hide = document.createElement('body');
+  $hide = create$('body');
 
   /**
    * @private
@@ -154,7 +165,7 @@ class DatePicker {
    */
   get selectedDate() {
     const selectedDate = this.#state.date();
-    return isNull(selectedDate) ? null : new Date(selectedDate);
+    return isNullish(selectedDate) ? null : new Date(selectedDate);
   }
 
   /**
@@ -169,8 +180,7 @@ class DatePicker {
    * @param {Partial<Options>} [options]
    */
   constructor(element, options = {}) {
-    const $target =
-      typeof element === 'string' ? document.querySelector(element) : element;
+    const $target = typeof element === 'string' ? find$(element) : element;
     if (!($target instanceof Element))
       throw error('constructor element shoul be CSS selector or Element');
 
@@ -190,32 +200,69 @@ class DatePicker {
     this.#setLocale(this.options.locale);
 
     // Subscribe listener
+    this.#bindLisenter();
+
+    // Set data
+    const selectedDate = this.options.selectedDate;
+
+    this.#state.unit({
+      currentUnit: this.options.unit,
+      unitDate: new Date(selectedDate ?? Date.now()),
+    });
+    this.setSelectedDate(selectedDate);
+
+    // Render
+    this.refresh();
+  }
+
+  #bindLisenter() {
     effect(
       () => this.#render(),
       [this.#state.unit],
       (state) => {
-        return `${state.currentUnit}__${Number(state.unitDate)}`;
+        let args = parseDate(state.unitDate).slice(
+          0,
+          3 - UNIT_ORDER[state.currentUnit]
+        );
+        args = args.length ? args : this.converter.decade(state.unitDate);
+        return `${state.currentUnit}__${args.join('__')}`;
       }
     );
     effect(
       (state) => {
-        this.$input.value = isDateLike(this.converter.date(state))
-          ? this.converter.date(state)
-          : '';
+        this.$input.value = this.converter.date(state); // set input date
+
+        // Unselect all items
+        const $items = findAll$(`.${PREFIX}-pickable-item`, this.$datepicker);
+        $items.forEach(($item) => $item.classList.remove('active'));
+
+        // Find Select target
+        if (!state) return;
+
+        // Make find target's dataset
+        const currentUnit = this.currentUnit;
+        const order = UNIT_ORDER[currentUnit];
+        const [year, monthindex, day] = parseDate(state);
+        /** @type {Record<string, any>} */
+        const dataset = { year, monthindex, day };
+        if (order > 1) delete dataset.day;
+        if (order > 2) delete dataset.monthindex;
+
+        // Find target and select it
+        const $target = find$(
+          `.${PREFIX}-${this.currentUnit} .${PREFIX}-pickable-item${entries(
+            dataset
+          ).reduce(
+            (acc, [value, key]) => acc + `[data-${key}="${value}"]`,
+            ''
+          )}`,
+          this.$datepicker
+        );
+        if ($target) $target.classList.add('active');
       },
       [this.#state.date],
-      (s) => Number(s)
+      (state) => Number(state)
     );
-
-    // Set data
-    this.#state.unit({
-      currentUnit: this.options.unit,
-      unitDate: new Date(this.options.selectedDate ?? Date.now()),
-    });
-    this.setSelectedDate(this.options.selectedDate);
-
-    // Render
-    this.refresh();
   }
 
   /**
@@ -259,38 +306,38 @@ class DatePicker {
   #convertToInput(element) {
     const { id, className } = element;
 
-    const $input = document.createElement('input');
-    $input.type = 'text';
-    $input.readOnly = this.options.readOnly;
-    Object.entries({ id, className }).forEach(([key, val]) =>
-      // @ts-ignore
-      val?.length ? ($input[key] = val) : false
-    );
-    $input.classList.add(PREFIX), $input.classList.add(`${PREFIX}-input`);
-
-    $input.placeholder = this.converter.locale.placeholder;
+    const $input = create$('input', {
+      id,
+      className,
+      classList: [PREFIX, `${PREFIX}-input`],
+      type: 'text',
+      readOnly: this.options.readOnly,
+      placeholder: this.converter.locale.placeholder,
+    });
     element.replaceWith($input);
+
+    /** @param {any} event */
+    const setDateToCurrent = (event) => {
+      const selectedDate = this.selectedDate;
+      event.currentTarget.value = isNull(selectedDate)
+        ? ''
+        : this.converter.date(selectedDate);
+    };
 
     on($input, 'keydown', (event) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        const selectedDate = this.selectedDate;
-        event.currentTarget.value = isNull(selectedDate)
-          ? ''
-          : this.converter.date(this.selectedDate);
+        setDateToCurrent(event);
         return false;
       }
 
       if (event.key === 'Enter') {
         event.preventDefault();
         if (this.converter.isValid(event.currentTarget.value)) {
-          this.setSelectedDate(new Date(event.currentTarget.value));
-        } else {
-          const selectedDate = this.selectedDate;
-          event.currentTarget.value = isNull(selectedDate)
-            ? ''
-            : this.converter.date(this.selectedDate);
-        }
+          const inputDate = new Date(event.currentTarget.value);
+          this.setSelectedDate(inputDate);
+          this.setUnitDate(inputDate);
+        } else setDateToCurrent(event);
         return false;
       }
     });
@@ -298,11 +345,7 @@ class DatePicker {
     on($input, 'blur', (event) => {
       if (this.options.readOnly) return;
       if (!this.converter.isValid(event.currentTarget.value)) {
-        const selectedDate = this.selectedDate;
-        event.currentTarget.value = isNull(selectedDate)
-          ? ''
-          : this.converter.date(this.selectedDate);
-        return;
+        return setDateToCurrent(event);
       }
       this.setSelectedDate(new Date(event.currentTarget.value));
     });
@@ -315,13 +358,15 @@ class DatePicker {
    */
   #createContainer() {
     if (!isNull(document.getElementById(DatePicker.containerId))) return;
-    const $container = document.createElement('div');
-    ($container.id = DatePicker.containerId),
-      ($container.className = `${PREFIX} ${DatePicker.containerId}`);
-    $container.role = 'presentation';
-    $container.innerHTML = /*html*/ `
+    const $container = create$('div', {
+      id: DatePicker.containerId,
+      classList: [PREFIX, DatePicker.containerId],
+      role: 'presentation',
+      innerHTML: /*html*/ `
       <div role="presentation" class="${PREFIX}-backdrop"></div>
-    `;
+    `,
+    });
+
     document.body.appendChild($container);
   }
 
@@ -332,10 +377,9 @@ class DatePicker {
   #createDatepicker() {
     const { className } = this.options;
 
-    const $datepicker = document.createElement('div');
-    $datepicker.classList.add(PREFIX);
-    $datepicker.classList.add(`${PREFIX}-calendar`);
-    if (className) $datepicker.classList.add(className);
+    const classList = [PREFIX, `${PREFIX}-calendar`];
+    if (className) classList.push(className);
+    const $datepicker = create$('div', { classList });
 
     const datepickerText = /*html*/ `
       <div class="${PREFIX}-header">
@@ -360,7 +404,7 @@ class DatePicker {
 
     // Bind unit change event
     /** @type {HTMLElement | null} */
-    const $navTitle = $datepicker.querySelector(`.${PREFIX}-nav-title`);
+    const $navTitle = find$(`.${PREFIX}-nav-title`, $datepicker);
     if ($navTitle)
       on($navTitle, 'click', () => {
         const nextUnit = this.currentUnit === 'days' ? 'months' : 'years';
@@ -368,7 +412,7 @@ class DatePicker {
       });
 
     // Bind move event
-    $datepicker.querySelectorAll(`.${PREFIX}-nav-btn`).forEach(($el, index) =>
+    findAll$(`.${PREFIX}-nav-btn`, $datepicker).forEach(($el, index) =>
       on(/** @type {HTMLElement} */ ($el), 'click', (event) => {
         const { action } = event.currentTarget.dataset;
         const isPrev = isUndefined(action) ? !index : action === 'prev';
@@ -389,7 +433,7 @@ class DatePicker {
     this.$input.placeholder = placeholder;
 
     // Render weekdays
-    const $weekdays = this.$datepicker.querySelector(`.${PREFIX}-weekdays`);
+    const $weekdays = find$(`.${PREFIX}-weekdays`, this.$datepicker);
     if (!$weekdays) return;
 
     $weekdays.innerHTML = weekIndexes
@@ -405,8 +449,7 @@ class DatePicker {
    * @param {Date} unitDate
    */
   #renderDays(unitDate) {
-    const year = unitDate.getFullYear();
-    const month = unitDate.getMonth();
+    const [year, month] = parseDate(unitDate);
 
     const firstDate = new Date(year, month, 1);
     const lastDate = new Date(year, month + 1, 0);
@@ -433,7 +476,7 @@ class DatePicker {
     pushData(lastDate.getDate(), month), pushData(postDays, (month + 1) % 12);
 
     if (!this.$datepicker) return;
-    const $target = this.$datepicker.querySelector(`.${PREFIX}-days-content`);
+    const $target = find$(`.${PREFIX}-days-content`, this.$datepicker);
     if (!$target) return;
 
     const selectedDate = this.selectedDate;
@@ -442,29 +485,32 @@ class DatePicker {
       selected.day = selectedDate.getDate();
       selected.month = selectedDate.getMonth();
     }
-    const todays = getToday();
+    const todays = parseDate();
 
     // Render days
     $target.innerHTML = '';
     days.forEach(({ d, m }) => {
-      const $day = document.createElement('div');
+      const isOtherMonth = m !== month;
+      const isPickable = !isOtherMonth || this.options.selectOtherMonths;
+      const isHidden = isOtherMonth && !this.options.showOtherMonths;
 
-      $day.classList.add(`${PREFIX}-pickable-item`);
-      if (m !== month) $day.classList.add('other');
-      if (selected.day === d && selected.month === m) {
-        $day.classList.add('active');
-      }
-      if (todays[0] === year && todays[1] === m && todays[2] === d) {
-        $day.classList.add('today');
-      }
-      $day.dataset.year = `${year}`;
-      $day.dataset.monthindex = `${m}`;
-      $day.dataset.day = `${d}`;
-      $day.innerHTML = `${d}`;
+      const classList = [`${PREFIX}-pickable-item`];
+      if (isOtherMonth) classList.push('other');
+      if (selected.day === d && selected.month === m) classList.push('active');
+      if (todays[0] === year && todays[1] === m && todays[2] === d)
+        classList.push('today');
+
+      const $day = create$('div', {
+        classList,
+        dataset: { year, monthindex: m, day: d },
+        innerHTML: `${d}`,
+      });
+      if (isHidden) $day.setAttribute('hidden', '');
 
       $target.appendChild($day);
 
-      on($day, 'click', (event) => this.#onClickPickableItem(event));
+      if (isPickable)
+        on($day, 'click', (event) => this.#onClickPickableItem(event));
     });
   }
 
@@ -478,7 +524,7 @@ class DatePicker {
 
     // Render months
     if (!this.$datepicker) return;
-    const $months = this.$datepicker.querySelector(`.${PREFIX}-months`);
+    const $months = find$(`.${PREFIX}-months`, this.$datepicker);
     if (!$months) return;
     $months.innerHTML = '';
 
@@ -486,19 +532,18 @@ class DatePicker {
     const selectedMonthIndex = isNull(selectedDate)
       ? -1
       : selectedDate.getMonth();
-    const todays = getToday();
+    const todays = parseDate();
 
     monthsShort.forEach((monthShort, index) => {
-      const $month = document.createElement('div');
-      $month.classList.add(`${PREFIX}-pickable-item`);
-      if (selectedMonthIndex === index) $month.classList.add('active');
-      if (todays[0] === year && todays[1] === index) {
-        $month.classList.add('today');
-      }
-      $month.dataset.monthindex = `${index}`;
-      $month.dataset.year = `${year}`;
-      $month.innerHTML = monthShort;
+      const classList = [`${PREFIX}-pickable-item`];
+      if (selectedMonthIndex === index) classList.push('active');
+      if (todays[0] === year && todays[1] === index) classList.push('today');
 
+      const $month = create$('div', {
+        classList,
+        dataset: { monthindex: index, year },
+        innerHTML: monthShort,
+      });
       $months.appendChild($month);
 
       on($month, 'click', (event) => this.#onClickPickableItem(event));
@@ -511,7 +556,7 @@ class DatePicker {
    */
   #renderDecade(unitDate) {
     if (!this.$datepicker) return;
-    const $years = this.$datepicker.querySelector(`.${PREFIX}-years`);
+    const $years = find$(`.${PREFIX}-years`, this.$datepicker);
     if (!$years) return;
     $years.innerHTML = '';
 
@@ -519,18 +564,20 @@ class DatePicker {
     const selectedYear = isNull(selectedDate)
       ? Infinity
       : selectedDate.getFullYear();
-    const todays = getToday();
+    const todays = parseDate();
 
     const [start, end] = this.converter.decade(unitDate);
     const years = Array.from({ length: end - start }, (_, i) => i + start);
     years.forEach((year) => {
-      const $year = document.createElement('div');
-      $year.classList.add(`${PREFIX}-pickable-item`);
-      if (selectedYear === year) $year.classList.add('active');
-      if (todays[0] === year) $year.classList.add('today');
-      $year.dataset.year = `${year}`;
-      $year.innerHTML = `${year}`;
+      const classList = [`${PREFIX}-pickable-item`];
+      if (selectedYear === year) classList.push('active');
+      if (todays[0] === year) classList.push('today');
 
+      const $year = create$('div', {
+        classList,
+        dataset: { year },
+        innerHTML: `${year}`,
+      });
       $years.appendChild($year);
 
       on($year, 'click', (event) => this.#onClickPickableItem(event));
@@ -544,7 +591,7 @@ class DatePicker {
    */
   #renderNavTitle(currentUnit, unitDate) {
     if (!this.$datepicker) return;
-    const $title = this.$datepicker.querySelector(`.${PREFIX}-nav-title`);
+    const $title = find$(`.${PREFIX}-nav-title`, this.$datepicker);
     if (!$title) return;
 
     let format =
@@ -578,10 +625,8 @@ class DatePicker {
     }
 
     if (!this.$datepicker) return;
-    const $items = this.$datepicker.querySelectorAll(`.${PREFIX}-body > *`);
-    const $target = this.$datepicker.querySelector(
-      `.${PREFIX}-${this.currentUnit}`
-    );
+    const $items = findAll$(`.${PREFIX}-body > *`, this.$datepicker);
+    const $target = find$(`.${PREFIX}-${this.currentUnit}`, this.$datepicker);
     $items.forEach(($el) => $el.classList.remove('show'));
     if ($target) $target.classList.add('show');
   }
@@ -591,6 +636,8 @@ class DatePicker {
    * @param {Evt<'click'>} event
    */
   #onClickPickableItem(event) {
+    const currentUnit = this.currentUnit;
+
     let existValueCount = 0;
     const datasetKeys = ['year', 'monthindex', 'day'];
     const params = /** @type {[number, number, number]} */ (
@@ -603,37 +650,43 @@ class DatePicker {
     );
 
     const nextUnit = existValueCount === 1 ? 'months' : 'days';
+    if (currentUnit !== nextUnit) this.setCurrentUnit(nextUnit);
 
     const prevDate = this.selectedDate;
-    const date = new Date(...params);
-    if (this.#onBeforeSelect(date, prevDate)) {
+    const isUnSelect =
+      event.currentTarget.classList.contains('active') &&
+      this.options.toggleSelected;
+    const date = isUnSelect ? undefined : new Date(...params, 12);
+    if (this._onBeforeSelect(date, prevDate)) {
       this.setSelectedDate(date);
-      this.#onSelect(date, prevDate);
+      this._onSelect(date, prevDate);
+      if (currentUnit !== 'days' || (this.options.moveOtherMonths && date)) {
+        this.setUnitDate(date);
+      }
     }
-    this.setUnitDate(date);
-    if (this.currentUnit !== nextUnit) this.setCurrentUnit(nextUnit);
   }
 
   /**
-   * @param {Date} date
-   * @param {Date | null} [prevDate]
+   * @param {Date | undefined | null} date
+   * @param {Date | undefined | null} [prevDate]
    * @returns {boolean}
    */
-  #onBeforeSelect(date, prevDate = null) {
+  _onBeforeSelect(date, prevDate = undefined) {
     return true;
   }
 
   /**
-   * @param {Date} date
-   * @param {Date | null} [prevDate]
+   * @param {Date | undefined | null} date
+   * @param {Date | undefined | null} [prevDate]
    */
-  #onSelect(date, prevDate = null) {}
+  _onSelect(date, prevDate = undefined) {}
 
   /**
    * Rerender datepicker element's calendar
    */
   refresh() {
     // Update weekdays text
+    this.$input.value = this.converter.date(this.selectedDate);
     this.#renderLocaleItems();
     this.#render();
   }
@@ -652,10 +705,12 @@ class DatePicker {
 
   /**
    * Set unit date of datepicker
-   * @param {Date} date
+   * @param {*} date
    */
   setUnitDate(date) {
-    this.#state.unit({ ...this.#state.unit(), unitDate: date });
+    if (!isDateLike(date))
+      return console.log(`This unitDate is invalid date - ${date}`);
+    this.#state.unit({ ...this.#state.unit(), unitDate: new Date(date) });
   }
 
   /**
@@ -669,9 +724,7 @@ class DatePicker {
    * Move to next month/years/decade
    */
   next() {
-    const date = this.unitDate;
-    let year = date.getFullYear();
-    let month = date.getMonth();
+    let [year, month] = parseDate(this.unitDate);
     switch (this.currentUnit) {
       case 'days': {
         month++;
@@ -694,9 +747,7 @@ class DatePicker {
    * Move to previous month/years/decade
    */
   prev() {
-    const date = this.unitDate;
-    let year = date.getFullYear();
-    let month = date.getMonth();
+    let [year, month] = parseDate(this.unitDate);
     switch (this.currentUnit) {
       case 'days': {
         month--;
@@ -711,7 +762,6 @@ class DatePicker {
         break;
       }
     }
-
     this.setUnitDate(new Date(year, month));
   }
 

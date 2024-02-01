@@ -53,7 +53,7 @@ describe('OPTIONS TEST', () => {
   describe('options.selectedDate', () => {
     it('should select date on init', async () => {
       const date = new Date('2024-01-01');
-      create($el, { selectedDate: date });
+      create($el, { selectedDate: date, locale: 'ko' });
 
       await sleep(50);
 
@@ -82,21 +82,115 @@ describe('OPTIONS TEST', () => {
     );
   });
 
+  describe('options.showOtherMonths', () => {
+    const date = new Date('2024-01-01');
+
+    it(`other months's day should be visible when pass options true`, () => {
+      create($el, { selectedDate: date, showOtherMonths: true });
+      datepicker.show();
+
+      const $febFirst = datepicker.$datepicker.querySelector(
+        '[data-monthindex="1"][data-day="1"]'
+      );
+      expect($febFirst).toBeVisible();
+    });
+
+    it(`other months's day should be hidden when pass options false`, () => {
+      create($el, { selectedDate: date, showOtherMonths: false });
+      datepicker.show();
+
+      const $febFirst = datepicker.$datepicker.querySelector(
+        '[data-monthindex="1"][data-day="1"]'
+      );
+      expect($febFirst).not.toBeVisible();
+    });
+  });
+
+  describe('options.selectOtherMonths', () => {
+    const date = new Date('2024-01-01');
+    it(`should be active when click other month's day`, () => {
+      create($el, { selectedDate: date, selectOtherMonths: true });
+      datepicker.show();
+      const $febFirst = datepicker.$datepicker.querySelector(
+        '[data-monthindex="1"][data-day="1"]'
+      );
+      $febFirst.click();
+      const selectedDate = datepicker.selectedDate;
+      const arr = [
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+      ];
+      expect(JSON.stringify(arr)).toBe(JSON.stringify([2024, 1, 1]));
+    });
+
+    it(`should not be active when click other month's day`, () => {
+      create($el, { selectedDate: date, selectOtherMonths: false });
+      datepicker.show();
+      const $febFirst = datepicker.$datepicker.querySelector(
+        '[data-monthindex="1"][data-day="1"]'
+      );
+      $febFirst.click();
+      const selectedDate = datepicker.selectedDate;
+      const arr = [
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+      ];
+      expect(JSON.stringify(arr)).not.toBe(JSON.stringify([2024, 1, 1]));
+    });
+  });
+
+  describe('options.moveOtherMonths', () => {
+    const date = new Date('2024-01-01');
+    it(`should be show other month when click other months's day`, () => {
+      create($el, { selectedDate: date, locale: 'en', moveOtherMonths: true });
+      datepicker.show();
+      const $febFirst = datepicker.$datepicker.querySelector(
+        '[data-monthindex="1"][data-day="1"]'
+      );
+      $febFirst.click();
+
+      expect(datepicker.unitDate.getMonth()).toBe(1);
+    });
+
+    it(`should not be show other month when click other months's day`, () => {
+      create($el, { selectedDate: date, locale: 'en', moveOtherMonths: false });
+      datepicker.show();
+      const $febFirst = datepicker.$datepicker.querySelector(
+        '[data-monthindex="1"][data-day="1"]'
+      );
+      $febFirst.click();
+
+      expect(datepicker.unitDate.getMonth()).toBe(0);
+    });
+  });
+
+  describe('options.toggleSelected', () => {
+    it('should be unselected when click selected item', () => {
+      create($el, {
+        selectedDate: new Date('2024-01-01'),
+        toggleSelected: true,
+      });
+      datepicker.show();
+      const $day = datepicker.$datepicker.querySelector(
+        '[data-monthindex="0"][data-day="1"]'
+      );
+      expect($day).toHaveClass('active');
+      $day.click();
+      expect($day).not.toHaveClass('active');
+    });
+  });
+
   describe('options.minDate', () => {});
 
   describe('options.maxDate', () => {});
 
   describe('options.format', () => {});
 
-  describe('options.setSelected', () => {});
-
   describe('options.shortcuts', () => {});
 
   describe('options.position', () => {});
-
-  describe('options.showOtherMonths', () => {});
-
-  describe('options.selectOtherMonths', () => {});
 
   describe('options.navigationLoop', () => {});
 

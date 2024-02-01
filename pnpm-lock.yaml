@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@floating-ui/dom':
+    specifier: ^1.6.1
+    version: 1.6.1
   '@janghye0k/observable':
     specifier: ^1.0.1
     version: 1.0.1
@@ -12,8 +15,8 @@ dependencies:
     specifier: ^1.11.10
     version: 1.11.10
   doumi:
-    specifier: ^1.0.1
-    version: 1.0.1
+    specifier: ^1.1.1
+    version: 1.1.1
 
 devDependencies:
   '@babel/cli':
@@ -2744,6 +2747,32 @@ packages:
       }
     engines: { node: ^12.22.0 || ^14.17.0 || >=16.0.0 }
     dev: true
+
+  /@floating-ui/core@1.6.0:
+    resolution:
+      {
+        integrity: sha512-PcF++MykgmTj3CIyOQbKA/hDzOAiqI3mhuoN44WRCopIs1sgoDoU4oty4Jtqaj/y3oDU6fnVSm4QG0a3t5i0+g==,
+      }
+    dependencies:
+      '@floating-ui/utils': 0.2.1
+    dev: false
+
+  /@floating-ui/dom@1.6.1:
+    resolution:
+      {
+        integrity: sha512-iA8qE43/H5iGozC3W0YSnVSW42Vh522yyM1gj+BqRwVsTNOyr231PsXDaV04yT39PsO0QL2QpbI/M0ZaLUQgRQ==,
+      }
+    dependencies:
+      '@floating-ui/core': 1.6.0
+      '@floating-ui/utils': 0.2.1
+    dev: false
+
+  /@floating-ui/utils@0.2.1:
+    resolution:
+      {
+        integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==,
+      }
+    dev: false
 
   /@humanwhocodes/config-array@0.11.13:
     resolution:
@@ -5611,10 +5640,10 @@ packages:
       minimatch: 3.1.2
     dev: true
 
-  /doumi@1.0.1:
+  /doumi@1.1.1:
     resolution:
       {
-        integrity: sha512-+9g49rTETvzIpHaCL3AKYLDQF/qHNB0YEl/xgsArw+kVo9AuBl0R5DjN9NF8zbPyTAe2MAFHqDapRGQcjbdEyw==,
+        integrity: sha512-liBJDO1LztUnWj4RZJYWlG12+q00OkUaqHrvRGBisI+7dsbpTVxLiNjWKEqWN2YzdI177gxmmuyiF1zmwPEOoA==,
       }
     dev: false
 

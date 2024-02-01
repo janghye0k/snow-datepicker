@@ -10,7 +10,10 @@ document.body.innerHTML = `
     <button id="hide">hide</button>
 `;
 
-const picker = new DatePicker(selector, { readOnly: false });
+const picker = new DatePicker(selector, {
+  selectedDate: new Date('2024-01-01'),
+  readOnly: true,
+});
 
 document.getElementById('show').onclick = () => picker.show();
 document.getElementById('hide').onclick = () => picker.hide();

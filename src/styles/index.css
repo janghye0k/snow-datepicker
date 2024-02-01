@@ -201,6 +201,10 @@
   );
 }
 
+.hye0k-datepicker-pickable-item[hidden] {
+  visibility: hidden;
+}
+
 .hye0k-datepicker-days-content {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

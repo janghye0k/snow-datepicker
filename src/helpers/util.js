@@ -1,3 +1,5 @@
+import { isDate } from 'doumi';
+
 /**
  * @param {string} title
  * @param {string} [body]
@@ -8,7 +10,12 @@ export function error(title, body) {
   throw new Error(messages.join('\n'));
 }
 
-export const getToday = () => {
-  const date = new Date();
+/**
+ *
+ * @param {*} date
+ * @returns {[number, number, number]}
+ */
+export const parseDate = (date = new Date()) => {
+  if (!isDate(date)) return [-1, -1, -1];
   return [date.getFullYear(), date.getMonth(), date.getDate()];
 };

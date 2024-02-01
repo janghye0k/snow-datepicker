@@ -83,8 +83,9 @@
     "vite": "^5.0.10"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.6.1",
     "@janghye0k/observable": "^1.0.1",
     "dayjs": "^1.11.10",
-    "doumi": "^1.0.1"
+    "doumi": "^1.1.1"
   }
 }

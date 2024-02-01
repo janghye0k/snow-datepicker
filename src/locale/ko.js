@@ -39,7 +39,7 @@ const locale = {
     '12월',
   ],
   weekdaysMin: ['일', '월', '화', '수', '목', '금', '토'],
-  formats: { time: 'A h:mm', date: 'YYYY.MM.DD.' },
+  formats: { time: 'A h:mm', date: 'YYYY-MM-DD' },
   placeholder: '날짜 선택',
 };
 

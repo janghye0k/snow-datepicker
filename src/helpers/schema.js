@@ -30,7 +30,7 @@ const DEFAULT_TITLE_FORMAT = {
  */
 const DEFUALT_OPTIONS = {
   format: 'YYYY-MM-DD',
-  setSelected: true,
+  toggleSelected: true,
   shortcuts: true,
   position: 'bottom left',
   unit: 'days',
