@@ -11,12 +11,15 @@ dependencies:
   '@janghye0k/observable':
     specifier: ^1.0.1
     version: 1.0.1
+  animejs:
+    specifier: ^3.2.2
+    version: 3.2.2
   dayjs:
     specifier: ^1.11.10
     version: 1.11.10
   doumi:
-    specifier: ^1.1.1
-    version: 1.1.1
+    specifier: ^1.1.2
+    version: 1.1.2
 
 devDependencies:
   '@babel/cli':
@@ -46,6 +49,9 @@ devDependencies:
   '@testing-library/jest-dom':
     specifier: ^6.1.6
     version: 6.1.6(@types/jest@29.5.11)(jest@29.7.0)
+  '@types/animejs':
+    specifier: ^3.1.12
+    version: 3.1.12
   '@types/jest':
     specifier: ^29.5.11
     version: 29.5.11
@@ -3514,6 +3520,13 @@ packages:
     engines: { node: '>=10.13.0' }
     dev: true
 
+  /@types/animejs@3.1.12:
+    resolution:
+      {
+        integrity: sha512-fpdH+ZtlO0kqjTOqRaBdsEmvpRNOayI8k4EVkEtitL5l6wducDOXk0rgQgfZqWf/ZX9DzXrHf257S5i9xTcISQ==,
+      }
+    dev: true
+
   /@types/babel__core@7.20.5:
     resolution:
       {
@@ -3792,6 +3805,13 @@ packages:
       require-from-string: 2.0.2
       uri-js: 4.4.1
     dev: true
+
+  /animejs@3.2.2:
+    resolution:
+      {
+        integrity: sha512-Ao95qWLpDPXXM+WrmwcKbl6uNlC5tjnowlaRYtuVDHHoygjtIPfDUoK9NthrlZsQSKjZXlmji2TrBUAVbiH0LQ==,
+      }
+    dev: false
 
   /ansi-escapes@4.3.2:
     resolution:
@@ -5640,10 +5660,10 @@ packages:
       minimatch: 3.1.2
     dev: true
 
-  /doumi@1.1.1:
+  /doumi@1.1.2:
     resolution:
       {
-        integrity: sha512-liBJDO1LztUnWj4RZJYWlG12+q00OkUaqHrvRGBisI+7dsbpTVxLiNjWKEqWN2YzdI177gxmmuyiF1zmwPEOoA==,
+        integrity: sha512-tEPddHdbEbDG74cFbn+Ggo0+crRXh9/p72dVJB8OMNz+VC4jfamAvODD8K54RoGLieGPfuRTBSMsZKmXdA0jZQ==,
       }
     dev: false
 

@@ -57,7 +57,21 @@
   opacity: 1;
 }
 
+.hye0k-datepicker-calendar-arrow {
+  position: absolute;
+  rotate: 45deg;
+  width: 10px;
+  height: 10px;
+  background-color: inherit;
+  border-color: inherit;
+  border-style: solid;
+  border-width: 0px;
+  border-radius: 3px;
+  z-index: 0;
+}
+
 .hye0k-datepicker-calendar {
+  position: absolute;
   width: 16rem;
   border: 1px solid var(--hye0k-datepicker-border-color);
   border-radius: 4px;

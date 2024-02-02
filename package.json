@@ -52,6 +52,7 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@testing-library/jest-dom": "^6.1.6",
+    "@types/animejs": "^3.1.12",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.5",
     "autoprefixer": "^10.4.16",
@@ -85,7 +86,8 @@
   "dependencies": {
     "@floating-ui/dom": "^1.6.1",
     "@janghye0k/observable": "^1.0.1",
+    "animejs": "^3.2.2",
     "dayjs": "^1.11.10",
-    "doumi": "^1.1.1"
+    "doumi": "^1.1.2"
   }
 }

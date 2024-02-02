@@ -32,7 +32,7 @@ const DEFUALT_OPTIONS = {
   format: 'YYYY-MM-DD',
   toggleSelected: true,
   shortcuts: true,
-  position: 'bottom left',
+  position: 'bottom-start',
   unit: 'days',
   minUnit: 'days',
   showOtherMonths: true,

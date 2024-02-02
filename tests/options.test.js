@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import DatePicker from '../src/index';
 import ko from '../src/locale/ko';
 import { sleep } from './utils';
+import { forEach, find$ } from 'doumi';
 
 let $el;
 /** @type {DatePicker} */
@@ -189,8 +190,6 @@ describe('OPTIONS TEST', () => {
   describe('options.format', () => {});
 
   describe('options.shortcuts', () => {});
-
-  describe('options.position', () => {});
 
   describe('options.navigationLoop', () => {});
 

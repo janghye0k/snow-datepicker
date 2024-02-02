@@ -11,6 +11,9 @@ import {
   find$,
   findAll$,
   entries,
+  capitalize,
+  off,
+  find,
 } from 'doumi';
 import defaultLocale from './locale/en';
 import localeInfo from './locale.json';
@@ -18,6 +21,14 @@ import ChevronLeft from './icons/chevron-left';
 import ChevronRight from './icons/chevron-right';
 import LocaleConverter from './helpers/locale-converter';
 import { effect, observable } from '@janghye0k/observable';
+import {
+  autoUpdate,
+  arrow,
+  computePosition,
+  offset,
+  flip,
+} from '@floating-ui/dom';
+import anime from 'animejs';
 
 /**
  * @typedef {object} LocaleFormats
@@ -57,11 +68,15 @@ import { effect, observable } from '@janghye0k/observable';
  */
 
 /**
+ * @typedef {"top-start" | "top-end" | "right-start" | "right-end" | "bottom-start" | "bottom-end" | "left-start" | "left-end"} Position
+ */
+
+/**
  * @typedef {object} InternalOptions
  * @property {string} format Get the formatted date according to the string of tokens passed in. By default, `YYYY-MM-DD`
  * @property {boolean} toggleSelected If `true`, then clicking on the active cell will remove the selection from it. By default, `true`
  * @property {boolean} shortcuts Enables keyboard navigation. By default, `true`
- * @property {string} position Position of the calendar relative to the input field. By default, `bottom left`
+ * @property {Position} position Position of the calendar relative to the input field. By default, `bottom-start`
  * @property {string} unit The initial unit of the calendar. (e.g. days | months | years) By default, `days`
  * @property {string} minUnit The minimum unit of the calendar. The values are same as unit. By default, `days`
  * @property {boolean} showOtherMonths If `true`, dates from other months will be displayed in days view. By default, `true`
@@ -195,6 +210,10 @@ class DatePicker {
 
     // Create calendar
     this.#datepicker = this.#createDatepicker();
+    this.hide();
+
+    // Bind Calendar poup events
+    this.#bindCalendarPopupEvents();
 
     // Set locale
     this.#setLocale(this.options.locale);
@@ -396,7 +415,8 @@ class DatePicker {
         </div>
         <div class="${PREFIX}-months"></div>
         <div class="${PREFIX}-years"></div>
-      </div>`;
+      </div>
+      <div class="${PREFIX}-calendar-arrow"></div>`;
     const parser = new DOMParser();
     $datepicker.replaceChildren(
       ...parser.parseFromString(datepickerText, 'text/html').body.children
@@ -423,6 +443,126 @@ class DatePicker {
     return $datepicker;
   }
 
+  /**
+   * Bind calendar popup animation & set position of calendar when calendar is popup
+   */
+  #bindCalendarPopupEvents() {
+    const $input = this.$input;
+    const $datepicker = this.$datepicker;
+    const $arrow = /** @type {HTMLElement} */ (
+      find$(`.${PREFIX}-calendar-arrow`, $datepicker)
+    );
+    const updatePosition = () => {
+      computePosition($input, $datepicker, {
+        placement: this.options.position,
+        middleware: [
+          offset(12),
+          arrow({ element: $arrow, padding: 0 }),
+          flip(),
+        ],
+      }).then(({ x, y, middlewareData, placement }) => {
+        Object.assign($datepicker.style, {
+          left: `${x}px`,
+          top: `${y}px`,
+        });
+
+        if (middlewareData.arrow) {
+          const { x, y } = middlewareData.arrow;
+          const isX = placement.includes('bottom') || placement.includes('top');
+          const isReverse =
+            placement.includes('left') || placement.includes('top');
+          const pad = 6;
+          /** @type {any} */
+          const arrowStyle = {
+            borderWidth: '0px',
+            top: 'unset',
+            left: 'unset',
+            right: 'unset',
+            bottom: 'unset',
+          };
+          if (isX) {
+            arrowStyle.left = x != null ? `${x}px` : '';
+            const key = isReverse ? 'bottom' : 'top';
+            const bordered = [key, key === 'bottom' ? 'right' : 'left'];
+            arrowStyle[key] = `-${pad}px`;
+            bordered.forEach(
+              (border) =>
+                (arrowStyle[`border${capitalize(border)}Width`] = '1px')
+            );
+          } else {
+            arrowStyle.top = y != null ? `${y}px` : '';
+            const key = isReverse ? 'right' : 'left';
+            const bordered = [key, key === 'right' ? 'top' : 'bottom'];
+            arrowStyle[key] = `-${pad}px`;
+            bordered.forEach(
+              (border) =>
+                (arrowStyle[`border${capitalize(border)}Width`] = '1px')
+            );
+          }
+          Object.assign($arrow.style, arrowStyle);
+        }
+      });
+    };
+    autoUpdate($input, $datepicker, updatePosition);
+
+    const animationMap = {
+      top: { translateY: [-8, 0] },
+      bottom: { translateY: [8, 0] },
+      left: { translateX: [-8, 0] },
+      right: { translateX: [8, 0] },
+    };
+    const animationItem =
+      find(animationMap, (_, key) => this.options.position.includes(key)) ??
+      animationMap.bottom;
+    const showAnime = anime({
+      targets: $datepicker,
+      autoplay: false,
+      duration: 200,
+      easing: 'easeOutSine',
+      opacity: [0, 1],
+      ...animationItem,
+    });
+    const hideAnime = anime({
+      targets: $datepicker,
+      autoplay: false,
+      duration: 200,
+      easing: 'easeOutSine',
+      opacity: [0, 1],
+      ...animationItem,
+    });
+    hideAnime.reverse();
+
+    /**
+     *
+     * @param {MouseEvent} event
+     */
+    const handleClickOutSide = (event) => {
+      const target = /** @type {HTMLElement} */ (event.target);
+      if (this.$input.contains(target)) return;
+      if (this.$datepicker.contains(target)) return;
+      // this.hide();
+      if (showAnime.progress) showAnime.pause();
+      hideAnime.restart();
+      hideAnime.finished.then(() => this.hide());
+      off(document, 'click', handleClickOutSide);
+    };
+
+    on($input, 'click', () => {
+      if (hideAnime.progress) {
+        hideAnime.pause();
+        this.hide();
+      }
+      if (!this.visible) {
+        showAnime.restart();
+        this.show();
+      }
+      on(document, 'click', handleClickOutSide, { capture: true });
+    });
+  }
+
+  /**
+   * Render locale items like months, weekdays
+   */
   #renderLocaleItems() {
     const {
       locale: { weekdaysMin, placeholder },
@@ -680,6 +820,8 @@ class DatePicker {
    * @param {Date | undefined | null} [prevDate]
    */
   _onSelect(date, prevDate = undefined) {}
+
+  _onShow() {}
 
   /**
    * Rerender datepicker element's calendar

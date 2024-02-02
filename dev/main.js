@@ -6,14 +6,9 @@ const id = 'picker';
 const selector = `#${id}`;
 document.body.innerHTML = `
     <div id="${id}"></div>
-    <button id="show">show</button>
-    <button id="hide">hide</button>
 `;
 
 const picker = new DatePicker(selector, {
   selectedDate: new Date('2024-01-01'),
   readOnly: true,
 });
-
-document.getElementById('show').onclick = () => picker.show();
-document.getElementById('hide').onclick = () => picker.hide();
