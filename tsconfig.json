@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES6",
     "module": "ESNext",
     "moduleResolution": "node",
     "allowJs": true,
@@ -8,12 +8,18 @@
     "strict": true,
     "useUnknownInCatchVariables": false,
     "types": ["node"],
+    "lib": ["ESNext", "DOM"],
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "outDir": "dist",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "rootDir": "src"
+    "removeComments": false,
+    "rootDir": "src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@t/*": ["./types/*"]
+    }
   },
-  "include": ["./src/**/*.js"]
+  "include": ["./src/**/*", "./types/**/*.d.ts"]
 }

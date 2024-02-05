@@ -1,5 +1,5 @@
-import checkSchema, { UNIT_ORDER, checkUnit, isUnit } from './helpers/schema';
-import { error, parseDate } from './helpers/util';
+import checkSchema, { UNIT_ORDER, checkUnit, isUnit } from '@/helpers/schema';
+import { decade, error, parseDate } from '@/helpers/util';
 import {
   isDateLike,
   isNullish,
@@ -14,12 +14,13 @@ import {
   capitalize,
   off,
   find,
+  Evt,
 } from 'doumi';
-import defaultLocale from './locale/en';
-import localeInfo from './locale.json';
-import ChevronLeft from './icons/chevron-left';
-import ChevronRight from './icons/chevron-right';
-import LocaleConverter from './helpers/locale-converter';
+import defaultLocale from '@/locale/en';
+import localeInfo from '@/locale.json';
+import ChevronLeft from '@/icons/chevron-left';
+import ChevronRight from '@/icons/chevron-right';
+import LocaleConverter from '@/helpers/locale-converter';
 import { effect, observable } from '@janghye0k/observable';
 import {
   autoUpdate,
@@ -29,80 +30,85 @@ import {
   flip,
 } from '@floating-ui/dom';
 import anime from 'animejs';
+import { Position } from '../types/options.d';
 
-/**
- * @typedef {object} LocaleFormats
- * @property {string} time
- * @property {string} date
- */
+type LocaleFormats = { time: string; date: string };
 
 /**
  * Language of the calendar.
- * @typedef {object} Locale
- * @property {string} name
- * @property {string[]} months
- * @property {string[]} monthsShort
- * @property {number} weekStart
- * @property {string[]} weekdays
- * @property {string[]} weekdaysShort
- * @property {string[]} weekdaysMin
- * @property {LocaleFormats} formats
- * @property {string} placeholder
  */
+export type Locale = {
+  name: string;
+  months: string[];
+  monthsShort: string[];
+  weekStart: number;
+  weekdays: string[];
+  weekdaysShort: string[];
+  weekdaysMin: string[];
+  formats: LocaleFormats;
+  placeholder: string;
+};
 
-/**
- * @template {keyof HTMLElementEventMap} K
- * @template {Element} [T = HTMLElement]
- * @typedef {import('doumi').Evt<K, T>} Evt
- */
+export type DateLike = string | number | Date;
 
-/**
- * @typedef {string | number | Date} DateLike
- */
+export type TitleFormat = {
+  days: string;
+  months: string;
+  years: string;
+};
 
-/**
- * @typedef {object} TitleFormat
- * @property {string} days
- * @property {string} months
- * @property {string} years
- */
+export type InternalOptions = {
+  /** Get the formatted date according to the string of tokens passed in. By default, `YYYY-MM-DD` */
+  format: string;
+  /** If `true`, then clicking on the active cell will remove the selection from it. By default, `true` */
+  toggleSelected: boolean;
+  /** Enables keyboard navigation. By default, `true` */
+  shortcuts: boolean;
+  /** Position of the calendar relative to the input field. By default, `bottom-start` */
+  position: Position;
+  /** The initial unit of the calendar. (e.g. `days` | `months` | `years`) By default, `days` */
+  unit: string;
+  /** The minimum unit of the calendar. The values are same as unit. By default, `days` */
+  minUnit: string;
+  /** If `true`, dates from other months will be displayed in days view. By default, `true` */
+  showOtherMonths: boolean;
+  /** If `true`, it will be possible to select dates from other months. By default, `true` */
+  selectOtherMonths: boolean;
+  /**
+   * If `true` , then selecting dates from another month will be causing transition to this month. By default, `true`
+   */
+  moveOtherMonths: boolean;
+  /** Whether to enable navigation when the maximum/minimum date is exceeded. By default, `true` */
+  navigationLoop: boolean;
+  /** If `true`, the calendar will be hidden after selecting the date. By default, `true` */
+  autoClose: boolean;
+  /** Title templates in the calendar navigation. */
+  titleFormat: TitleFormat;
+  /** If `false`, it will be able to edit dates at input field. */
+  readOnly: boolean;
+  buttons?: string | string[];
+  /** Add custom classes. */
+  className?: string;
+  /** Language of the calendar. */
+  locale?: string | Locale;
+  /** The minimum date of calendar */
+  minDate: DateLike;
+  /** The maximum date of calendar */
+  maxDate: DateLike;
+  selectedDate: DateLike;
+  onSelect?: any;
+  onChangeView?: any;
+  onShow?: any;
+  onHide?: any;
+  onFocus?: any;
+  onBlur?: any;
+};
 
-/**
- * @typedef {"top-start" | "top-end" | "right-start" | "right-end" | "bottom-start" | "bottom-end" | "left-start" | "left-end"} Position
- */
-
-/**
- * @typedef {object} InternalOptions
- * @property {string} format Get the formatted date according to the string of tokens passed in. By default, `YYYY-MM-DD`
- * @property {boolean} toggleSelected If `true`, then clicking on the active cell will remove the selection from it. By default, `true`
- * @property {boolean} shortcuts Enables keyboard navigation. By default, `true`
- * @property {Position} position Position of the calendar relative to the input field. By default, `bottom-start`
- * @property {string} unit The initial unit of the calendar. (e.g. days | months | years) By default, `days`
- * @property {string} minUnit The minimum unit of the calendar. The values are same as unit. By default, `days`
- * @property {boolean} showOtherMonths If `true`, dates from other months will be displayed in days view. By default, `true`
- * @property {boolean} selectOtherMonths If `true`, it will be possible to select dates from other months. By default, `true`
- * @property {boolean} moveOtherMonths If `true` , then selecting dates from another month will be causing transition to this month. By default, `true`
- * @property {boolean} navigationLoop Whether to enable navigation when the maximum/minimum date is exceeded. By default, `true`
- * @property {boolean} autoClose If `true`, the calendar will be hidden after selecting the date. By default, `true`
- * @property {TitleFormat} titleFormat Title templates in the calendar navigation.
- * @property {string | string[]} [buttons]
- * @property {boolean} readOnly If `false`, it will be able to edit dates at input field.
- * @property {string} [className] Add custom classes.
- * @property {string | Locale} [locale] Language of the calendar.
- * @property {DateLike} [minDate] The minimum date of calendar
- * @property {DateLike} [maxDate] The maximum date of calendar
- * @property {DateLike} [selectedDate]
- * @property {Event} [onSelect]
- * @property {Event} [onChangeView]
- * @property {Event} [onShow]
- * @property {Event} [onHide]
- * @property {Event} [onFocus]
- * @property {Event} [onBlur]
- */
-
-/**
- * @typedef {Partial<Omit<InternalOptions, 'titleFormat'>> & { titleFormat: Partial<TitleFormat> }} Options
- */
+export type Options = Partial<
+  Omit<InternalOptions, 'titleFormat'> & {
+    titleFormat: Partial<TitleFormat>;
+  }
+>;
 
 const PREFIX = 'hye0k-datepicker';
 
@@ -115,22 +121,14 @@ class DatePicker {
 
   #state = {
     unit: observable({ currentUnit: 'days', unitDate: new Date() }),
-    date: /** @type {import('@janghye0k/observable').Observable<null | undefined | Date>} */ (
-      observable(null)
-    ),
+    date: observable<null | undefined | Date>(null),
   };
 
-  /**
-   * @private
-   * @type {HTMLElement}
-   */
-  $hide = create$('body');
+  /** @private */
+  private $hide: HTMLElement = create$('body');
 
-  /**
-   * @private
-   * @type {InternalOptions}
-   */
-  options;
+  /** @private */
+  private options: InternalOptions;
 
   /**
    * ID of datepicker elements container
@@ -148,7 +146,7 @@ class DatePicker {
    * Datepicker element
    * @returns {HTMLDivElement}
    */
-  get $datepicker() {
+  get $datepicker(): HTMLDivElement {
     return this.#datepicker;
   }
 
@@ -163,9 +161,7 @@ class DatePicker {
    * Current unit of calendar
    */
   get currentUnit() {
-    return /** @type {'days' | 'months' | 'years'} */ (
-      this.#state.unit().currentUnit
-    );
+    return this.#state.unit().currentUnit as 'days' | 'months' | 'years';
   }
 
   /**
@@ -192,9 +188,9 @@ class DatePicker {
 
   /**
    * @param {Element | string} element
-   * @param {Partial<Options>} [options]
+   * @param {Options} [options]
    */
-  constructor(element, options = {}) {
+  constructor(element: Element | string, options: Options = {}) {
     const $target = typeof element === 'string' ? find$(element) : element;
     if (!($target instanceof Element))
       throw error('constructor element shoul be CSS selector or Element');
@@ -203,7 +199,7 @@ class DatePicker {
     this.options = checkSchema(options);
 
     // Convert element
-    this.#input = this.#convertToInput(/** @type {HTMLElement} */ ($target));
+    this.#input = this.#convertToInput($target as HTMLElement);
 
     // Create datepicker container
     this.#createContainer();
@@ -241,9 +237,9 @@ class DatePicker {
       (state) => {
         let args = parseDate(state.unitDate).slice(
           0,
-          3 - UNIT_ORDER[state.currentUnit]
+          3 - UNIT_ORDER[state.currentUnit as keyof typeof UNIT_ORDER]
         );
-        args = args.length ? args : this.converter.decade(state.unitDate);
+        args = args.length ? args : decade(state.unitDate);
         return `${state.currentUnit}__${args.join('__')}`;
       }
     );
@@ -262,8 +258,7 @@ class DatePicker {
         const currentUnit = this.currentUnit;
         const order = UNIT_ORDER[currentUnit];
         const [year, monthindex, day] = parseDate(state);
-        /** @type {Record<string, any>} */
-        const dataset = { year, monthindex, day };
+        const dataset: Record<string, any> = { year, monthindex, day };
         if (order > 1) delete dataset.day;
         if (order > 2) delete dataset.monthindex;
 
@@ -286,9 +281,8 @@ class DatePicker {
 
   /**
    * Get datepicker (browser) locale
-   * @param {string | Locale} [locale]
    */
-  async #setLocale(locale) {
+  async #setLocale(locale?: string | Locale) {
     if (isObject(locale)) {
       this.#converter = new LocaleConverter(
         { ...defaultLocale, ...locale },
@@ -319,10 +313,8 @@ class DatePicker {
 
   /**
    * Convert element to input
-   * @param {HTMLElement} element
-   * @returns {HTMLInputElement}
    */
-  #convertToInput(element) {
+  #convertToInput(element: Element): HTMLInputElement {
     const { id, className } = element;
 
     const $input = create$('input', {
@@ -335,8 +327,7 @@ class DatePicker {
     });
     element.replaceWith($input);
 
-    /** @param {any} event */
-    const setDateToCurrent = (event) => {
+    const setDateToCurrent = (event: any) => {
       const selectedDate = this.selectedDate;
       event.currentTarget.value = isNull(selectedDate)
         ? ''
@@ -419,7 +410,9 @@ class DatePicker {
       <div class="${PREFIX}-calendar-arrow"></div>`;
     const parser = new DOMParser();
     $datepicker.replaceChildren(
-      ...parser.parseFromString(datepickerText, 'text/html').body.children
+      ...Array.from(
+        parser.parseFromString(datepickerText, 'text/html').body.children
+      )
     );
 
     // Bind unit change event
@@ -433,7 +426,7 @@ class DatePicker {
 
     // Bind move event
     findAll$(`.${PREFIX}-nav-btn`, $datepicker).forEach(($el, index) =>
-      on(/** @type {HTMLElement} */ ($el), 'click', (event) => {
+      on(/** @type {HTMLElement} */ $el, 'click', (event) => {
         const { action } = event.currentTarget.dataset;
         const isPrev = isUndefined(action) ? !index : action === 'prev';
         isPrev ? this.prev() : this.next();
@@ -449,9 +442,10 @@ class DatePicker {
   #bindCalendarPopupEvents() {
     const $input = this.$input;
     const $datepicker = this.$datepicker;
-    const $arrow = /** @type {HTMLElement} */ (
-      find$(`.${PREFIX}-calendar-arrow`, $datepicker)
-    );
+    const $arrow = find$(
+      `.${PREFIX}-calendar-arrow`,
+      $datepicker
+    ) as HTMLElement;
     const updatePosition = () => {
       computePosition($input, $datepicker, {
         placement: this.options.position,
@@ -472,8 +466,7 @@ class DatePicker {
           const isReverse =
             placement.includes('left') || placement.includes('top');
           const pad = 6;
-          /** @type {any} */
-          const arrowStyle = {
+          const arrowStyle: Record<string, any> = {
             borderWidth: '0px',
             top: 'unset',
             left: 'unset',
@@ -532,12 +525,8 @@ class DatePicker {
     });
     hideAnime.reverse();
 
-    /**
-     *
-     * @param {MouseEvent} event
-     */
-    const handleClickOutSide = (event) => {
-      const target = /** @type {HTMLElement} */ (event.target);
+    const handleClickOutSide = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
       if (this.$input.contains(target)) return;
       if (this.$datepicker.contains(target)) return;
       // this.hide();
@@ -588,7 +577,7 @@ class DatePicker {
    * Rendering days
    * @param {Date} unitDate
    */
-  #renderDays(unitDate) {
+  #renderDays(unitDate: Date) {
     const [year, month] = parseDate(unitDate);
 
     const firstDate = new Date(year, month, 1);
@@ -601,16 +590,10 @@ class DatePicker {
       (firstDateDay + 7 - weekStart) % 7 || (lastDate.getDate() === 28 ? 7 : 0);
     const postDays = 6 - lastDateDay;
 
-    /** @type {{d: number; m: number}[]} */
-    const days = [];
+    const days: { d: number; m: number }[] = [];
     const displayPrevStart = new Date(year, month, 0).getDate() - preDays + 1;
 
-    /**
-     * @param {number} length
-     * @param {number} m
-     * @param {number} [adder]
-     */
-    const pushData = (length, m, adder = 1) =>
+    const pushData = (length: number, m: number, adder: number = 1) =>
       Array.from({ length }, (_, i) => days.push({ d: adder + i, m }));
     pushData(preDays, (month - 1 + 12) % 12, displayPrevStart);
     pushData(lastDate.getDate(), month), pushData(postDays, (month + 1) % 12);
@@ -658,7 +641,7 @@ class DatePicker {
    * Rendering months
    * @param {Date} unitDate
    */
-  #renderMonths(unitDate) {
+  #renderMonths(unitDate: Date) {
     const year = unitDate.getFullYear();
     const { monthsShort } = this.converter.locale;
 
@@ -674,7 +657,7 @@ class DatePicker {
       : selectedDate.getMonth();
     const todays = parseDate();
 
-    monthsShort.forEach((monthShort, index) => {
+    monthsShort.forEach((monthShort: string, index: number) => {
       const classList = [`${PREFIX}-pickable-item`];
       if (selectedMonthIndex === index) classList.push('active');
       if (todays[0] === year && todays[1] === index) classList.push('today');
@@ -694,7 +677,7 @@ class DatePicker {
    * Rendering decade
    * @param {Date} unitDate
    */
-  #renderDecade(unitDate) {
+  #renderDecade(unitDate: Date) {
     if (!this.$datepicker) return;
     const $years = find$(`.${PREFIX}-years`, this.$datepicker);
     if (!$years) return;
@@ -706,7 +689,7 @@ class DatePicker {
       : selectedDate.getFullYear();
     const todays = parseDate();
 
-    const [start, end] = this.converter.decade(unitDate);
+    const [start, end] = decade(unitDate);
     const years = Array.from({ length: end - start }, (_, i) => i + start);
     years.forEach((year) => {
       const classList = [`${PREFIX}-pickable-item`];
@@ -729,17 +712,15 @@ class DatePicker {
    * @param {Date} unitDate
    * @returns
    */
-  #renderNavTitle(currentUnit, unitDate) {
+  #renderNavTitle(currentUnit: string, unitDate: Date) {
     if (!this.$datepicker) return;
     const $title = find$(`.${PREFIX}-nav-title`, this.$datepicker);
     if (!$title) return;
 
     let format =
-      this.options.titleFormat[
-        /** @type {'days' | 'months' | 'years'} */ (currentUnit)
-      ];
+      this.options.titleFormat[currentUnit as 'days' | 'months' | 'years'];
     if (currentUnit === 'years') {
-      const [start, end] = this.converter.decade(unitDate);
+      const [start, end] = decade(unitDate);
       format = format.replaceAll('YYYY1', start.toString());
       format = format.replaceAll('YYYY2', end.toString());
       format = format.replaceAll('YY1', start.toString().substring(2));
@@ -771,23 +752,17 @@ class DatePicker {
     if ($target) $target.classList.add('show');
   }
 
-  /**
-   *
-   * @param {Evt<'click'>} event
-   */
-  #onClickPickableItem(event) {
+  #onClickPickableItem(event: Evt<'click'>) {
     const currentUnit = this.currentUnit;
 
     let existValueCount = 0;
     const datasetKeys = ['year', 'monthindex', 'day'];
-    const params = /** @type {[number, number, number]} */ (
-      datasetKeys.map((key) => {
-        const item = event.currentTarget.dataset[key];
-        if (isUndefined(item)) return 1;
-        existValueCount += 1;
-        return Number(item);
-      })
-    );
+    const params = datasetKeys.map((key) => {
+      const item = event.currentTarget.dataset[key];
+      if (isUndefined(item)) return 1;
+      existValueCount += 1;
+      return Number(item);
+    }) as [number, number, number];
 
     const nextUnit = existValueCount === 1 ? 'months' : 'days';
     if (currentUnit !== nextUnit) this.setCurrentUnit(nextUnit);
@@ -811,7 +786,11 @@ class DatePicker {
    * @param {Date | undefined | null} [prevDate]
    * @returns {boolean}
    */
-  _onBeforeSelect(date, prevDate = undefined) {
+  _onBeforeSelect(
+    date: Date | undefined | null,
+    prevDate: Date | undefined | null = undefined
+  ): boolean {
+    console.log(date, prevDate);
     return true;
   }
 
@@ -819,7 +798,12 @@ class DatePicker {
    * @param {Date | undefined | null} date
    * @param {Date | undefined | null} [prevDate]
    */
-  _onSelect(date, prevDate = undefined) {}
+  _onSelect(
+    date: Date | undefined | null,
+    prevDate: Date | undefined | null = undefined
+  ) {
+    console.log(date, prevDate);
+  }
 
   _onShow() {}
 
@@ -837,10 +821,8 @@ class DatePicker {
    * Set current unit of datepicker
    * @param {string} unit
    */
-  setCurrentUnit(unit) {
-    const nextUnit = /** @type {'days' | 'months' | 'years'} */ (
-      isUnit(unit) ? unit : this.options.minUnit
-    );
+  setCurrentUnit(unit: string) {
+    const nextUnit = isUnit(unit) ? unit : this.options.minUnit;
     if (!checkUnit(unit, this.options.minUnit)) return;
     this.#state.unit({ ...this.#state.unit(), currentUnit: nextUnit });
   }
@@ -849,7 +831,7 @@ class DatePicker {
    * Set unit date of datepicker
    * @param {*} date
    */
-  setUnitDate(date) {
+  setUnitDate(date: any) {
     if (!isDateLike(date))
       return console.log(`This unitDate is invalid date - ${date}`);
     this.#state.unit({ ...this.#state.unit(), unitDate: new Date(date) });
@@ -858,7 +840,7 @@ class DatePicker {
   /**
    * @param {*} date
    */
-  setSelectedDate(date) {
+  setSelectedDate(date: any) {
     this.#state.date(isDateLike(date) ? new Date(date) : null);
   }
 

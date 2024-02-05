@@ -1,7 +1,7 @@
-import DatePicker from '../src';
+import DatePicker from '@/index';
 
 let $el;
-/** @type {DatePicker} */
+/** @type {import('../src/index').default} */
 let datepicker;
 
 /**

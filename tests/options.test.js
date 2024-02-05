@@ -1,11 +1,10 @@
 import dayjs from 'dayjs';
-import DatePicker from '../src/index';
-import ko from '../src/locale/ko';
-import { sleep } from './utils';
-import { forEach, find$ } from 'doumi';
+import DatePicker from '@/index';
+import ko from '@/locale/ko';
+import { sleep } from 'doumi';
 
 let $el;
-/** @type {DatePicker} */
+/** @type {import('../src/index').default} */
 let datepicker;
 
 /**

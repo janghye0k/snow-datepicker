@@ -1,5 +1,13 @@
-import { error } from './util';
-import { isDateLike, isUndefined, isString, isObject } from 'doumi';
+import { error } from '@/helpers/util';
+import {
+  isDateLike,
+  isUndefined,
+  isString,
+  isObject,
+  reduce,
+  forEach,
+} from 'doumi';
+import { InternalOptions, Options } from '@/index';
 
 /**
  * @typedef {import('../index').Options} Options
@@ -16,9 +24,6 @@ export const UNIT_ORDER = {
 
 const UNIT_LIST = ['days', 'months', 'years'];
 
-/**
- * @type {Options['titleFormat']}
- */
 const DEFAULT_TITLE_FORMAT = {
   days: 'MMMM, <i>YYYY</i>',
   months: 'YYYY',
@@ -44,56 +49,49 @@ const DEFUALT_OPTIONS = {
   titleFormat: {},
 };
 
-/**
- * @typedef {Record<string, (value: unknown) => any>} ValidateMap
- */
-
-/**
- * @param {string} key
- * @param {string} message
- */
-function inValid(key, message) {
+function inValid(key: string, message: string) {
   error(`Invalid options`, `options.${key} should be ${message}`);
 }
 
-/**
- * @type {ValidateMap}
- */
-const VALIDATE_MAP = {
-  ...Object.entries(DEFUALT_OPTIONS).reduce((obj, [key, value]) => {
-    const type = typeof value;
-    obj[key] = (val) => {
-      if (typeof val === type) return;
-      inValid(key, type);
-    };
-    return obj;
-  }, /** @type {ValidateMap} */ ({})),
+const VALIDATE_MAP: Record<string, (value: unknown) => any> = {
+  ...reduce(
+    DEFUALT_OPTIONS,
+    (obj, value, key) => {
+      const type = typeof value;
+      obj[key] = (val: any) => {
+        if (typeof val === type) return;
+        inValid(key, type);
+      };
+      return obj;
+    },
+    {} as any
+  ),
   ...['unit', 'minUnit'].reduce((obj, item) => {
-    obj[item] = (val) => {
+    obj[item] = (val: any) => {
       if (isUnit(val)) return;
       inValid(item, UNIT_LIST.join(' | '));
     };
     return obj;
-  }, /** @type {ValidateMap} */ ({})),
+  }, {} as any),
   ...['minDate', 'maxDate', 'selectedDate'].reduce((obj, item) => {
-    obj[item] = (val) => {
+    obj[item] = (val: any) => {
       if (isUndefined(val) || isDateLike(val)) return;
       inValid(item, ['string', 'number', 'Date'].join(' | '));
     };
     return obj;
-  }, /** @type {ValidateMap} */ ({})),
+  }, {} as any),
   className: (val) => {
     if (isUndefined(val) || isString(val)) return;
     inValid('className', 'string');
   },
-  titleFormat: /** @param {any} val */ (val) => {
+  titleFormat: (val: any) => {
     if (isUndefined(val)) return;
     if (!isObject(val))
       return inValid(
         'titleFormat',
         '{ dayjs?: string; months?: string; years?: string }'
       );
-    Object.keys(DEFAULT_TITLE_FORMAT).forEach((key) => {
+    forEach(DEFAULT_TITLE_FORMAT, (_, key) => {
       const matcher = ['string', 'undefined'];
       if (matcher.includes(typeof val[key])) return;
       inValid(`titleFormat.${key}`, matcher.join(' | '));
@@ -101,33 +99,25 @@ const VALIDATE_MAP = {
   },
 };
 
-/**
- * @param {*} unit
- */
-export function isUnit(unit) {
+export function isUnit(unit: any) {
   return isString(unit) && UNIT_LIST.includes(unit);
 }
 
-/**
- * @param {string} unit
- * @param {string} [minUnit]
- */
-export function checkUnit(unit, minUnit) {
+export function checkUnit(unit: string, minUnit?: string) {
   if (!minUnit) return true;
-  return UNIT_ORDER[unit] >= UNIT_ORDER[minUnit];
+  return (
+    UNIT_ORDER[unit as keyof typeof UNIT_ORDER] >=
+    UNIT_ORDER[minUnit as keyof typeof UNIT_ORDER]
+  );
 }
 
-/**
- * @param {Partial<Options>} options
- * @returns {import('../index').InternalOptions}
- */
-export default function checkSchema(options) {
+export default function checkSchema(options: Options): InternalOptions {
   /** @type {any} */
   const opt = { ...DEFUALT_OPTIONS, ...options };
   if (!checkUnit(opt.unit, opt.minUnit)) opt.unit = opt.minUnit;
 
   // Validate
-  Object.entries(opt).forEach(([key, value]) => {
+  forEach(opt, (value, key) => {
     const validator = VALIDATE_MAP[key];
     if (!validator) return;
     validator(value);
@@ -135,13 +125,11 @@ export default function checkSchema(options) {
 
   // Set titleFormat
   if (opt.titleFormat === undefined) opt.titleFormat = {};
-  Object.entries(DEFAULT_TITLE_FORMAT).forEach((entry) => {
-    const [key, value] = /** @type {[keyof Options['titleFormat'], string]} */ (
-      entry
-    );
-    const optValue = opt.titleFormat[key];
-    if (optValue === undefined) opt.titleFormat[key] = value;
+  forEach(DEFAULT_TITLE_FORMAT, (value, key) => {
+    const titleFormat = opt.titleFormat as Record<string, string>;
+    const optValue = titleFormat[key];
+    if (optValue === undefined) titleFormat[key] = value;
   });
 
-  return opt;
+  return opt as InternalOptions;
 }

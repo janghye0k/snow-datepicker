@@ -1,9 +1,12 @@
 {
-  "plugins": ["prettier"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "import", "prettier"],
   "extends": [
     "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
     "plugin:eslint-plugin/recommended",
     "plugin:import/recommended",
+    "plugin:import/typescript",
     "prettier"
   ],
   "env": {
@@ -19,6 +22,38 @@
   },
   "rules": {
     "prettier/prettier": "error",
-    "no-unused-vars": "warn"
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-unused-vars": 0,
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["./*.js"],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    },
+    {
+      "files": ["**/tests/**", "**/*.test.**"],
+      "extends": ["plugin:eslint-plugin/tests-recommended"],
+      "settings": {
+        "import/resolver": {
+          "jest": {
+            "jestConfigFile": "./jest.config.js"
+          }
+        }
+      },
+      "rules": {
+        "import/no-unresolved": "off"
+      }
+    }
+  ],
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
   }
 }

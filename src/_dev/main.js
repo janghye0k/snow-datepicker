@@ -1,6 +1,6 @@
-import DatePicker from '../src/index.js';
-import '../src/styles/index.css';
-// import '../src/styles/dark.css';
+import DatePicker from '@/index';
+import '@/styles/index.css';
+// import '@/styles/dark.css';
 
 const id = 'picker';
 const selector = `#${id}`;
@@ -12,3 +12,4 @@ const picker = new DatePicker(selector, {
   selectedDate: new Date('2024-01-01'),
   readOnly: true,
 });
+picker;

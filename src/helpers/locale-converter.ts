@@ -1,23 +1,15 @@
 import dayjs from 'dayjs';
-import { isDateLike } from 'doumi';
+import { capitalize, isDateLike } from 'doumi';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { Locale } from '@/index';
+// eslint-disable-next-line import/no-named-as-default-member
 dayjs.extend(customParseFormat);
 
 class LocaleConverter {
-  /**
-   * @type {import('../index').Locale}
-   */
-  locale;
-  /**
-   * @type {string | undefined}
-   */
-  dateFormat;
+  locale: Locale;
+  dateFormat?: string;
 
-  /**
-   * @param {import('../index').Locale} locale
-   * @param {string} [dateFormat]
-   */
-  constructor(locale, dateFormat) {
+  constructor(locale: Locale, dateFormat?: string) {
     this.locale = locale;
     this.dateFormat = dateFormat;
   }
@@ -36,7 +28,7 @@ class LocaleConverter {
    * @param {boolean} [short]
    * @returns {string}
    */
-  #month(value, short) {
+  #month(value: any, short?: boolean): string {
     const date = new Date(value);
     return this.locale[short ? 'monthsShort' : 'months'][date.getMonth()];
   }
@@ -46,15 +38,11 @@ class LocaleConverter {
    * @param {any} value
    * @param {'short' | 'min'} [options]
    */
-  #weekday(value, options) {
+  #weekday(value: any, options?: 'short' | 'min') {
     const date = new Date(value);
     const suffix =
-      options === 'short' || options === 'min'
-        ? /** @type {'Short' | 'Min' } */ (
-            options.charAt(0).toUpperCase() + options.substring(1)
-          )
-        : '';
-    return this.locale[`weekdays${suffix}`][date.getDay()];
+      options === 'short' || options === 'min' ? capitalize(options) : '';
+    return this.locale[`weekdays${suffix}` as 'weekdaysMin'][date.getDay()];
   }
 
   /**
@@ -63,11 +51,10 @@ class LocaleConverter {
    * @param {string} format
    * @returns {string}
    */
-  format(value, format) {
+  format(value: any, format: string): string {
     if (!isDateLike(value)) return '';
     let arr = [{ text: format, convert: false }];
-    /** @type {Array<[string, () => string]>} */
-    const items = [
+    const items: Array<[string, () => string]> = [
       ['dd', () => this.#weekday(value, 'min')],
       ['ddd', () => this.#weekday(value, 'short')],
       ['dddd', () => this.#weekday(value)],
@@ -77,8 +64,7 @@ class LocaleConverter {
     let item;
     while ((item = items.pop())) {
       const [matcher, callback] = item;
-      /** @type {{ text:string; convert:boolean }[]} */
-      const temp = [];
+      const temp: { text: string; convert: boolean }[] = [];
       arr.forEach((item) => {
         if (item.convert) return temp.push(item);
         const splitList = item.text.split(matcher);
@@ -104,7 +90,7 @@ class LocaleConverter {
    * @param {*} value
    * @returns {string}
    */
-  time(value) {
+  time(value: any): string {
     return dayjs(value).format(this.locale.formats.time);
   }
 
@@ -113,29 +99,17 @@ class LocaleConverter {
    * @param {*} value
    * @returns {string}
    */
-  date(value) {
+  date(value: any): string {
     return isDateLike(value)
       ? dayjs(value).format(this.dateFormat ?? this.locale.formats.date)
       : '';
   }
 
   /**
-   * Get decade array from date
-   * @param {Date} date
-   */
-  decade(date) {
-    const currentUnitYear = date.getFullYear();
-    const yearPerDecade = Math.floor(currentUnitYear / 10);
-    const start = yearPerDecade * 10;
-    const end = start + 9;
-    return [start, end];
-  }
-
-  /**
    * Check date is matched with options date format (or locale date format)
    * @param {*} date
    */
-  isValid(date) {
+  isValid(date: any) {
     return dayjs(
       date,
       this.dateFormat ?? this.locale.formats.date,

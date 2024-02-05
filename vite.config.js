@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
-import postcss from './postcss.config.mjs';
+import { aliasOptions } from './options.js';
+import postcss from './postcss.config.js';
 
 export default defineConfig(() => {
   return {
-    root: 'dev',
+    root: 'src/_dev',
     resolve: {
-      alias: [{ find: '@', replacement: resolve(__dirname, 'src') }],
+      alias: aliasOptions,
     },
     css: {
       postcss,
