@@ -22,22 +22,21 @@ const alias = aliasPlugin({
 const banner =
   `// ${pkg.name.toUpperCase()} v${pkg.version}\n` +
   `// ${pkg.repository.url}\n` +
-  `// (c) 2024 - ${new Date().getFullYear()} ${pkg.author}\n` +
+  `// (c) 2023 - ${new Date().getFullYear()} ${pkg.author}\n` +
   '// Doumi may be freely distributed under the MIT license.\n';
 
-function createCSSConfig(input, output, mode) {
-  const isProd = mode === 'production';
+function createCSSConfig(input, output) {
   return {
     input,
     output: {
-      file: `${output}${isProd ? '.min' : ''}.css`,
+      file: `${output}.css`,
     },
     plugins: [
       postcss({
         include: '**/*.css',
         extract: true,
         plugins: postcssConfig.plugins,
-        minimize: isProd,
+        minimize: true,
       }),
     ],
   };
@@ -87,25 +86,6 @@ function createESMConfig(input, output) {
   };
 }
 
-function createCommonJSConfig(input, output) {
-  return {
-    input,
-    output: {
-      file: `${output}.js`,
-      format: 'cjs',
-      esModule: false,
-      banner,
-    },
-    plugins: [
-      alias,
-      json(),
-      commonjs(),
-      resolve({ extensions }),
-      babelPlugin(getBabelOptions()),
-    ],
-  };
-}
-
 /**
  *
  * @param {string} input
@@ -147,18 +127,7 @@ const BUILD_FILENAME = 'datepicker';
 module.exports = [
   createCSSConfig('src/styles/index.css', `dist/${BUILD_FILENAME}`),
   createCSSConfig('src/styles/dark.css', `dist/${BUILD_FILENAME}-dark`),
-  createCSSConfig(
-    'src/styles/index.css',
-    `dist/${BUILD_FILENAME}.css`,
-    'production'
-  ),
-  createCSSConfig(
-    'src/styles/dark.css',
-    `dist/${BUILD_FILENAME}-dark.css`,
-    'production'
-  ),
   createDeclarationConfig(entry, 'dist/'),
-  createCommonJSConfig(entry, 'dist/index'),
   createESMConfig(entry, 'dist/index.esm.js'),
   createUMDConfig(entry, `dist/${BUILD_FILENAME}`, 'development'),
   createUMDConfig(entry, `dist/${BUILD_FILENAME}`, 'production'),

@@ -1,27 +1,21 @@
 {
+  "private": true,
   "name": "@janghye0k/datepicker",
   "version": "0.0.0",
   "description": "Javascript datepicker",
-  "main": "./dist/datepicker.js",
-  "types": "./dist/index.d.ts",
+  "main": "datepicker.js",
+  "types": "index.d.ts",
+  "module": "index.esm.js",
   "exports": {
     ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.esm.js",
-      "browser": "./dist/datepicker.js"
+      "import": "./index.esm.js",
+      "browser": "./datepicker.js"
     }
   },
   "keywords": [
     "vanilla",
     "datepicker",
     "calendar"
-  ],
-  "files": [
-    "dist/",
-    "LICENSE",
-    "CHANGELOG.md",
-    "package.json",
-    "README.md"
   ],
   "repository": {
     "type": "git",
@@ -45,7 +39,10 @@
     "test:coverage": "pnpm test:only -- --collectCoverageFrom=\"src/**/*.js\" --coverage",
     "test": "pnpm test:coverage",
     "prepare": "husky install",
-    "release": "standard-version"
+    "release": "standard-version",
+    "schema": "npx ts-json-schema-generator",
+    "prepub": "pnpm clean && pnpm build && node ./scripts/setupPublish.js && cd dist",
+    "pub": "cd dist && pnpm publish"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
@@ -103,8 +100,10 @@
   "dependencies": {
     "@floating-ui/dom": "^1.6.1",
     "@janghye0k/observable": "^1.0.1",
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1",
     "animejs": "^3.2.2",
     "dayjs": "^1.11.10",
-    "doumi": "^1.1.2"
+    "doumi": "^1.1.3"
   }
 }

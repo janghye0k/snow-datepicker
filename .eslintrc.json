@@ -29,6 +29,7 @@
       { "argsIgnorePattern": "^_" }
     ]
   },
+  "ignorePatterns": ["scripts/*.js"],
   "overrides": [
     {
       "files": ["./*.js"],
