@@ -40,7 +40,6 @@
     "test": "pnpm test:coverage",
     "prepare": "husky install",
     "release": "standard-version",
-    "schema": "npx ts-json-schema-generator",
     "prepub": "pnpm clean && pnpm build && node ./scripts/setupPublish.js && cd dist",
     "pub": "cd dist && pnpm publish"
   },
@@ -100,8 +99,6 @@
   "dependencies": {
     "@floating-ui/dom": "^1.6.1",
     "@janghye0k/observable": "^1.0.1",
-    "ajv": "^8.12.0",
-    "ajv-formats": "^2.1.1",
     "animejs": "^3.2.2",
     "dayjs": "^1.11.10",
     "doumi": "^1.1.3"

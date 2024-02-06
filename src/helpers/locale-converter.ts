@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { capitalize, isDateLike } from 'doumi';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { Locale } from '@/index';
+import { Locale } from '@t/locale';
 // eslint-disable-next-line import/no-named-as-default-member
 dayjs.extend(customParseFormat);
 

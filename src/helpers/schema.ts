@@ -1,22 +1,17 @@
-import { error } from '@/helpers/util';
 import {
-  isDateLike,
-  isUndefined,
-  isString,
-  isObject,
-  reduce,
+  assign,
   forEach,
+  isDateLike,
+  isObject,
+  isPlainObject,
+  isString,
+  isUndefined,
+  reduce,
 } from 'doumi';
-import { InternalOptions, Options } from '@/index';
+import type { InternalOptions, Options, Unit } from '@t/options';
+import { error } from '@/helpers/util';
 
-/**
- * @typedef {import('../index').Options} Options
- */
-
-/**
- * @type {Record<string, number>}
- */
-export const UNIT_ORDER = {
+export const UNIT_ORDER: Record<string, number> = {
   days: 1,
   months: 2,
   years: 3,
@@ -24,16 +19,25 @@ export const UNIT_ORDER = {
 
 const UNIT_LIST = ['days', 'months', 'years'];
 
+export function isUnit(unit: any) {
+  return isString(unit) && UNIT_LIST.includes(unit);
+}
+
+export function checkUnit(unit: Unit, minUnit?: Unit) {
+  if (!minUnit) return true;
+  return (
+    UNIT_ORDER[unit as keyof typeof UNIT_ORDER] >=
+    UNIT_ORDER[minUnit as keyof typeof UNIT_ORDER]
+  );
+}
+
 const DEFAULT_TITLE_FORMAT = {
   days: 'MMMM, <i>YYYY</i>',
   months: 'YYYY',
   years: 'YYYY1 - YYYY2',
 };
 
-/**
- * @type {Options}
- */
-const DEFUALT_OPTIONS = {
+const DEFUALT_OPTIONS: Options = {
   format: 'YYYY-MM-DD',
   toggleSelected: true,
   shortcuts: true,
@@ -53,8 +57,11 @@ function inValid(key: string, message: string) {
   error(`Invalid options`, `options.${key} should be ${message}`);
 }
 
-const VALIDATE_MAP: Record<string, (value: unknown) => any> = {
-  ...reduce(
+type ValidationMap = Record<string, (...args: any[]) => any>;
+
+const VALIDATION_MAP: ValidationMap = assign(
+  {},
+  reduce(
     DEFUALT_OPTIONS,
     (obj, value, key) => {
       const type = typeof value;
@@ -64,72 +71,53 @@ const VALIDATE_MAP: Record<string, (value: unknown) => any> = {
       };
       return obj;
     },
-    {} as any
+    {} as ValidationMap
   ),
-  ...['unit', 'minUnit'].reduce((obj, item) => {
-    obj[item] = (val: any) => {
-      if (isUnit(val)) return;
-      inValid(item, UNIT_LIST.join(' | '));
-    };
-    return obj;
-  }, {} as any),
-  ...['minDate', 'maxDate', 'selectedDate'].reduce((obj, item) => {
+  ['minDate', 'maxDate', 'selectedDate'].reduce((obj, item) => {
     obj[item] = (val: any) => {
       if (isUndefined(val) || isDateLike(val)) return;
       inValid(item, ['string', 'number', 'Date'].join(' | '));
     };
     return obj;
-  }, {} as any),
-  className: (val) => {
-    if (isUndefined(val) || isString(val)) return;
-    inValid('className', 'string');
-  },
-  titleFormat: (val: any) => {
-    if (isUndefined(val)) return;
-    if (!isObject(val))
-      return inValid(
-        'titleFormat',
-        '{ dayjs?: string; months?: string; years?: string }'
-      );
-    forEach(DEFAULT_TITLE_FORMAT, (_, key) => {
-      const matcher = ['string', 'undefined'];
-      if (matcher.includes(typeof val[key])) return;
-      inValid(`titleFormat.${key}`, matcher.join(' | '));
-    });
-  },
-};
-
-export function isUnit(unit: any) {
-  return isString(unit) && UNIT_LIST.includes(unit);
-}
-
-export function checkUnit(unit: string, minUnit?: string) {
-  if (!minUnit) return true;
-  return (
-    UNIT_ORDER[unit as keyof typeof UNIT_ORDER] >=
-    UNIT_ORDER[minUnit as keyof typeof UNIT_ORDER]
-  );
-}
+  }, {} as ValidationMap),
+  {
+    className: (val: any) => {
+      if (isUndefined(val) || isString(val)) return;
+      inValid('className', 'string');
+    },
+    titleFormat: (val: any) => {
+      if (isUndefined(val)) return;
+      if (!isObject(val))
+        return inValid(
+          'titleFormat',
+          '{ dayjs?: string; months?: string; years?: string }'
+        );
+      forEach(DEFAULT_TITLE_FORMAT, (_, key) => {
+        const matcher = ['string', 'undefined'];
+        if (matcher.includes(typeof val[key])) return;
+        inValid(`titleFormat.${key}`, matcher.join(' | '));
+      });
+    },
+  }
+);
 
 export default function checkSchema(options: Options): InternalOptions {
-  /** @type {any} */
-  const opt = { ...DEFUALT_OPTIONS, ...options };
+  const opt = assign({}, DEFUALT_OPTIONS, options) as any;
   if (!checkUnit(opt.unit, opt.minUnit)) opt.unit = opt.minUnit;
+  if (opt.titleFormat === undefined) opt.titleFormat = {};
+  if (isPlainObject(opt.titleFormat)) {
+    forEach(DEFAULT_TITLE_FORMAT, (value, key) => {
+      const titleFormat = opt.titleFormat as Record<string, string>;
+      if (!isString(titleFormat[key])) titleFormat[key] = value;
+    });
+  }
 
   // Validate
   forEach(opt, (value, key) => {
-    const validator = VALIDATE_MAP[key];
+    const validator = VALIDATION_MAP[key];
     if (!validator) return;
     validator(value);
   });
 
-  // Set titleFormat
-  if (opt.titleFormat === undefined) opt.titleFormat = {};
-  forEach(DEFAULT_TITLE_FORMAT, (value, key) => {
-    const titleFormat = opt.titleFormat as Record<string, string>;
-    const optValue = titleFormat[key];
-    if (optValue === undefined) titleFormat[key] = value;
-  });
-
-  return opt as InternalOptions;
+  return opt;
 }

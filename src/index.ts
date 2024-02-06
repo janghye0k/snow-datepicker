@@ -30,85 +30,8 @@ import {
   flip,
 } from '@floating-ui/dom';
 import anime from 'animejs';
-import { Position } from '../types/options.d';
-
-type LocaleFormats = { time: string; date: string };
-
-/**
- * Language of the calendar.
- */
-export type Locale = {
-  name: string;
-  months: string[];
-  monthsShort: string[];
-  weekStart: number;
-  weekdays: string[];
-  weekdaysShort: string[];
-  weekdaysMin: string[];
-  formats: LocaleFormats;
-  placeholder: string;
-};
-
-export type DateLike = string | number | Date;
-
-export type TitleFormat = {
-  days: string;
-  months: string;
-  years: string;
-};
-
-export type InternalOptions = {
-  /** Get the formatted date according to the string of tokens passed in. By default, `YYYY-MM-DD` */
-  format: string;
-  /** If `true`, then clicking on the active cell will remove the selection from it. By default, `true` */
-  toggleSelected: boolean;
-  /** Enables keyboard navigation. By default, `true` */
-  shortcuts: boolean;
-  /** Position of the calendar relative to the input field. By default, `bottom-start` */
-  position: Position;
-  /** The initial unit of the calendar. (e.g. `days` | `months` | `years`) By default, `days` */
-  unit: string;
-  /** The minimum unit of the calendar. The values are same as unit. By default, `days` */
-  minUnit: string;
-  /** If `true`, dates from other months will be displayed in days view. By default, `true` */
-  showOtherMonths: boolean;
-  /** If `true`, it will be possible to select dates from other months. By default, `true` */
-  selectOtherMonths: boolean;
-  /**
-   * If `true` , then selecting dates from another month will be causing transition to this month. By default, `true`
-   */
-  moveOtherMonths: boolean;
-  /** Whether to enable navigation when the maximum/minimum date is exceeded. By default, `true` */
-  navigationLoop: boolean;
-  /** If `true`, the calendar will be hidden after selecting the date. By default, `true` */
-  autoClose: boolean;
-  /** Title templates in the calendar navigation. */
-  titleFormat: TitleFormat;
-  /** If `false`, it will be able to edit dates at input field. */
-  readOnly: boolean;
-  buttons?: string | string[];
-  /** Add custom classes. */
-  className?: string;
-  /** Language of the calendar. */
-  locale?: string | Locale;
-  /** The minimum date of calendar */
-  minDate: DateLike;
-  /** The maximum date of calendar */
-  maxDate: DateLike;
-  selectedDate: DateLike;
-  onSelect?: any;
-  onChangeView?: any;
-  onShow?: any;
-  onHide?: any;
-  onFocus?: any;
-  onBlur?: any;
-};
-
-export type Options = Partial<
-  Omit<InternalOptions, 'titleFormat'> & {
-    titleFormat: Partial<TitleFormat>;
-  }
->;
+import { Locale } from '@t/locale';
+import { InternalOptions, Options, Unit } from '@t/options';
 
 const PREFIX = 'hye0k-datepicker';
 
@@ -821,7 +744,7 @@ class DatePicker {
    * Set current unit of datepicker
    * @param {string} unit
    */
-  setCurrentUnit(unit: string) {
+  setCurrentUnit(unit: Unit) {
     const nextUnit = isUnit(unit) ? unit : this.options.minUnit;
     if (!checkUnit(unit, this.options.minUnit)) return;
     this.#state.unit({ ...this.#state.unit(), currentUnit: nextUnit });
