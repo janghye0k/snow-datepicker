@@ -139,38 +139,31 @@
   font-size: 0.75rem;
 }
 
-.datepicker-content > *:not(.--show) {
-  display: none;
-}
-
-.datepicker-content__weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  margin-block: 0.5rem 0.25rem;
-}
-
-.datepicker-content__weekdays-item {
-  text-align: center;
-  color: #fb9052;
-  cursor: default;
-}
-
-.datepicker-content__views {
+.datepicker-content.--days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-auto-rows: 2rem;
 }
 
-.datepicker-content__months {
+.datepicker-content.--months,
+.datepicker-content.--years {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+}
+
+.datepicker-content.--months {
   grid-auto-rows: 2.5rem;
 }
 
-.datepicker-content__years {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.datepicker-content.--years {
   grid-auto-rows: 3.5rem;
+}
+
+.datepicker-content__weekday {
+  text-align: center;
+  color: #fb9052;
+  cursor: default;
+  margin-block: 0.5rem 0.25rem;
 }
 
 .datepicker-content__cell {
