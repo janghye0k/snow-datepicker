@@ -90,7 +90,7 @@ const VALIDATION_MAP: ValidationMap = assign(
       if (!isObject(val))
         return inValid(
           'titleFormat',
-          '{ dayjs?: string; months?: string; years?: string }'
+          '{ days?: string; months?: string; years?: string }'
         );
       forEach(DEFAULT_TITLE_FORMAT, (_, key) => {
         const matcher = ['string', 'undefined'];
