@@ -59,13 +59,17 @@ export type InternalOptions = {
   /** Add custom classes. */
   className?: string;
   /** Language of the calendar. */
-  locale?: string | Locale;
-  onSelect?: Function;
-  onChangeView?: Function;
+  locale?: Locale;
   onShow?: Function;
   onHide?: Function;
   onFocus?: Function;
   onBlur?: Function;
+  onClickCell?: Function;
+  onRenderCell?: Function;
+  onBeforeSelect?: Function;
+  onSelect?: Function;
+  onChangeUnit?: Function;
+  onChangeUnitDate?: Function;
 };
 
 export type Options = Partial<

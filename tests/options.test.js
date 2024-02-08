@@ -1,7 +1,5 @@
-import dayjs from 'dayjs';
 import DatePicker from '@/index';
 import ko from '@/locale/ko';
-import { sleep } from 'doumi';
 
 let $el;
 /** @type {import('../src/index').default} */
@@ -37,8 +35,6 @@ describe('OPTIONS TEST', () => {
     it('should change locale to ko', async () => {
       create($el, { locale: ko });
 
-      await sleep(100);
-
       const weekdaysShort = [];
       datepicker.$datepicker
         .querySelectorAll('.hye0k-datepicker-weekday')
@@ -53,14 +49,13 @@ describe('OPTIONS TEST', () => {
   describe('options.selectedDate', () => {
     it('should select date on init', async () => {
       const date = new Date('2024-01-01');
-      create($el, { selectedDate: date, locale: 'ko' });
+      create($el, { selectedDate: date });
 
-      await sleep(50);
-
+      const inputDate = new Date(datepicker.$input.value);
       expect(datepicker.selectedDate).not.toBe(null);
-      expect(dayjs(date).format(datepicker.converter.locale.formats.date)).toBe(
-        datepicker.$input.value
-      );
+      expect(date.getFullYear()).toBe(inputDate.getFullYear());
+      expect(date.getMonth()).toBe(inputDate.getMonth());
+      expect(date.getDate()).toBe(inputDate.getDate());
     });
   });
 

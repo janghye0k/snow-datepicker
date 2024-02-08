@@ -18,6 +18,8 @@ lerna-debug.log*
 *.sln
 *.sw?
 
+__DevTemp
+
 node_modules
 coverage
 dist

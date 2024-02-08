@@ -1,6 +1,5 @@
 import DatePicker from '@/index';
 import '@/styles/index.css';
-// import '@/styles/dark.css';
 
 const id = 'picker';
 const selector = `#${id}`;
@@ -11,4 +10,4 @@ document.body.innerHTML = `
 const picker = new DatePicker(selector, {
   selectedDate: new Date('2024-01-01'),
 });
-picker;
+picker.show();

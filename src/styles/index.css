@@ -1,63 +1,63 @@
-.hye0k-datepicker {
-  --hye0k-datepicker-color: #333;
-  --hye0k-datepicker-bg: #fff;
-  --hye0k-datepicker-border-color: #cfcfcf;
-  --hye0k-datepicker-main-color: #3d9ff0;
+.datepicker {
+  --datepicker-color: #333;
+  --datepicker-bg: #fff;
+  --datepicker-border-color: #cfcfcf;
+  --datepicker-main-color: #3d9ff0;
 }
 
-.hye0k-datepicker-input {
-  border: 1px solid var(--hye0k-datepicker-border-color);
+.datepicker-input {
+  border: 1px solid var(--datepicker-border-color);
   outline: 0;
   height: 2rem;
   font-size: 0.875rem;
   padding-inline: 0.75rem;
   border-radius: 4px;
-  color: var(--hye0k-datepicker-color);
-  background-color: var(--hye0k-datepicker-bg);
+  color: var(--datepicker-color);
+  background-color: var(--datepicker-bg);
   transition: ease-out all 0.1s;
 }
 
-.hye0k-datepicker-input:hover {
+.datepicker-input:hover {
   background-color: color-mix(
     in srgb,
-    var(--hye0k-datepicker-main-color) 7%,
+    var(--datepicker-main-color) 7%,
     transparent
   );
 }
 
-.hye0k-datepicker-input.active {
+.datepicker-input.--active {
   background-color: inherit;
-  border-color: var(--hye0k-datepicker-main-color);
+  border-color: var(--datepicker-main-color);
 }
 
-.hye0k-datepicker-container {
+.datepicker-container {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 10;
 }
 
-.hye0k-datepicker-backdrop {
+.datepicker-backdrop {
   position: fixed;
   inset: 0;
   width: 0;
   height: 0;
   background-color: color-mix(
     in srgb,
-    var(--hye0k-datepicker-color) 33%,
+    var(--datepicker-color) 33%,
     transparent
   );
   opacity: 0;
   transition: ease-out opacity 0.1s;
 }
 
-.hye0k-datepicker-backdrop.active {
+.datepicker-backdrop.--active {
   width: 100%;
   height: 100%;
   opacity: 1;
 }
 
-.hye0k-datepicker-calendar-arrow {
+.datepicker-calendar-arrow {
   position: absolute;
   rotate: 45deg;
   width: 10px;
@@ -70,26 +70,23 @@
   z-index: 0;
 }
 
-.hye0k-datepicker-calendar {
+.datepicker-calendar {
   position: absolute;
   width: 16rem;
-  border: 1px solid var(--hye0k-datepicker-border-color);
+  border: 1px solid var(--datepicker-border-color);
   border-radius: 4px;
-  color: var(--hye0k-datepicker-color);
-  background-color: var(--hye0k-datepicker-bg);
+  color: var(--datepicker-color);
+  background-color: var(--datepicker-bg);
 }
 
-.hye0k-datepicker-header {
+.datepicker-controls {
   padding: 4px;
-  border-bottom: 1px solid var(--hye0k-datepicker-border-color);
-}
-
-.hye0k-datepicker-nav {
+  border-bottom: 1px solid var(--datepicker-border-color);
   display: flex;
   align-items: center;
 }
 
-.hye0k-datepicker-nav-title {
+.datepicker-controls__title {
   margin-inline: auto;
   padding-inline: 0.5rem;
   height: 2rem;
@@ -99,12 +96,12 @@
   cursor: pointer;
 }
 
-.hye0k-datepicker-nav-title i {
+.datepicker-controls__title i {
   font-style: normal;
-  color: color-mix(in srgb, var(--hye0k-datepicker-color) 60%, transparent);
+  color: color-mix(in srgb, var(--datepicker-color) 60%, transparent);
 }
 
-.hye0k-datepicker-nav-btn {
+.datepicker-controls__btn {
   padding: 0.25rem;
   width: 2rem;
   height: 2rem;
@@ -118,51 +115,65 @@
   cursor: pointer;
 }
 
-.hye0k-datepicker-nav-btn > svg {
+.datepicker-controls__btn > svg {
   flex-grow: 1;
-  color: color-mix(in srgb, var(--hye0k-datepicker-color) 66%, transparent);
+  color: color-mix(in srgb, var(--datepicker-color) 66%, transparent);
 }
 
-.hye0k-datepicker-nav-title:hover,
-.hye0k-datepicker-nav-btn:hover {
+.datepicker-controls__title:hover,
+.datepicker-controls__btn:hover {
+  background-color: color-mix(in srgb, var(--datepicker-color) 9%, transparent);
+}
+
+.datepicker-controls__title:active,
+.datepicker-controls__btn:active {
   background-color: color-mix(
     in srgb,
-    var(--hye0k-datepicker-color) 9%,
+    var(--datepicker-color) 14%,
     transparent
   );
 }
 
-.hye0k-datepicker-nav-title:active,
-.hye0k-datepicker-nav-btn:active {
-  background-color: color-mix(
-    in srgb,
-    var(--hye0k-datepicker-color) 14%,
-    transparent
-  );
-}
-
-.hye0k-datepicker-body {
+.datepicker-content {
   padding: 0.25rem;
   font-size: 0.75rem;
 }
 
-.hye0k-datepicker-body > *:not(.show) {
+.datepicker-content > *:not(.--show) {
   display: none;
 }
 
-.hye0k-datepicker-weekdays {
+.datepicker-content__weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   margin-block: 0.5rem 0.25rem;
 }
 
-.hye0k-datepicker-weekday {
+.datepicker-content__weekdays-item {
   text-align: center;
   color: #fb9052;
   cursor: default;
 }
 
-.hye0k-datepicker-pickable-item {
+.datepicker-content__views {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 2rem;
+}
+
+.datepicker-content__months {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 2.5rem;
+}
+
+.datepicker-content__years {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 3.5rem;
+}
+
+.datepicker-content__cell {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -170,69 +181,47 @@
   cursor: pointer;
 }
 
-.hye0k-datepicker-pickable-item.today {
-  color: var(--hye0k-datepicker-main-color);
+.datepicker-content__cell.--today {
+  color: var(--datepicker-main-color);
 }
 
-.hye0k-datepicker-pickable-item.other {
-  color: var(--hye0k-datepicker-border-color);
+.datepicker-content__cell.--other {
+  color: var(--datepicker-border-color);
 }
 
-.hye0k-datepicker-pickable-item.active {
-  color: var(--hye0k-datepicker-bg);
+.datepicker-content__cell.--active {
+  color: var(--datepicker-bg);
   background-color: color-mix(
     in srgb,
-    var(--hye0k-datepicker-main-color) 86%,
+    var(--datepicker-main-color) 86%,
     transparent
   );
 }
 
-.hye0k-datepicker-pickable-item.active:hover {
-  background-color: var(--hye0k-datepicker-main-color);
+.datepicker-content__cell.--active:hover {
+  background-color: var(--datepicker-main-color);
 }
 
-.hye0k-datepicker-pickable-item.active.other {
+.datepicker-content__cell.--active.--other {
   background-color: color-mix(
     in srgb,
-    var(--hye0k-datepicker-main-color) 60%,
+    var(--datepicker-main-color) 60%,
     transparent
   );
 }
 
-.hye0k-datepicker-pickable-item.active.other:hover {
+.datepicker-content__cell.--active.--other:hover {
   background-color: color-mix(
     in srgb,
-    var(--hye0k-datepicker-main-color) 74%,
+    var(--datepicker-main-color) 74%,
     transparent
   );
 }
 
-.hye0k-datepicker-pickable-item:hover {
-  background-color: color-mix(
-    in srgb,
-    var(--hye0k-datepicker-color) 9%,
-    transparent
-  );
+.datepicker-content__cell:hover {
+  background-color: color-mix(in srgb, var(--datepicker-color) 9%, transparent);
 }
 
-.hye0k-datepicker-pickable-item[hidden] {
+.datepicker-content__cell[hidden] {
   visibility: hidden;
-}
-
-.hye0k-datepicker-days-content {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 2rem;
-}
-
-.hye0k-datepicker-months {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: 2.5rem;
-}
-
-.hye0k-datepicker-years {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: 3.5rem;
 }
