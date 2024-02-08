@@ -4,7 +4,7 @@ import type { DateLike, Options } from '@t/options';
 import type { Converter } from '@t/instance';
 import { decade } from '@/helpers/util';
 
-type Prams = Pick<Options, 'locale' | 'format'>;
+type Prams = Pick<Options, 'locale' | 'dateFormat'>;
 
 const FORMAT_REGEXP =
   /\[([^\]]+)]|YY[1|2]|YYYY[1|2]|Y{2,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g;
@@ -25,7 +25,7 @@ const getZone = (date: Date) => {
 
 export function craeteConverter({
   locale = LocaleEn,
-  format: dateFormat,
+  dateFormat,
 }: Prams = {}): Converter {
   const month = (monthIndex: number, short?: boolean) => {
     const monthStr = locale.months[monthIndex];

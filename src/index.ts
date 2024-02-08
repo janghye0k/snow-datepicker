@@ -9,8 +9,8 @@ import createInstance from '@/instance';
 import createEventManager from '@/events';
 import PickerEvent from '@/events/picker-event';
 import { convertToInput, createContainer } from '@/helpers/elements';
-import Controls from './components/Controls';
-import Content from './components/Content';
+import Controls from '@/components/Controls';
+import Content from '@/components/Content';
 
 class DatePicker {
   #options: InternalOptions;

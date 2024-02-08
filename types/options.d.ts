@@ -22,7 +22,7 @@ export type Unit = 'days' | 'months' | 'years';
 
 export type InternalOptions = {
   /** Get the formatted date according to the string of tokens passed in. By default, `YYYY-MM-DD` */
-  format: string;
+  dateFormat: string;
   /** If `true`, then clicking on the active cell will remove the selection from it. By default, `true` */
   toggleSelected: boolean;
   /** Enables keyboard navigation. By default, `true` */
