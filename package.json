@@ -98,7 +98,7 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.6.1",
-    "@janghye0k/observable": "^1.0.1",
+    "@janghye0k/observable": "^1.0.2",
     "animejs": "^3.2.2",
     "doumi": "^1.1.3"
   }

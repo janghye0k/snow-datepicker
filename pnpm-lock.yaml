@@ -9,8 +9,8 @@ dependencies:
     specifier: ^1.6.1
     version: 1.6.1
   '@janghye0k/observable':
-    specifier: ^1.0.1
-    version: 1.0.1
+    specifier: ^1.0.2
+    version: 1.0.2
   animejs:
     specifier: ^3.2.2
     version: 3.2.2
@@ -220,7 +220,7 @@ packages:
       slash: 2.0.0
     optionalDependencies:
       '@nicolo-ribaudo/chokidar-2': 2.1.8-no-fsevents.3
-      chokidar: 3.5.3
+      chokidar: 3.6.0
     dev: true
 
   /@babel/code-frame@7.23.5:
@@ -3196,10 +3196,10 @@ packages:
     engines: { node: '>=8' }
     dev: true
 
-  /@janghye0k/observable@1.0.1:
+  /@janghye0k/observable@1.0.2:
     resolution:
       {
-        integrity: sha512-xADijsdvLOpWyBSc6Kncy3f5+k0GRoc4WWUbsRJBNeicO8zJsF1oCW/P4DNVxikMLvtuwe1GjIihKDZ3E1gtCw==,
+        integrity: sha512-RGAK7uVAzLjbS0Ao+yXBJvEoZNOqCmtcwO20uQS/8qdeUHTncCUewYQvrolUTZJGmVISIUmDhHjpyfpTlIbyRA==,
       }
     dev: false
 
@@ -5014,10 +5014,10 @@ packages:
     engines: { node: '>=10' }
     dev: true
 
-  /chokidar@3.5.3:
+  /chokidar@3.6.0:
     resolution:
       {
-        integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==,
+        integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==,
       }
     engines: { node: '>= 8.10.0' }
     requiresBuild: true
