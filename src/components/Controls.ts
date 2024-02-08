@@ -18,8 +18,7 @@ class Controls extends Components {
   }
 
   bindEvents(): void {
-    const { store, converter } = this.instance;
-    const { titleFormat } = this.options;
+    const { store } = this.instance;
     const $title = find$('.' + cn('controls.title'), this.$el) as HTMLElement;
 
     // Trigger unit change when click title
@@ -36,6 +35,12 @@ class Controls extends Components {
         store.addUnitDate(isPrev ? -1 : 1);
       });
     });
+  }
+
+  subscribe() {
+    const { store, converter } = this.instance;
+    const { titleFormat } = this.options;
+    const $title = find$('.' + cn('controls.title'), this.$el) as HTMLElement;
 
     // subcribe auto re-render title listener
     const unsub = effect(() => {
@@ -44,12 +49,7 @@ class Controls extends Components {
       $title.innerHTML = converter.format(unitDate, format);
     }, [store.state.viewState, true]);
 
-    store.state.viewState.subscribe(() => {}, true);
     this.unsubscribers.push(unsub);
-  }
-
-  beforeDestroy(): void {
-    this.unsubscribers.forEach((fn) => fn());
   }
 }
 

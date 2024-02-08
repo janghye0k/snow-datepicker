@@ -26,15 +26,14 @@ class Components<T extends DefaultProps = DefaultProps> {
   init() {
     this.render();
     this.bindEvents();
+    this.subscribe();
   }
 
   bindEvents() {}
 
   render() {}
 
-  clear() {
-    this.$el.innerHTML = '';
-  }
+  subscribe() {}
 
   beforeDestroy() {}
 
