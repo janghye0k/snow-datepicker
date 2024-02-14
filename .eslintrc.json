@@ -28,7 +28,8 @@
       "error",
       { "argsIgnorePattern": "^_" }
     ],
-    "@typescript-eslint/ban-types": "off"
+    "@typescript-eslint/ban-types": "off",
+    "no-debugger": "off"
   },
   "ignorePatterns": ["scripts/*.js"],
   "overrides": [

@@ -1,28 +1,35 @@
 import { cn } from '@/helpers/selectors';
 import Components from './Components';
 import { effect } from '@janghye0k/observable';
-import { create$, isNull } from 'doumi';
-import { parseDate } from '@/helpers/util';
+import { create$, isArray, range } from 'doumi';
+import { decade, getCalendarDates } from '@/helpers/util';
+import Cell, { CellType } from './Cell';
 
 class Content extends Components {
+  cells: Cell[] = [];
+
   subscribe(): void {
     const { store } = this.instance;
-    const unsub = effect(
+    const unsub1 = effect(
       (state) => {
         this.$el.className = [cn('content'), `--${state}`].join(' ');
       },
       [store.state.currentUnit, true]
     );
 
-    this.unsubscribers.push(unsub);
+    const unsub2 = effect(() => {
+      this.renderCells();
+    }, [store.state.viewState, true]);
+
+    this.unsubscribers.push(unsub1, unsub2);
   }
 
-  generateWeekDays() {
+  private generateWeekDays() {
     const {
       locale: { weekdaysMin },
       weekIndexes,
     } = this.instance.converter;
-    weekIndexes.map((index: number) =>
+    return weekIndexes.map((index: number) =>
       create$('div', {
         className: cn('weekday'),
         dataset: { dayindex: index },
@@ -31,58 +38,42 @@ class Content extends Components {
     );
   }
 
-  generateDays() {
+  private generateDates() {
     const { store, converter } = this.instance;
-    const { unitDate, selectedDate } = store;
-    const [year, month] = parseDate(unitDate);
+    const { unitDate, currentUnit } = store;
 
-    const firstDate = new Date(year, month, 1);
-    const lastDate = new Date(year, month + 1, 0);
-    const firstDateDay = firstDate.getDay();
-    const lastDateDay = lastDate.getDay();
-
-    const { weekStart = 0 } = converter.locale;
-    const preDays =
-      (firstDateDay + 7 - weekStart) % 7 || (lastDate.getDate() === 28 ? 7 : 0);
-    const postDays = 6 - lastDateDay;
-
-    const days: { d: number; m: number }[] = [];
-    const displayPrevStart = new Date(year, month, 0).getDate() - preDays + 1;
-
-    const pushData = (length: number, m: number, adder: number = 1) =>
-      Array.from({ length }, (_, i) => days.push({ d: adder + i, m }));
-    pushData(preDays, month - 1, displayPrevStart);
-    pushData(lastDate.getDate(), month);
-    pushData(postDays, (month + 1) % 12);
-
-    const selected = { month: -1, day: -1 };
-    if (!isNull(selectedDate)) {
-      selected.day = selectedDate.getDate();
-      selected.month = selectedDate.getMonth();
+    switch (currentUnit) {
+      case 'days':
+        return getCalendarDates(unitDate, converter.locale.weekStart);
+      case 'months':
+        // eslint-disable-next-line
+        const year = unitDate.getFullYear();
+        return range(12).map((idx) => new Date(year, idx, 1, 12));
+      case 'years':
+        return range(decade(unitDate)[0] - 1, 12).map(
+          (year) => new Date(year, 0, 1, 12)
+        );
     }
-    const todays = parseDate();
+  }
 
-    // Render days
-    days.forEach(({ d, m }) => {
-      const isOtherMonth = m !== month;
-      const isSelectable = !isOtherMonth || this.options.selectOtherMonths;
-      const isHidden = isOtherMonth && !this.options.showOtherMonths;
+  renderCells() {
+    const { instance, options, dp } = this;
+    const type = instance.store.currentUnit.slice(0, -1) as CellType;
+    const dates = this.generateDates();
 
-      const classList = [cn('cell')];
-      if (isOtherMonth) classList.push('other');
-      if (selected.day === d && selected.month === m) classList.push('active');
-      if (todays[0] === year && todays[1] === m && todays[2] === d)
-        classList.push('today');
+    if (!isArray(this.cells)) this.cells = [];
+    this.cells.forEach((cell) => cell.destroy());
+    this.$el.innerHTML = '';
 
-      const $day = create$('div', {
-        classList,
-        dataset: { year, monthindex: m, day: d },
-        innerHTML: `${d}`,
-      });
-      if (isHidden) $day.setAttribute('hidden', '');
+    if (type === 'day') {
+      const $weekdays = this.generateWeekDays();
+      this.$el.replaceChildren(...$weekdays);
+    }
 
-      this.$el.appendChild($day);
-      if (isSelectable) false; // bindevents
+    dates.forEach((date) => {
+      const $cell = create$('div');
+      this.$el.appendChild($cell);
+      new Cell($cell, { type, date, dp, instance, options });
     });
   }
 }

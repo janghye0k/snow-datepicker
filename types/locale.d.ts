@@ -7,7 +7,7 @@ export type Locale = {
   name: string;
   months: string[];
   monthsShort: string[];
-  weekStart: number;
+  weekStart?: number;
   weekdays: string[];
   weekdaysShort: string[];
   weekdaysMin: string[];

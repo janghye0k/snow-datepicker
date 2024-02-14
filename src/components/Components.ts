@@ -1,6 +1,7 @@
 import type { Instance } from '@t/instance';
 import type { InternalOptions } from '@t/options';
 import DatePicker from '@/index';
+import { assign } from 'doumi';
 
 interface DefaultProps {
   dp: DatePicker;
@@ -14,12 +15,12 @@ class Components<T extends DefaultProps = DefaultProps> {
   options: InternalOptions;
   $el: Element;
   unsubscribers: Function[] = [];
-  constructor(element: Element, { dp, instance, options }: T) {
+  constructor(element: Element, { dp, instance, options, ...props }: T) {
     this.$el = element;
     this.dp = dp;
     this.instance = instance;
     this.options = options;
-
+    this.assignProps(props);
     this.init();
   }
 
@@ -37,10 +38,13 @@ class Components<T extends DefaultProps = DefaultProps> {
 
   beforeDestroy() {}
 
+  assignProps(props: Record<string, any>) {
+    assign(this, props);
+  }
+
   destroy() {
     this.beforeDestroy();
     this.unsubscribers.forEach((fn) => fn());
-    this.$el.parentElement?.removeChild(this.$el);
   }
 }
 

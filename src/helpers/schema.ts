@@ -38,7 +38,7 @@ const DEFAULT_TITLE_FORMAT = {
 };
 
 const DEFUALT_OPTIONS: Options = {
-  format: 'YYYY-MM-DD',
+  dateFormat: 'YYYY-MM-DD',
   toggleSelected: true,
   shortcuts: true,
   position: 'bottom-start',
