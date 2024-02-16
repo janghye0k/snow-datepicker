@@ -7,19 +7,17 @@ let datepicker;
 
 /**
  * @param {Element} element
- * @param {import('../src/index').Options} [options]
+ * @param {import('../types/options').Options} [options]
  */
 function create(element, options) {
   datepicker = new DatePicker(element, options);
 }
 
-beforeAll(() => {
+beforeEach(() => {
+  document.body.innerHTML = '';
+  datepicker = null;
   $el = document.createElement('input');
   document.body.appendChild($el);
-});
-
-afterEach(() => {
-  datepicker = null;
 });
 
 describe('OPTIONS TEST', () => {
