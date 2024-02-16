@@ -1,19 +1,15 @@
+import type { DateLike, Options, Unit } from '@t/options';
+import type { Store } from '@t/instance';
 import { observable } from '@janghye0k/observable';
 import { isDateLike, isNullish } from 'doumi';
 import { UNIT_ORDER, checkUnit, isUnit } from '@/helpers/schema';
 import { decade, parseDate } from '@/helpers/util';
-import type { DateLike, Options, Unit } from '@t/options';
-import type { Store } from '@t/instance';
 
-type Params = Pick<Options, 'selectedDate' | 'unit' | 'minUnit'>;
+type Params = Pick<Options, 'minUnit'>;
 
-export function createStore({
-  selectedDate,
-  unit,
-  minUnit = 'days',
-}: Params): Store {
+export function createStore({ minUnit = 'days' }: Params): Store {
   const date = observable<Date | null | undefined>(null);
-  const currentUnit = observable<Unit>(unit || 'days');
+  const currentUnit = observable<Unit>(minUnit || 'days');
   const unitDate = observable(new Date());
   const viewState = observable(() => {
     const ud = unitDate();
@@ -66,9 +62,6 @@ export function createStore({
       }
     },
   };
-
-  store.setSelectedDate(selectedDate);
-  if (store.selectedDate) store.setUnitDate(store.selectedDate);
 
   return store;
 }
