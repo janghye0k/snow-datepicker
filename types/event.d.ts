@@ -1,4 +1,3 @@
-import type { Unit } from '@t/options';
 import PickerEvent from '@/events/picker-event';
 
 export type EventManager = {
@@ -11,8 +10,10 @@ export type EventManager = {
     (eventName: string, listener: Function): void;
   };
   trigger: {
-    (eventName: keyof PickerEventMap, pickerEvent: PickerEvent): void;
-    (eventName: string, pickerEvent: PickerEvent): void;
+    (eventName: keyof PickerEventMap, eventProps: PickerEventProps): any;
+    (eventName: string, eventProps: PickerEventProps): any;
+    (eventName: keyof PickerEventMap, eventProps: PickerEvent): any;
+    (eventName: string, eventProps: PickerEvent): any;
   };
 };
 
@@ -20,7 +21,6 @@ export type PickerEventMap = {
   show: PickerEvent;
   hide: PickerEvent;
   focus: PickerEvent;
-  blur: PickerEvent;
   clickCell: PickerEvent;
   renderCell: PickerEvent;
   beforeSelect: PickerEvent;
@@ -31,9 +31,11 @@ export type PickerEventMap = {
 
 export type PickerEventProps = {
   [key: string]: any;
-  event?: Event;
-  date?: Date;
-  prevDate?: Date | null;
-  unit?: Unit;
-  prevUnit?: Unit;
+};
+
+export type PickerRenderCellReturns = {
+  className?: string;
+  innerHTML?: string;
+  attrs?: Record<string, string | number | boolean | undefined>;
+  dataset?: Record<string, string | number | boolean | undefined>;
 };

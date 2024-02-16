@@ -63,7 +63,6 @@ export type InternalOptions = {
   onShow?: Function;
   onHide?: Function;
   onFocus?: Function;
-  onBlur?: Function;
   onClickCell?: Function;
   onRenderCell?: Function;
   onBeforeSelect?: Function;

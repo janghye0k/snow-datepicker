@@ -1,9 +1,26 @@
-import { isArray } from 'doumi';
+import type { EventManager } from '@t/event';
+import { get, isArray, isFunction } from 'doumi';
 import PickerEvent from './picker-event';
 import DatePicker from '@/index';
-import type { EventManager } from '@t/event';
+import { Options } from '@t/options';
 
-function createEventManager(datepicker: DatePicker): EventManager {
+const OPTION_EVENT_KEYS = [
+  'onShow',
+  'onHide',
+  'onFocus',
+  'onBlur',
+  'onClickCell',
+  'onRenderCell',
+  'onBeforeSelect',
+  'onSelect',
+  'onChangeUnit',
+  'onChangeUnitDate',
+];
+
+function createEventManager(
+  datepicker: DatePicker,
+  options: Options
+): EventManager {
   const listenerMap: { [eventName: string]: Function[] } = {};
 
   const manager: EventManager = {
@@ -25,15 +42,23 @@ function createEventManager(datepicker: DatePicker): EventManager {
       }
     },
 
-    trigger: (eventName: string, pickerEvent: PickerEvent) => {
+    trigger: (eventName, eventProps) => {
       const listeners = listenerMap[eventName];
       if (!isArray(listeners)) return;
-      listeners.forEach((listener) => {
+      const pickerEvent = new PickerEvent(eventProps);
+
+      return listeners.map((listener) => {
         pickerEvent.setDatePicker(datepicker);
-        listener(pickerEvent);
+        return listener(pickerEvent);
       });
     },
   };
+
+  OPTION_EVENT_KEYS.forEach((key) => {
+    const item = get(options, key);
+    const eventName = key.at(2)?.toLowerCase() + key.slice(3);
+    if (isFunction(item)) manager.on(eventName, item);
+  });
 
   return manager;
 }
