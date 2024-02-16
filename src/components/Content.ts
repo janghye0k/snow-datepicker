@@ -1,8 +1,8 @@
 import { cn } from '@/helpers/selectors';
-import Components from './Components';
 import { effect } from '@janghye0k/observable';
-import { create$, isArray, range } from 'doumi';
+import { create$, findAll$, isArray, range } from 'doumi';
 import { decade, getCalendarDates } from '@/helpers/util';
+import Components from './Components';
 import Cell, { CellType } from './Cell';
 
 class Content extends Components {
@@ -10,18 +10,27 @@ class Content extends Components {
 
   subscribe(): void {
     const { store } = this.instance;
-    const unsub1 = effect(
-      (state) => {
-        this.$el.className = [cn('content'), `--${state}`].join(' ');
-      },
-      [store.state.currentUnit, true]
+
+    this.unsubscribers.push(
+      effect(
+        (state) => {
+          this.$el.className = [cn('content'), `--${state}`].join(' ');
+        },
+        [store.state.currentUnit, true]
+      ),
+
+      effect(() => {
+        this.renderCells();
+      }, [store.state.viewState, true]),
+
+      effect(() => {
+        const $cells = findAll$('.' + cn('cell'));
+        $cells.forEach(($cell) => {
+          const cell = ($cell as any).dpCell as Cell;
+          $cell.classList[cell.isActive() ? 'add' : 'remove']('--active');
+        });
+      }, [store.state.date, true])
     );
-
-    const unsub2 = effect(() => {
-      this.renderCells();
-    }, [store.state.viewState, true]);
-
-    this.unsubscribers.push(unsub1, unsub2);
   }
 
   private generateWeekDays() {
@@ -29,13 +38,14 @@ class Content extends Components {
       locale: { weekdaysMin },
       weekIndexes,
     } = this.instance.converter;
-    return weekIndexes.map((index: number) =>
-      create$('div', {
+    return weekIndexes.map((index: number) => {
+      const $weekday = create$('div', {
         className: cn('weekday'),
         dataset: { dayindex: index },
         innerHTML: weekdaysMin[index],
-      })
-    );
+      });
+      return $weekday;
+    });
   }
 
   private generateDates() {
@@ -57,7 +67,7 @@ class Content extends Components {
   }
 
   renderCells() {
-    const { instance, options, dp } = this;
+    const { instance, options, dp, eventManager } = this;
     const type = instance.store.currentUnit.slice(0, -1) as CellType;
     const dates = this.generateDates();
 
@@ -73,7 +83,7 @@ class Content extends Components {
     dates.forEach((date) => {
       const $cell = create$('div');
       this.$el.appendChild($cell);
-      new Cell($cell, { type, date, dp, instance, options });
+      new Cell($cell, { type, date, dp, instance, options, eventManager });
     });
   }
 }

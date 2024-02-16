@@ -12,4 +12,5 @@ const picker = new DatePicker(selector, {
   selectedDate: new Date('2024-01-01'),
   locale: localeKo,
 });
+
 picker.show();

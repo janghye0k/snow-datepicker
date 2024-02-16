@@ -145,17 +145,15 @@
   grid-auto-rows: 2rem;
 }
 
-.datepicker-content.--months,
-.datepicker-content.--years {
+.datepicker-content.--months {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-}
-
-.datepicker-content.--months {
   grid-auto-rows: 2.5rem;
 }
 
 .datepicker-content.--years {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: 3.5rem;
 }
 

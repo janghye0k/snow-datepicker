@@ -43,13 +43,13 @@ class Controls extends Components {
     const $title = find$('.' + cn('controls.title'), this.$el) as HTMLElement;
 
     // subcribe auto re-render title listener
-    const unsub = effect(() => {
-      const { currentUnit, unitDate } = store;
-      const format = titleFormat[currentUnit];
-      $title.innerHTML = converter.format(unitDate, format);
-    }, [store.state.viewState, true]);
-
-    this.unsubscribers.push(unsub);
+    this.unsubscribers.push(
+      effect(() => {
+        const { currentUnit, unitDate } = store;
+        const format = titleFormat[currentUnit];
+        $title.innerHTML = converter.format(unitDate, format);
+      }, [store.state.viewState, true])
+    );
   }
 }
 
