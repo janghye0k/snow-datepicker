@@ -5,15 +5,74 @@
   --datepicker-main-color: #3d9ff0;
 }
 
-.datepicker-input {
+.datepicker,
+.datepicker * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+}
+
+.datepicker-inputRoot {
+  display: inline-block;
+  min-width: 160px;
+}
+
+.datepicker-inputBox {
+  display: flex;
+  height: 40px;
   border: 1px solid var(--datepicker-border-color);
-  outline: 0;
-  height: 2rem;
-  font-size: 0.875rem;
-  padding-inline: 0.75rem;
   border-radius: 4px;
   color: var(--datepicker-color);
   background-color: var(--datepicker-bg);
+}
+
+.datepicker-calendarBtn {
+  position: relative;
+  height: 32px;
+  width: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+  margin-block: auto;
+  background-color: transparent;
+  transition: ease 0.1s all;
+}
+
+.datepicker-calendarBtn svg {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  width: 60%;
+  height: 60%;
+}
+
+.datepicker-calendarBtn:hover {
+  background-color: color-mix(in srgb, var(--datepicker-color) 5%, transparent);
+}
+
+.datepicker-calendarBtn:active {
+  background-color: color-mix(
+    in srgb,
+    var(--datepicker-color) 10%,
+    transparent
+  );
+}
+
+.datepicker-input {
+  min-width: 100px;
+  flex-grow: 1;
+  flex-shrink: 1;
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+  border: 0;
+  outline: 0;
+  font-size: 14px;
+  padding-inline: 12px;
   transition: ease-out all 0.1s;
 }
 
@@ -25,7 +84,7 @@
   );
 }
 
-.datepicker-input.--active {
+.datepicker-inputBox.--active {
   background-color: inherit;
   border-color: var(--datepicker-main-color);
 }
@@ -57,26 +116,45 @@
   opacity: 1;
 }
 
-.datepicker-calendar-arrow {
-  position: absolute;
-  rotate: 45deg;
-  width: 10px;
-  height: 10px;
-  background-color: inherit;
-  border-color: inherit;
-  border-style: solid;
-  border-width: 0px;
-  border-radius: 3px;
-  z-index: 0;
-}
-
 .datepicker-calendar {
   position: absolute;
-  width: 16rem;
+  top: 0;
+  left: 0;
+  width: 256px;
   border: 1px solid var(--datepicker-border-color);
   border-radius: 4px;
   color: var(--datepicker-color);
   background-color: var(--datepicker-bg);
+}
+
+.datepicker.--scaleUp {
+  animation: ease 0.2s scaleUp;
+}
+
+.datepicker.--scaleDown {
+  animation: ease 0.2s scaleDown;
+}
+
+@keyframes scaleUp {
+  0% {
+    opacity: 0;
+    scale: 66%;
+  }
+  100% {
+    opacity: 1;
+    scale: 100%;
+  }
+}
+
+@keyframes scaleDown {
+  0% {
+    opacity: 1;
+    scale: 100%;
+  }
+  100% {
+    opacity: 0;
+    scale: 66%;
+  }
 }
 
 .datepicker-controls {
@@ -89,10 +167,10 @@
 .datepicker-controls__title {
   margin-inline: auto;
   padding-inline: 0.5rem;
-  height: 2rem;
+  height: 32px;
   border-radius: 4px;
-  font-size: 0.875rem;
-  line-height: 2rem;
+  font-size: 14px;
+  line-height: 32px;
   cursor: pointer;
 }
 
@@ -103,8 +181,8 @@
 
 .datepicker-controls__btn {
   padding: 0.25rem;
-  width: 2rem;
-  height: 2rem;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,33 +213,33 @@
 }
 
 .datepicker-content {
-  padding: 0.25rem;
-  font-size: 0.75rem;
+  padding: 4px;
+  font-size: 12px;
 }
 
 .datepicker-content.--days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 2rem;
+  grid-auto-rows: 32px;
 }
 
 .datepicker-content.--months {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: 2.5rem;
+  grid-auto-rows: 40px;
 }
 
 .datepicker-content.--years {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 3.5rem;
+  grid-auto-rows: 56px;
 }
 
 .datepicker-content__weekday {
   text-align: center;
   color: #fb9052;
   cursor: default;
-  margin-block: 0.5rem 0.25rem;
+  margin-block: 8px 4px;
 }
 
 .datepicker-content__cell {
@@ -213,6 +291,6 @@
   background-color: color-mix(in srgb, var(--datepicker-color) 9%, transparent);
 }
 
-.datepicker-content__cell[hidden] {
+.datepicker-content__cell.--hidden {
   visibility: hidden;
 }

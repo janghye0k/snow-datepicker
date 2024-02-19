@@ -40,7 +40,7 @@ const locale = {
     'ديسمبر',
   ],
   weekdaysMin: ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'],
-  formats: { time: 'HH:mm', date: 'D/‏M/‏YYYY' },
+  formats: { time: 'HH:mm', date: 'D/MM/YYYY' },
   placeholder: 'اختر موعدا',
 };
 

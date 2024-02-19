@@ -31,7 +31,10 @@ class Components<T extends DefaultProps = DefaultProps> {
     this.init();
   }
 
+  beforeInit() {}
+
   init() {
+    this.beforeInit();
     this.render();
     this.bindEvents();
     this.subscribe();

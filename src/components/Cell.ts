@@ -121,6 +121,7 @@ class Cell extends Components<CellProps> {
     const eventProps: Record<string, any> = { event, type, date, $element };
     if (type === 'day') eventProps.dayIndex = this.date.getDay();
     this.eventManager.trigger('clickCell', eventProps);
+    if (this.options.autoClose) this.dp.hide();
   }
 }
 

@@ -1,12 +1,16 @@
 import { Locale } from './locale';
 
 export type Position =
+  | 'top'
   | 'top-start'
   | 'top-end'
+  | 'right'
   | 'right-start'
   | 'right-end'
+  | 'bottom'
   | 'bottom-start'
   | 'bottom-end'
+  | 'left'
   | 'left-start'
   | 'left-end';
 
@@ -47,8 +51,10 @@ export type InternalOptions = {
   autoClose: boolean;
   /** Title templates in the calendar navigation. */
   titleFormat: TitleFormat;
-  /** If `false`, it will be able to edit dates at input field. */
+  /** If `true`, it will not be able to edit dates at input field. */
   readOnly: boolean;
+  /** If `true`, the calendar will open & close with animation */
+  animation: boolean;
   /** The minimum date of calendar */
   minDate: DateLike;
   /** The maximum date of calendar */
@@ -60,6 +66,8 @@ export type InternalOptions = {
   className?: string;
   /** Language of the calendar. */
   locale?: Locale;
+  /** Datepicker placeholder */
+  placeHolder?: string;
   onShow?: Function;
   onHide?: Function;
   onFocus?: Function;

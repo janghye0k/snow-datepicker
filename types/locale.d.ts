@@ -12,5 +12,10 @@ export type Locale = {
   weekdaysShort: string[];
   weekdaysMin: string[];
   formats: LocaleFormats;
-  placeholder: string;
+  placeholder?: string;
+};
+
+export type InputFormats = {
+  format: string;
+  indexMap: Record<'year' | 'month' | 'day', number[]>;
 };

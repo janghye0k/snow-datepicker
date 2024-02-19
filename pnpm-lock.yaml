@@ -11,9 +11,6 @@ dependencies:
   '@janghye0k/observable':
     specifier: ^1.0.2
     version: 1.0.2
-  animejs:
-    specifier: ^3.2.2
-    version: 3.2.2
   doumi:
     specifier: ^1.1.6
     version: 1.1.6
@@ -4405,13 +4402,6 @@ packages:
       require-from-string: 2.0.2
       uri-js: 4.4.1
     dev: true
-
-  /animejs@3.2.2:
-    resolution:
-      {
-        integrity: sha512-Ao95qWLpDPXXM+WrmwcKbl6uNlC5tjnowlaRYtuVDHHoygjtIPfDUoK9NthrlZsQSKjZXlmji2TrBUAVbiH0LQ==,
-      }
-    dev: false
 
   /ansi-escapes@4.3.2:
     resolution:

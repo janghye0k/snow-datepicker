@@ -3,15 +3,25 @@ import type { Instance } from '@t/instance';
 import type { EventManager } from '@t/event';
 import checkSchema from '@/helpers/schema';
 import { error } from '@/helpers/util';
-import { create$, find$, get, isArray, isDateLike, keysIn } from 'doumi';
+import {
+  create$,
+  find$,
+  get,
+  isArray,
+  isDateLike,
+  isNull,
+  keysIn,
+  off,
+  on,
+} from 'doumi';
 import { CONTAINER_ID, PREFIX, cn } from '@/helpers/selectors';
 import createInstance from '@/instance';
-import PickerEvent from '@/events/picker-event';
-import { convertToInput, createContainer } from '@/helpers/elements';
 import Controls from '@/components/Controls';
 import Content from '@/components/Content';
 import createEventManager from './events';
 import { effect } from '@janghye0k/observable';
+import Target from '@/components/Target';
+import { autoUpdate, computePosition, flip } from '@floating-ui/dom';
 
 class DatePicker {
   private options: InternalOptions;
@@ -20,18 +30,42 @@ class DatePicker {
   private originTemplate: string;
 
   private $hide = create$('div');
-  private $container = createContainer();
+  private $container = DatePicker.createContainer();
   private components: any[] = [];
   private unsubscribers: Function[] = [];
 
   /** ID of datepicker elements container */
   static containerId = CONTAINER_ID;
 
-  /** Element on which datepicker was initialized. */
+  static createContainer = () => {
+    const $find = find$<HTMLDivElement>('#' + CONTAINER_ID);
+    if (!isNull($find)) return $find;
+    const $container = create$('div', {
+      id: CONTAINER_ID,
+      classList: [PREFIX, CONTAINER_ID],
+      role: 'presentation',
+      innerHTML: /*html*/ `
+        <div role="presentation" class="${cn('backdrop')}"></div>
+      `,
+    });
+    document.body.appendChild($container);
+    return $container;
+  };
+
+  /**
+   * Element on which datepicker was initialized.
+   * @type {HTMLElement}
+   */
+  readonly $target: HTMLElement;
+
+  /**
+   * Datepicker input element
+   * @type {HTMLInputElement}
+   */
   readonly $input: HTMLInputElement;
 
   /**
-   * Datepicker element
+   * Datepicker calendar element
    * @type {HTMLDivElement}
    */
   readonly $datepicker: HTMLDivElement;
@@ -54,14 +88,20 @@ class DatePicker {
    * @param {Options} [options]
    */
   constructor(element: Element | string, options: Options = {}) {
-    const $target = typeof element === 'string' ? find$(element) : element;
-    if (!($target instanceof Element))
+    const target = typeof element === 'string' ? find$(element) : element;
+    if (!(target instanceof Element))
       throw error('constructor element shoul be CSS selector or Element');
 
     // init
     const opts = checkSchema(options);
     this.options = opts;
+    this.originTemplate = target.outerHTML;
 
+    const { id, className } = target;
+    const $target = create$('div', { id: !id ? undefined : id, className });
+    target.replaceWith($target);
+    this.$target = $target as HTMLElement;
+    this.$input = create$('input');
     const instance = createInstance(opts);
     const eventManager = createEventManager(this, opts);
 
@@ -70,16 +110,11 @@ class DatePicker {
     this.on = eventManager.on;
     this.off = eventManager.off;
 
-    // Convert target to input element
-    const [$input, originTemplate] = convertToInput($target, opts.readOnly);
-    this.$input = $input;
-    this.originTemplate = originTemplate;
-
-    // Create datepicker element
+    // Create calendar element
     const classList = [PREFIX, cn('calendar')];
     if (this.options.className) classList.push(this.options.className);
     this.$datepicker = create$('div', { classList });
-    this.$hide.appendChild(this.$datepicker); // Default hide datepicker
+    this.$hide.appendChild(this.$datepicker); // Default hide calendar
 
     this.renderDatepicker();
     this.eventSubcribe();
@@ -92,6 +127,9 @@ class DatePicker {
       this.setUnitDate(initDate);
     }
     if (unit) this.setCurrentUnit(unit);
+
+    // Popup setting
+    this.calendarPositionUpdate();
   }
 
   /** Converter instance for convert date to datepicker's locale format */
@@ -114,19 +152,54 @@ class DatePicker {
     return this.instance.store.selectedDate;
   }
 
+  /** Rendering datepicker components */
   private renderDatepicker() {
     const { instance, options, eventManager } = this;
     const defaultProps = { dp: this, instance, options, eventManager };
 
     const $controls = create$('div', { className: cn('controls') });
-    this.$datepicker.appendChild($controls);
-    this.components.push(new Controls($controls, defaultProps));
-
     const $content = create$('div', { className: cn('content') });
-    this.$datepicker.appendChild($content);
+    const $arrow = create$('div', { className: cn('arrow') });
+    this.$datepicker.replaceChildren($controls, $content, $arrow);
+
+    this.components.push(new Controls($controls, defaultProps));
     this.components.push(new Content($content, defaultProps));
+    new Target(this.$target, defaultProps);
   }
 
+  /** Update calendar position automatically */
+  private calendarPositionUpdate() {
+    const { $target, $datepicker } = this;
+
+    const originMap = {
+      top: '50% 100%',
+      bottom: '50% 0',
+      left: '100% 50%',
+      right: '0 50%',
+    };
+
+    const updatePosition = () => {
+      computePosition($target, $datepicker, {
+        placement: this.options.position as any,
+        middleware: [flip()],
+      }).then(({ x, y, placement }) => {
+        const tfOrigin = this.options.animation
+          ? {
+              transformOrigin:
+                originMap[placement.split('-')[0] as keyof typeof originMap],
+            }
+          : {};
+        Object.assign($datepicker.style, {
+          top: `${y}px`,
+          left: `${x}px`,
+          ...tfOrigin,
+        });
+      });
+    };
+    return autoUpdate($target, $datepicker, updatePosition);
+  }
+
+  /** Subscrie events */
   private eventSubcribe() {
     const { store } = this.instance;
     this.unsubscribers.push(
@@ -136,12 +209,14 @@ class DatePicker {
         },
         [store.state.date]
       ),
+
       effect(
         (unit, prevUnit) => {
           this.eventManager.trigger('changeUnit', { unit, prevUnit });
         },
         [store.state.currentUnit]
       ),
+
       effect(
         (date, prevDate) => {
           this.eventManager.trigger('changeUnitDate', { date, prevDate });
@@ -150,6 +225,19 @@ class DatePicker {
       )
     );
   }
+
+  /** Hide calendar when click outside */
+  private handleClickOutside = (event: MouseEvent) => {
+    if (!this.isShow()) {
+      off(document, 'click', this.handleClickOutside);
+      return;
+    }
+    const target = event.target as HTMLElement;
+    const $btn = find$('.' + cn('calendarBtn'), this.$target);
+    if ($btn && $btn.contains(target)) return;
+    if (this.$datepicker.contains(target)) return;
+    this.hide();
+  };
 
   /**
    * Set selected date of datepicker
@@ -200,17 +288,42 @@ class DatePicker {
 
   /** Hide calendar */
   hide() {
-    this.$hide.replaceChildren(this.$datepicker);
-    const event = new PickerEvent();
-    this.eventManager.trigger('hide', event);
+    if (this.options.animation) {
+      // When animation is `true`
+      this.$datepicker.classList.add('--scaleDown');
+      const onAnimeEnd = (event: any) => {
+        event.currentTarget.classList.remove('--scaleDown');
+        this.$hide.replaceChildren(this.$datepicker);
+        off(this.$datepicker, 'animationend', onAnimeEnd);
+      };
+      on(this.$datepicker, 'animationend', onAnimeEnd);
+    } else {
+      this.$hide.replaceChildren(this.$datepicker);
+    }
+
+    this.eventManager.trigger('hide', {});
+    if (this.$input !== document.activeElement)
+      (find$('.' + cn('inputBox')) as HTMLElement).classList.remove('--active');
   }
 
   /** Show calendar */
   show() {
     const $conatiner = this.$container;
+
+    if (this.options.animation) {
+      // When animation is `true`
+      this.$datepicker.classList.add('--scaleUp');
+      const onAnimeEnd = (event: any) => {
+        event.currentTarget.classList.remove('--scaleUp');
+        off(this.$datepicker, 'animationend', onAnimeEnd);
+      };
+      on(this.$datepicker, 'animationend', onAnimeEnd);
+    }
+
     $conatiner.appendChild(this.$datepicker);
-    const event = new PickerEvent();
-    this.eventManager.trigger('show', event);
+    (find$('.' + cn('inputBox')) as HTMLElement).classList.add('--active');
+    on(document, 'click', this.handleClickOutside, { capture: true });
+    this.eventManager.trigger('show', {});
   }
 
   /** Datepicker calendar is visible */

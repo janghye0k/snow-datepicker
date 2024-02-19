@@ -49,7 +49,8 @@ const DEFUALT_OPTIONS: Options = {
   moveOtherMonths: true,
   navigationLoop: true,
   autoClose: true,
-  readOnly: true,
+  readOnly: false,
+  animation: true,
   titleFormat: {},
 };
 

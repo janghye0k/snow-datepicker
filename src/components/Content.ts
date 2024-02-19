@@ -24,7 +24,7 @@ class Content extends Components {
       }, [store.state.viewState, true]),
 
       effect(() => {
-        const $cells = findAll$('.' + cn('cell'));
+        const $cells = findAll$('.' + cn('cell'), this.$el);
         $cells.forEach(($cell) => {
           const cell = ($cell as any).dpCell as Cell;
           $cell.classList[cell.isActive() ? 'add' : 'remove']('--active');

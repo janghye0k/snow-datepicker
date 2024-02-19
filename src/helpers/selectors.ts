@@ -13,8 +13,12 @@ const classNameMap = {
   cell: 'content__cell',
   arrow: 'calendar__arrow',
   calendar: 'calendar',
+  inputRoot: 'inputRoot',
+  inputBox: 'inputBox',
+  label: 'inputLabel',
   input: 'input',
   backdrop: 'backdrop',
+  calendarBtn: 'calendarBtn',
 } as const;
 
 type ClassNameKey = keyof typeof classNameMap;
