@@ -1,7 +1,7 @@
 import {
   assign,
   forEach,
-  isDateLike,
+  isDate,
   isObject,
   isPlainObject,
   isString,
@@ -30,6 +30,9 @@ export function checkUnit(unit: Unit, minUnit?: Unit) {
     UNIT_ORDER[minUnit as keyof typeof UNIT_ORDER]
   );
 }
+
+const MIN_DATE = new Date(100, 0, 1, 0, 1, 0);
+const MAX_DATE = new Date(9999, 11, 31, 23, 59, 59);
 
 const DEFAULT_TITLE_FORMAT = {
   days: 'MMMM, <i>YYYY</i>',
@@ -76,8 +79,8 @@ const VALIDATION_MAP: ValidationMap = assign(
   ),
   ['minDate', 'maxDate', 'selectedDate'].reduce((obj, item) => {
     obj[item] = (val: any) => {
-      if (isUndefined(val) || isDateLike(val)) return;
-      inValid(item, ['string', 'number', 'Date'].join(' | '));
+      if (isUndefined(val) || isDate(val)) return;
+      inValid(item, 'Date');
     };
     return obj;
   }, {} as ValidationMap),
@@ -119,6 +122,14 @@ export default function checkSchema(options: Options): InternalOptions {
     if (!validator) return;
     validator(value);
   });
+
+  const { minDate, maxDate } = opt;
+  opt.minDate = !minDate
+    ? new Date(MIN_DATE)
+    : new Date(Math.max(Number(MIN_DATE), Number(new Date(minDate))));
+  opt.maxDate = !maxDate
+    ? new Date(MAX_DATE)
+    : new Date(Math.min(Number(new Date(maxDate)), Number(maxDate)));
 
   return opt;
 }

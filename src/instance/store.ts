@@ -1,13 +1,13 @@
-import type { DateLike, Options, Unit } from '@t/options';
+import type { DateLike, InternalOptions, Unit } from '@t/options';
 import type { Store } from '@t/instance';
 import { observable } from '@janghye0k/observable';
 import { isDateLike, isNullish } from 'doumi';
 import { UNIT_ORDER, checkUnit, isUnit } from '@/helpers/schema';
 import { decade, parseDate } from '@/helpers/util';
 
-type Params = Pick<Options, 'minUnit'>;
+type Params = Pick<InternalOptions, 'minUnit'>;
 
-export function createStore({ minUnit = 'days' }: Params): Store {
+export function createStore({ minUnit }: Params): Store {
   const date = observable<Date | null | undefined>(null);
   const currentUnit = observable<Unit>(minUnit || 'days');
   const unitDate = observable(new Date());
@@ -37,7 +37,7 @@ export function createStore({ minUnit = 'days' }: Params): Store {
       return isNullish(selectedDate) ? null : new Date(selectedDate);
     },
     setSelectedDate: (value: any): void => {
-      date(isDateLike(value) ? new Date(value) : null);
+      date(!isDateLike(value) ? null : new Date(value));
     },
     setCurrentUnit: (value: Unit): void => {
       let nextUnit = isUnit(value) ? value : minUnit;

@@ -56,11 +56,11 @@ export type InternalOptions = {
   /** If `true`, the calendar will open & close with animation */
   animation: boolean;
   /** The minimum date of calendar */
-  minDate: DateLike;
+  minDate: Date;
   /** The maximum date of calendar */
-  maxDate: DateLike;
+  maxDate: Date;
   /** The active date */
-  selectedDate: DateLike;
+  selectedDate?: Date;
   buttons?: string | string[];
   /** Add custom classes. */
   className?: string;

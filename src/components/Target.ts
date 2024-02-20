@@ -224,8 +224,8 @@ class Target extends Components {
   private getInputValueDate() {
     const [year, month, day] = values(
       this.extractDateStringFromValue(this.$input.value)
-    );
-    return new Date(Number(year), Number(month) - 1, Number(day), 12);
+    ).map((item) => Number(item));
+    return new Date(year, month - 1, day, 12);
   }
 
   /** Reset Input value to formatted datepicker selected date */
