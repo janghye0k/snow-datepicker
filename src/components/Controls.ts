@@ -32,7 +32,7 @@ class Controls extends Components {
       on($el, 'click', (event) => {
         const { action } = event.currentTarget.dataset;
         const isPrev = isUndefined(action) ? !index : action === 'prev';
-        store.addUnitDate(isPrev ? -1 : 1);
+        this.dp[isPrev ? 'prev' : 'next']();
       });
     });
   }

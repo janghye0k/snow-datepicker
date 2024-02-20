@@ -55,9 +55,9 @@ export type InternalOptions = {
   readOnly: boolean;
   /** If `true`, the calendar will open & close with animation */
   animation: boolean;
-  /** The minimum date of calendar */
+  /** The minimum date of calendar, Can't be set to less than `0100-01-01` */
   minDate: Date;
-  /** The maximum date of calendar */
+  /** The maximum date of calendar, Can't be set to more than `9999-12-31` */
   maxDate: Date;
   /** The active date */
   selectedDate?: Date;

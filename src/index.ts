@@ -2,7 +2,7 @@ import type { DateLike, InternalOptions, Options, Unit } from '@t/options';
 import type { Instance } from '@t/instance';
 import type { EventManager } from '@t/event';
 import checkSchema from '@/helpers/schema';
-import { error } from '@/helpers/util';
+import { error, parseDate } from '@/helpers/util';
 import {
   create$,
   find$,
@@ -121,7 +121,8 @@ class DatePicker {
 
     // Set options value
     const { selectedDate, unit } = opts;
-    const initDate = isDateLike(selectedDate) ? new Date(selectedDate) : null;
+    const initDate =
+      selectedDate && isDateLike(selectedDate) ? new Date(selectedDate) : null;
     if (initDate) {
       this.setSelectedDate(initDate);
       this.setUnitDate(initDate);
@@ -137,18 +138,27 @@ class DatePicker {
     return this.instance.converter;
   }
 
-  /** Current unit of calendar */
-  get currentUnit() {
+  /**
+   * Current unit of calendar
+   * @returns {'years' | 'months' | 'days'}
+   */
+  get currentUnit(): Unit {
     return this.instance.store.currentUnit;
   }
 
-  /** Current unit date */
-  get unitDate() {
+  /**
+   * Current unit date
+   * @returns {Date}
+   */
+  get unitDate(): Date {
     return this.instance.store.unitDate;
   }
 
-  /** Selected date of calendar, if not selected returns `null` */
-  get selectedDate() {
+  /**
+   * Selected date of calendar, if not selected returns `null`
+   * @returns {Date | null}
+   */
+  get selectedDate(): Date | null {
     return this.instance.store.selectedDate;
   }
 
@@ -248,16 +258,22 @@ class DatePicker {
    * setSelectedDate('invalid') // null
    */
   setSelectedDate(value: any) {
+    const { minDate, maxDate } = this.options;
     const prevDate = this.selectedDate;
     const nextDate = isDateLike(value) ? new Date(value) : null;
-    const eventProps = { prevDate, date: nextDate };
+    let date = nextDate;
+    if (nextDate) {
+      if (nextDate < minDate) date = minDate;
+      else if (nextDate > maxDate) date = maxDate;
+    }
+    const eventProps = { prevDate, date };
 
     const beforeResults = this.eventManager.trigger('beforeSelect', eventProps);
     const isCancel =
       isArray(beforeResults) && beforeResults.some((item) => item === false);
     if (isCancel) return;
 
-    this.instance.store.setSelectedDate(value);
+    this.instance.store.setSelectedDate(date);
   }
 
   /**
@@ -265,7 +281,12 @@ class DatePicker {
    * @param {DateLike} value The unit date to change.
    */
   setUnitDate(value: DateLike) {
-    this.instance.store.setUnitDate(value);
+    if (!isDateLike(value)) return;
+    const { minDate, maxDate } = this.options;
+    let unitDate = new Date(value);
+    if (unitDate < minDate) unitDate = minDate;
+    else if (unitDate > maxDate) unitDate = maxDate;
+    this.instance.store.setUnitDate(unitDate);
   }
 
   /**
@@ -276,14 +297,40 @@ class DatePicker {
     this.instance.store.setCurrentUnit(value);
   }
 
+  private addUnitDate(direction: 'next' | 'prev') {
+    const adder = direction === 'prev' ? -1 : 1;
+    const { currentUnit, unitDate } = this;
+    const params = parseDate(unitDate).slice(0, 2);
+    let [year, month] = params;
+    month += 1;
+
+    switch (currentUnit) {
+      case 'days':
+        month += adder;
+        if (month === 0) (month = 12), (year -= 1);
+        else if (month === 13) (month = 1), (year += 1);
+        break;
+      case 'months':
+        year += adder;
+        break;
+      case 'years':
+        year += adder * 10;
+        break;
+    }
+
+    const y = String(year).padStart(4, '0');
+    const m = String(month).padStart(2, '0');
+    this.setUnitDate(new Date(`${y}-${m}-01`));
+  }
+
   /** Move to next `month` | `years` | `decade` */
   next() {
-    this.instance.store.addUnitDate(1);
+    this.addUnitDate('next');
   }
 
   /** Move to previous `month` | `years` | `decade` */
   prev() {
-    this.instance.store.addUnitDate(-1);
+    this.addUnitDate('prev');
   }
 
   /** Hide calendar */

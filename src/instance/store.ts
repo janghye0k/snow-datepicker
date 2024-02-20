@@ -49,18 +49,6 @@ export function createStore({ minUnit }: Params): Store {
         return console.log(`This unitDate is invalid date - ${value}`);
       unitDate(new Date(value));
     },
-    addUnitDate: (adder: number, options = {}) => {
-      const { unit = currentUnit(), date = unitDate() } = options;
-      const [year, month] = parseDate(date);
-      switch (unit) {
-        case 'days':
-          return unitDate(new Date(year, month + adder));
-        case 'months':
-          return unitDate(new Date(year + adder, month));
-        case 'years':
-          return unitDate(new Date(year + adder * 10, month));
-      }
-    },
   };
 
   return store;

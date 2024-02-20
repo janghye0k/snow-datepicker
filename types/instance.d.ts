@@ -20,7 +20,6 @@ export type Store = {
   setSelectedDate: (date: any) => void;
   setCurrentUnit: (date: Unit) => void;
   setUnitDate: (date: DateLike) => void;
-  addUnitDate: (adder: number, options?: { date?: Date; unit?: Unit }) => void;
 };
 
 export type Converter = {
