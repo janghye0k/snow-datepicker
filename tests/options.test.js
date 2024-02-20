@@ -68,7 +68,7 @@ describe('OPTIONS TEST', () => {
       it(`should ${unit} unit`, () => {
         create($el, { unit, selectedDate: date });
         const $title = datepicker.$datepicker.querySelector(
-          '.hye0k-datepicker-nav-title'
+          '.datepicker-controls__title'
         );
         expect($title.textContent.includes(contains)).toBe(true);
       })
@@ -95,7 +95,7 @@ describe('OPTIONS TEST', () => {
       const $febFirst = datepicker.$datepicker.querySelector(
         '[data-monthindex="1"][data-day="1"]'
       );
-      expect($febFirst).not.toBeVisible();
+      expect($febFirst.classList.contains('--hidden')).toBe(true);
     });
   });
 
@@ -111,10 +111,10 @@ describe('OPTIONS TEST', () => {
       const selectedDate = datepicker.selectedDate;
       const arr = [
         selectedDate.getFullYear(),
-        selectedDate.getMonth(),
+        selectedDate.getMonth() + 1,
         selectedDate.getDate(),
       ];
-      expect(JSON.stringify(arr)).toBe(JSON.stringify([2024, 1, 1]));
+      expect(arr.join('-')).toBe('2024-2-1');
     });
 
     it(`should not be active when click other month's day`, () => {
@@ -130,14 +130,14 @@ describe('OPTIONS TEST', () => {
         selectedDate.getMonth(),
         selectedDate.getDate(),
       ];
-      expect(JSON.stringify(arr)).not.toBe(JSON.stringify([2024, 1, 1]));
+      expect(arr.join('-')).toBe('2024-1-1');
     });
   });
 
   describe('options.moveOtherMonths', () => {
     const date = new Date('2024-01-01');
     it(`should be show other month when click other months's day`, () => {
-      create($el, { selectedDate: date, locale: 'en', moveOtherMonths: true });
+      create($el, { selectedDate: date, moveOtherMonths: true });
       datepicker.show();
       const $febFirst = datepicker.$datepicker.querySelector(
         '[data-monthindex="1"][data-day="1"]'
@@ -148,7 +148,7 @@ describe('OPTIONS TEST', () => {
     });
 
     it(`should not be show other month when click other months's day`, () => {
-      create($el, { selectedDate: date, locale: 'en', moveOtherMonths: false });
+      create($el, { selectedDate: date, moveOtherMonths: false });
       datepicker.show();
       const $febFirst = datepicker.$datepicker.querySelector(
         '[data-monthindex="1"][data-day="1"]'
@@ -169,25 +169,126 @@ describe('OPTIONS TEST', () => {
       const $day = datepicker.$datepicker.querySelector(
         '[data-monthindex="0"][data-day="1"]'
       );
-      expect($day).toHaveClass('active');
       $day.click();
-      expect($day).not.toHaveClass('active');
+      expect(datepicker.selectedDate).toBe(null);
     });
   });
 
-  describe('options.minDate', () => {});
+  describe('options.autoClose', () => {
+    it('should be hide calendar after select cell', () => {
+      create($el, {
+        selectedDate: new Date('2024-01-01'),
+        autoClose: true,
+        animation: false,
+      });
 
-  describe('options.maxDate', () => {});
+      datepicker.show();
+      const $day = datepicker.$datepicker.querySelector(
+        '[data-monthindex="0"][data-day="3"]'
+      );
+      $day.click();
 
-  describe('options.format', () => {});
+      const $container = document.getElementById(DatePicker.containerId);
+      expect($container.contains(datepicker.$datepicker)).toBe(false);
+    });
+  });
+
+  it('options.dateFormat', () => {
+    create($el, {
+      selectedDate: new Date('2024-01-01'),
+      dateFormat: 'MM/DD/YYYY',
+    });
+    expect(datepicker.$input.value).toBe('01/01/2024');
+  });
+
+  describe('options.minDate', () => {
+    it('should not be move under minimun date', () => {
+      create($el, {
+        selectedDate: new Date('2024-01-01'),
+        minDate: new Date('2024-01-01'),
+        navigationLoop: false,
+      });
+
+      datepicker.prev();
+      expect(datepicker.unitDate.getMonth()).toBe(0);
+    });
+
+    it('should not be select under minimun date', () => {
+      create($el, {
+        selectedDate: new Date('2024-02-01'),
+        minDate: new Date('2024-02-01'),
+      });
+
+      datepicker.show();
+      const $cell = datepicker.$datepicker.querySelector(
+        '[data-monthindex="0"][data-day="31"]'
+      );
+      $cell.click();
+
+      expect(datepicker.selectedDate.getDate()).not.toBe(31);
+    });
+  });
+
+  describe('options.maxDate', () => {
+    it('should not be move over maximum date', () => {
+      create($el, {
+        selectedDate: new Date('2024-01-01'),
+        maxDate: new Date('2024-01-01'),
+        navigationLoop: false,
+      });
+
+      datepicker.next();
+      expect(datepicker.unitDate.getFullYear()).toBe(2024);
+      expect(datepicker.unitDate.getMonth()).toBe(0);
+      expect(datepicker.unitDate.getDate()).toBe(1);
+    });
+
+    it('should not be select over maximum date', () => {
+      create($el, {
+        selectedDate: new Date('2024-01-01'),
+        maxDate: new Date('2024-01-01'),
+      });
+
+      datepicker.show();
+      const $cell = datepicker.$datepicker.querySelector(
+        '[data-monthindex="0"][data-day="2"]'
+      );
+      $cell.click();
+      expect(datepicker.selectedDate.getDate()).not.toBe(2);
+    });
+  });
+
+  describe('options.navigationLoop', () => {
+    it('should be loop, if `true`', () => {
+      create($el, {
+        selectedDate: new Date('2024-02-01'),
+        navigationLoop: true,
+        minDate: new Date('2024-01-01'),
+        maxDate: new Date('2024-03-01'),
+      });
+
+      datepicker.next();
+      datepicker.next();
+
+      expect(datepicker.unitDate.getMonth()).toBe(0);
+    });
+
+    it('should not be loop, if `false`', () => {
+      create($el, {
+        selectedDate: new Date('2024-02-01'),
+        navigationLoop: false,
+        minDate: new Date('2024-01-01'),
+        maxDate: new Date('2024-03-01'),
+      });
+
+      datepicker.next();
+      datepicker.next();
+
+      expect(datepicker.unitDate.getMonth()).toBe(2);
+    });
+  });
 
   describe('options.shortcuts', () => {});
-
-  describe('options.navigationLoop', () => {});
-
-  describe('options.autoClose', () => {});
-
-  describe('options.titleFormat', () => {});
 
   describe('options.buttons', () => {});
 });
