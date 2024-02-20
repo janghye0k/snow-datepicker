@@ -4,6 +4,7 @@ import {
   assignIn,
   between,
   create$,
+  entries,
   find$,
   forEach,
   get,
@@ -38,13 +39,15 @@ class Target extends Components {
   subscribe(): void {
     const { store, converter } = this.instance;
 
-    effect(
-      (date) => {
-        this.$input.value = !date
-          ? this.inputFormats.format
-          : converter.format(date, this.inputFormats.format);
-      },
-      [store.state.date]
+    this.unsubscribers.push(
+      effect(
+        (date) => {
+          this.$input.value = !date
+            ? this.inputFormats.format
+            : converter.format(date, this.inputFormats.format);
+        },
+        [store.state.date]
+      )
     );
   }
 
@@ -83,18 +86,23 @@ class Target extends Components {
   }
 
   bindEvents(): void {
-    on(this.$input, 'keydown', (evt) => this.handleKeyDown(evt));
-    on(this.$input, 'blur', () => this.handleBlur());
     on(find$('.' + cn('calendarBtn')), 'click', () => this.dp.show());
-    on(this.$input, 'focus', (evt) => this.handleFocus(evt));
-    on(this.$input, 'mouseup', (evt) => this.handleMouseUp(evt));
     on(this.$input, 'drop', (event: any) => {
       event.dataTransfer.dropEffect = 'none';
       event.stopPropagation();
       event.preventDefault();
     });
+    on(this.$input, 'pointerdown', (evt) =>
+      assignIn(evt.currentTarget, { isPointerDown: true })
+    );
 
-    this.makeTextInputLikeDate();
+    on(this.$input, 'keydown', (evt) => this.handleKeyDown(evt));
+    on(this.$input, 'blur', () => this.handleBlur());
+    on(this.$input, 'focus', (evt) => this.handleFocus(evt));
+    on(this.$input, 'pointerup', (evt) => this.handlePointerUp(evt));
+    on(this.$input, 'select', (evt) => this.handleSelectInput(evt));
+    on(this.$input, 'keydown', (evt) => this.handleKeydownInput(evt));
+    on(this.$input, 'paste', (evt) => this.handlePaste(evt));
   }
 
   /** Set date & reset input state */
@@ -105,98 +113,101 @@ class Target extends Components {
     $inputBox.classList.remove('--active');
   }
 
-  /** Set input text like date */
-  private makeTextInputLikeDate() {
-    // Set state when change selection
-    on(this.$input, 'select', (e) => {
-      e.preventDefault();
-      const curTargetKey = this.getNearEditableTargetKey(
-        e.currentTarget.selectionStart as number
-      );
-      if (this.inputState.targetKey !== curTargetKey) {
-        this.inputState.targetKey = curTargetKey;
-        this.inputState.isSelectChange = true;
+  /** Set input state when change selection */
+  private handleSelectInput(event: Evt<'select', HTMLInputElement>) {
+    event.preventDefault();
+    const curTargetKey = this.getNearEditableTargetKey(
+      event.currentTarget.selectionStart as number
+    );
+    if (this.inputState.targetKey !== curTargetKey) {
+      this.inputState.targetKey = curTargetKey;
+      this.inputState.isSelectChange = true;
+    }
+  }
+
+  /** Make input[type="text"] like input[type="date"] */
+  private handleKeydownInput(event: Evt<'keydown', HTMLInputElement>) {
+    if (!event.ctrlKey || event.key !== 'v') event.preventDefault();
+    const num = Number(event.key); // Current key number
+    if (isNaN(num)) return; // If not a number, return
+
+    // Update input state
+    if (this.inputState.isSelectChange) {
+      (this.inputState.count = 0), (this.inputState.isSelectChange = false);
+    }
+    this.inputState.count++;
+
+    // Change input value
+    const { indexMap } = this.inputFormats;
+    const { value } = event.currentTarget;
+    const selectionStart = event.currentTarget.selectionStart ?? 0;
+    const selectionEnd = event.currentTarget.selectionEnd as number;
+
+    const text = value.slice(selectionStart, selectionEnd);
+    let changedValue = (text.replace(/[^1-9]/g, '0') + num).slice(1);
+
+    const { targetKey } = this.inputState;
+    if (targetKey === 'year') {
+      if (this.inputState.count === 1) {
+        const [std, end] = indexMap[targetKey];
+        changedValue = `${num}`.padStart(end - std, '0');
       }
-    });
+    }
 
-    on(this.$input, 'keydown', (event) => {
-      event.preventDefault();
-      const num = Number(event.key); // Current key number
-      if (isNaN(num)) return; // If not a number, return
-
-      // Update input state
-      if (this.inputState.isSelectChange) {
-        (this.inputState.count = 0), (this.inputState.isSelectChange = false);
+    if (targetKey === 'month') {
+      if (this.inputState.count === 1) {
+        if (num > 1) this.inputState.count++;
+        changedValue = `0${num}`;
       }
-      this.inputState.count++;
-
-      // Change input value
-      const { value } = event.currentTarget;
-      const selectionStart = event.currentTarget.selectionStart ?? 0;
-      const selectionEnd = event.currentTarget.selectionEnd as number;
-
-      const text = value.slice(selectionStart, selectionEnd);
-      let changedValue = (text.replace(/[^1-9]/g, '0') + num).slice(1);
-
-      if (this.inputState.targetKey === 'month') {
-        if (this.inputState.count === 1) {
-          if (num > 1) this.inputState.count++;
-          changedValue = `0${num}`;
-        }
-        if (this.inputState.count === 2) {
-          const month = Number(changedValue);
-          if (month < 1) changedValue = '01';
-          else if (month > 12) changedValue = `0${num}`;
-        }
+      if (this.inputState.count === 2) {
+        const month = Number(changedValue);
+        if (month < 1) changedValue = '01';
+        else if (month > 12) changedValue = `0${num}`;
       }
+    }
 
-      if (this.inputState.targetKey === 'day') {
-        if (this.inputState.count === 1) {
-          if (num > 3) this.inputState.count++;
-          changedValue = `0${num}`;
-        }
-        if (this.inputState.count === 2) {
-          const day = Number(changedValue);
-          const { year, month } = this.extractInputValue();
-          const lastDate = new Date(Number(year), Number(month), -1, 12);
-          if (day < 1) changedValue = '01';
-          else if (
-            day > (isNaN(lastDate.getDate()) ? 31 : lastDate.getDate())
-          ) {
-            changedValue = `0${num}`;
-          }
-        }
+    if (targetKey === 'day') {
+      if (this.inputState.count === 1) {
+        if (num > 3) this.inputState.count++;
+        changedValue = `0${num}`;
       }
-
-      // Set input text date
-      event.currentTarget.value =
-        value.slice(0, selectionStart) +
-        changedValue +
-        value.slice(selectionEnd);
-
-      // Select next editable text area
-      const { indexMap } = this.inputFormats;
-      if (this.inputState.count < selectionEnd - selectionStart) {
-        event.currentTarget.setSelectionRange(selectionStart, selectionEnd);
-      } else {
-        const targetKeys = keys(indexMap);
-        const idx = targetKeys.findIndex(
-          (item) => item === this.inputState.targetKey
+      if (this.inputState.count === 2) {
+        const day = Number(changedValue);
+        const { year, month } = this.extractDateStringFromValue(
+          this.$input.value
         );
-        const nextItem =
-          indexMap[
-            targetKeys.at(
-              idx === -1 || idx === 2 ? 0 : idx + 1
-            ) as keyof typeof indexMap
-          ];
-        this.inputState.count = 0;
-        event.currentTarget.setSelectionRange(nextItem[0], nextItem[1]);
+        const lastDate = new Date(Number(year), Number(month), 0, 12);
+        if (day < 1) changedValue = '01';
+        else if (day > (isNaN(lastDate.getDate()) ? 31 : lastDate.getDate())) {
+          changedValue = `0${num}`;
+        }
       }
-    });
+    }
+
+    // Set input text date
+    event.currentTarget.value =
+      value.slice(0, selectionStart) + changedValue + value.slice(selectionEnd);
+
+    // Select next editable text area
+
+    if (this.inputState.count < selectionEnd - selectionStart) {
+      event.currentTarget.setSelectionRange(selectionStart, selectionEnd);
+    } else {
+      const targetKeys = keys(indexMap);
+      const idx = targetKeys.findIndex((item) => item === targetKey);
+      const nextItem =
+        indexMap[
+          targetKeys.at(
+            idx === -1 || idx === 2 ? -1 : idx + 1
+          ) as keyof typeof indexMap
+        ];
+      this.inputState.count = 0;
+      event.currentTarget.setSelectionRange(nextItem[0], nextItem[1]);
+    }
   }
 
   /** Extract (year, month, day) string from input */
-  private extractInputValue() {
+  private extractDateStringFromValue(value: string) {
     const { indexMap } = this.inputFormats;
     const data: Record<string, string> = {
       year: 'YYYY',
@@ -204,14 +215,16 @@ class Target extends Components {
       day: 'DD',
     };
     forEach(indexMap, ([std, end], key) => {
-      data[key] = this.$input.value.slice(std, end);
+      data[key] = value.slice(std, end);
     });
     return data;
   }
 
   /** Make input value to date */
   private getInputValueDate() {
-    const [year, month, day] = values(this.extractInputValue());
+    const [year, month, day] = values(
+      this.extractDateStringFromValue(this.$input.value)
+    );
     return new Date(Number(year), Number(month) - 1, Number(day), 12);
   }
 
@@ -234,14 +247,15 @@ class Target extends Components {
 
   /** Escape input or submit input value */
   private handleKeyDown(event: Evt<'keydown', HTMLInputElement>) {
-    event.preventDefault();
     if (this.options.readOnly) return;
     if (event.key === 'Escape') {
+      event.preventDefault();
       this.resetDate();
       event.currentTarget.blur();
       return false;
     }
     if (event.key === 'Enter') {
+      event.preventDefault();
       this.setToInputDate();
       event.currentTarget.blur();
       return false;
@@ -250,11 +264,23 @@ class Target extends Components {
 
   /** Select first editable text field */
   private handleFocus(event: Evt<'focus', HTMLInputElement>) {
+    if (get(event.currentTarget, 'isPointerDown')) {
+      return assignIn(event.currentTarget, { isPointerDown: false });
+    }
     const { indexMap } = this.inputFormats;
     const item = values(indexMap)[0] as [number, number];
     event.currentTarget.setSelectionRange(...item);
     const $inputBox = find$('.' + cn('inputBox'), this.$el) as HTMLElement;
     $inputBox.classList.add('--active');
+  }
+
+  /** Select near eidtable text field */
+  private handlePointerUp(event: Evt<'pointerup', HTMLInputElement>) {
+    assignIn(event.currentTarget, { isPointerDown: false });
+    const { indexMap } = this.inputFormats;
+    const selectionStart = event.currentTarget.selectionStart ?? 0;
+    const [std, end] = indexMap[this.getNearEditableTargetKey(selectionStart)];
+    event.currentTarget.setSelectionRange(std, end);
   }
 
   /** Find near eidtable text field target key */
@@ -281,14 +307,47 @@ class Target extends Components {
     return target as 'year' | 'month' | 'day';
   }
 
-  /** Select near eidtable text field */
-  private handleMouseUp(event: Evt<'mouseup', HTMLInputElement>) {
+  /** Change input value, If paste text is match with format */
+  private handlePaste(event: Evt<'paste', HTMLInputElement>) {
+    if (document.activeElement !== event.currentTarget) return;
     event.preventDefault();
-    event.stopPropagation();
-    const { indexMap } = this.inputFormats;
-    const selectionStart = event.currentTarget.selectionStart ?? 0;
-    const [std, end] = indexMap[this.getNearEditableTargetKey(selectionStart)];
-    event.currentTarget.setSelectionRange(std, end);
+    const paste: string = (
+      (event?.clipboardData || (window as any).clipboardData)?.getData(
+        'text'
+      ) ?? ''
+    ).trim();
+
+    const { indexMap, format } = this.inputFormats;
+    if (paste.length !== format.length) return;
+    let checkStr = paste;
+    const indexMapArr = entries(indexMap);
+    indexMapArr.forEach(([[std, end], key]) => {
+      const replaceChar = key === 'year' ? 'Y' : key === 'month' ? 'M' : 'D';
+      checkStr =
+        checkStr.slice(0, std) +
+        ''.padStart(end - std, replaceChar) +
+        checkStr.slice(end);
+    });
+    if (checkStr !== format) return;
+
+    const data = this.extractDateStringFromValue(paste);
+    const params = values(data).map((value) => Number(value));
+    if (
+      params.some((value, index) => {
+        if (isNaN(value)) return true;
+        if (index === 1 && !between(value, 1, 12)) return true;
+        if (index === 2) {
+          const maxDate = new Date(params[0], params[1], 0, 12).getDate();
+          if (!between(value, 1, maxDate)) return true;
+        }
+        return false;
+      })
+    )
+      return;
+    event.currentTarget.value = paste;
+    event.currentTarget.setSelectionRange(
+      ...(indexMapArr[2][0] as [number, number])
+    );
   }
 }
 
