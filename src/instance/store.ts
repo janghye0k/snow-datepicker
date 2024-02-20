@@ -2,8 +2,9 @@ import type { DateLike, InternalOptions, Unit } from '@t/options';
 import type { Store } from '@t/instance';
 import { observable } from '@janghye0k/observable';
 import { isDateLike, isNullish } from 'doumi';
-import { UNIT_ORDER, checkUnit, isUnit } from '@/helpers/schema';
+import { checkUnit, isUnit } from '@/helpers/schema';
 import { decade, parseDate } from '@/helpers/util';
+import { UNIT_ORDER } from '@/helpers/consts';
 
 type Params = Pick<InternalOptions, 'minUnit'>;
 

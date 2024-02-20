@@ -14,15 +14,66 @@ import {
   values,
 } from 'doumi';
 import Components from './Components';
-import { PREFIX, cn } from '@/helpers/selectors';
+import { cn } from '@/helpers/selectors';
 import { effect } from '@janghye0k/observable';
 import CalendarIcon from '@/icons/calendar';
+import { error } from '@/helpers/util';
+import { DATEFORMAT_REGEXP, PREFIX } from '@/helpers/consts';
 
 type InputState = {
   targetKey: 'year' | 'month' | 'day';
   isSelectChange: boolean;
   count: number;
 };
+
+function checkDateFormat(dateFormat: string) {
+  let indexMap: Record<string, number[]> = { year: [], month: [], day: [] };
+  let adder = 0;
+  const makeIdxArr = (idx: number, size: number) => [
+    idx + adder,
+    idx + adder + size,
+  ];
+
+  const format = dateFormat.replace(DATEFORMAT_REGEXP, (match, idx) => {
+    switch (match) {
+      case 'YY':
+        indexMap.year = makeIdxArr(idx, 2);
+        return match;
+      case 'YYY':
+        indexMap.year = makeIdxArr(idx, 2);
+        adder--;
+        return 'YY';
+      case 'YYYY':
+        indexMap.year = makeIdxArr(idx, 4);
+        return match;
+      case 'MM':
+        indexMap.month = makeIdxArr(idx, 2);
+        return match;
+      case 'D':
+        indexMap.day = makeIdxArr(idx, 2);
+        adder++;
+        return 'DD';
+      case 'DD':
+        indexMap.day = makeIdxArr(idx, 2);
+        return match;
+    }
+    return '';
+  });
+
+  if (values(indexMap).some((arr) => arr.length === 0)) {
+    error(
+      'Invalid options',
+      'options.dateFormat & options.locale.formats.date must have `YY(or YYYY)`, `MM`, `DD`'
+    );
+  }
+  indexMap = entries(indexMap)
+    .sort((a, b) => a[0][0] - b[0][0])
+    .reduce((acc, [value, key]) => {
+      acc[key] = value;
+      return acc;
+    }, {} as any);
+  return { format, indexMap };
+}
 
 const INPUT_INITIAL_STATE = { targetKey: '', isSelectChange: false, count: 0 };
 
@@ -53,11 +104,9 @@ class Target extends Components {
 
   beforeInit(): void {
     // Get input format
-    this.inputFormats = get(
-      this.instance.converter,
-      'inputFormats'
-    ) as InputFormats;
-
+    this.inputFormats = checkDateFormat(
+      this.options.dateFormat ?? this.instance.converter.locale.formats.date
+    );
     // Set input state
     this.inputState = { ...INPUT_INITIAL_STATE } as InputState;
   }
@@ -346,7 +395,8 @@ class Target extends Components {
       return;
     event.currentTarget.value = paste;
     event.currentTarget.setSelectionRange(
-      ...(indexMapArr[2][0] as [number, number])
+      indexMapArr[2][0][0],
+      indexMapArr[2][0][1]
     );
   }
 }

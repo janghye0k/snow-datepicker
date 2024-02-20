@@ -14,7 +14,7 @@ import {
   off,
   on,
 } from 'doumi';
-import { CONTAINER_ID, PREFIX, cn } from '@/helpers/selectors';
+import { cn } from '@/helpers/selectors';
 import createInstance from '@/instance';
 import Controls from '@/components/Controls';
 import Content from '@/components/Content';
@@ -22,6 +22,7 @@ import createEventManager from './events';
 import { effect } from '@janghye0k/observable';
 import Target from '@/components/Target';
 import { autoUpdate, computePosition, flip } from '@floating-ui/dom';
+import { CONTAINER_ID, PREFIX } from '@/helpers/consts';
 
 class DatePicker {
   private options: InternalOptions;

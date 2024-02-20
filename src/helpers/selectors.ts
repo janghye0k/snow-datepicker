@@ -1,5 +1,4 @@
-const PREFIX = 'datepicker' as const;
-const CONTAINER_ID = `${PREFIX}-container` as const;
+import { PREFIX } from '@/helpers/consts';
 
 const classNameMap = {
   controls: 'controls',
@@ -36,4 +35,4 @@ function cn(
   return [className].concat(args.map((arg) => get(arg)));
 }
 
-export { cn, CONTAINER_ID, PREFIX };
+export { cn };

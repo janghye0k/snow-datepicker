@@ -10,14 +10,7 @@ import {
 } from 'doumi';
 import type { InternalOptions, Options, Unit } from '@t/options';
 import { error } from '@/helpers/util';
-
-export const UNIT_ORDER: Record<string, number> = {
-  days: 1,
-  months: 2,
-  years: 3,
-};
-
-const UNIT_LIST = ['days', 'months', 'years'];
+import { UNIT_ORDER, UNIT_LIST, MIN_DATE, MAX_DATE } from '@/helpers/consts';
 
 export function isUnit(unit: any) {
   return isString(unit) && UNIT_LIST.includes(unit);
@@ -30,15 +23,6 @@ export function checkUnit(unit: Unit, minUnit?: Unit) {
     UNIT_ORDER[minUnit as keyof typeof UNIT_ORDER]
   );
 }
-
-const MIN_DATE = new Date(100, 0, 1, 0, 1, 0);
-const MAX_DATE = new Date(9999, 11, 31, 23, 59, 59);
-
-const DEFAULT_TITLE_FORMAT = {
-  days: 'MMMM, <i>YYYY</i>',
-  months: 'YYYY',
-  years: 'YYYY1 - YYYY2',
-};
 
 const DEFUALT_OPTIONS: Options = {
   dateFormat: 'YYYY-MM-DD',
@@ -55,6 +39,12 @@ const DEFUALT_OPTIONS: Options = {
   readOnly: false,
   animation: true,
   titleFormat: {},
+};
+
+const DEFAULT_TITLE_FORMAT = {
+  days: 'MMMM, <i>YYYY</i>',
+  months: 'YYYY',
+  years: 'YYYY1 - YYYY2',
 };
 
 function inValid(key: string, message: string) {

@@ -1,16 +1,11 @@
-import { assign, capitalize, entries, isDateLike, range, values } from 'doumi';
+import { capitalize, isDateLike, range } from 'doumi';
 import LocaleEn from '@/locale/en';
 import type { DateLike, Options } from '@t/options';
 import type { Converter } from '@t/instance';
-import { decade, error } from '@/helpers/util';
+import { decade } from '@/helpers/util';
+import { FORMAT_REGEXP, DEFAULT_FORMAT, INVALID_DATE } from '@/helpers/consts';
 
 type Prams = Pick<Options, 'locale' | 'dateFormat'>;
-
-const FORMAT_REGEXP =
-  /\[([^\]]+)]|YY[1|2]|YYYY[1|2]|Y{2,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g;
-const DATEFORMAT_REGEXP = /Y{2,4}|M{1,4}|D{1,2}/g;
-const DEFAULT_FORMAT = 'YYYY-MM-DDTHH:mm:ssZ';
-const INVALID_DATE = 'Invalid Date';
 
 const getZone = (date: Date) => {
   const zoneOffset = -(-Math.round(date.getTimezoneOffset() / 15) * 15);
@@ -24,60 +19,10 @@ const getZone = (date: Date) => {
   return `${operator}${offsetHours}:${offsetMinutes}`;
 };
 
-function checkDateFormat(dateFormat: string) {
-  let indexMap: Record<string, number[]> = { year: [], month: [], day: [] };
-  let adder = 0;
-  const makeIdxArr = (idx: number, size: number) => [
-    idx + adder,
-    idx + adder + size,
-  ];
-  const format = dateFormat.replace(DATEFORMAT_REGEXP, (match, idx) => {
-    switch (match) {
-      case 'YY':
-        indexMap.year = makeIdxArr(idx, 2);
-        return match;
-      case 'YYY':
-        indexMap.year = makeIdxArr(idx, 2);
-        adder--;
-        return 'YY';
-      case 'YYYY':
-        indexMap.year = makeIdxArr(idx, 4);
-        return match;
-      case 'MM':
-        indexMap.month = makeIdxArr(idx, 2);
-        return match;
-      case 'D':
-        indexMap.day = makeIdxArr(idx, 2);
-        adder++;
-        return 'DD';
-      case 'DD':
-        indexMap.day = makeIdxArr(idx, 2);
-        return match;
-    }
-    return '';
-  });
-
-  if (values(indexMap).some((arr) => arr.length === 0)) {
-    error(
-      'Invalid options',
-      'options.dateFormat & options.locale.formats.date must have `YY(or YYYY)`, `MM`, `DD`'
-    );
-  }
-  indexMap = entries(indexMap)
-    .sort((a, b) => a[0][0] - b[0][0])
-    .reduce((acc, [value, key]) => {
-      acc[key] = value;
-      return acc;
-    }, {} as any);
-  return { format, indexMap };
-}
-
 export function craeteConverter({
   locale = LocaleEn,
   dateFormat,
 }: Prams = {}): Converter {
-  const inputFormats = checkDateFormat(dateFormat ?? locale.formats.date);
-
   const month = (monthIndex: number, short?: boolean) => {
     const monthStr = locale.months[monthIndex];
     if (!short) return monthStr;
@@ -209,5 +154,5 @@ export function craeteConverter({
     },
   };
 
-  return assign(converter, { inputFormats });
+  return converter;
 }
