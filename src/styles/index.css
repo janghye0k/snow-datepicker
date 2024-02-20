@@ -189,13 +189,13 @@
   font-size: 1.5rem;
   border: 1px solid transparent;
   border-radius: 4px;
+  color: color-mix(in srgb, var(--datepicker-color) 66%, transparent);
   background-color: transparent;
   cursor: pointer;
 }
 
 .datepicker-controls__btn > svg {
   flex-grow: 1;
-  color: color-mix(in srgb, var(--datepicker-color) 66%, transparent);
 }
 
 .datepicker-controls__title:hover,
@@ -210,6 +210,12 @@
     var(--datepicker-color) 14%,
     transparent
   );
+}
+
+.datepicker-controls__btn:disabled {
+  pointer-events: none;
+  user-select: none;
+  color: color-mix(in srgb, var(--datepicker-color) 20%, transparent);
 }
 
 .datepicker-content {
@@ -255,7 +261,11 @@
 }
 
 .datepicker-content__cell.--other {
-  color: var(--datepicker-border-color);
+  color: color-mix(
+    in srgb,
+    var(--datepicker-border-color),
+    var(--datepicker-color) 10%
+  );
 }
 
 .datepicker-content__cell.--active {
@@ -285,6 +295,13 @@
     var(--datepicker-main-color) 74%,
     transparent
   );
+}
+
+.datepicker-content__cell.--disabled {
+  user-select: none;
+  pointer-events: none;
+  background-color: transparent;
+  color: color-mix(in srgb, var(--datepicker-color) 20%, transparent);
 }
 
 .datepicker-content__cell:hover {

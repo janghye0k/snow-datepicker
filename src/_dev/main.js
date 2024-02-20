@@ -9,9 +9,9 @@ document.body.innerHTML = `
 `;
 
 const picker = new DatePicker(selector, {
-  selectedDate: new Date('2024-02-01'),
+  selectedDate: new Date('2024-01-01'),
   locale: localeKo,
-  minDate: new Date('2024-01-01'),
-  maxDate: new Date('2024-03-01'),
+  maxDate: new Date('2024-01-01'),
+  navigationLoop: false,
 });
 picker;

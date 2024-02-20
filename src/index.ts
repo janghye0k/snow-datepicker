@@ -320,7 +320,13 @@ class DatePicker {
 
     const y = String(year).padStart(4, '0');
     const m = String(month).padStart(2, '0');
-    this.setUnitDate(new Date(`${y}-${m}-01`));
+    const nextUnitDate = new Date(`${y}-${m}-01`);
+    if (this.options.navigationLoop) {
+      const { minDate, maxDate } = this.options;
+      if (nextUnitDate < minDate) return this.setUnitDate(maxDate);
+      else if (maxDate < nextUnitDate) return this.setUnitDate(minDate);
+    }
+    this.setUnitDate(nextUnitDate);
   }
 
   /** Move to next `month` | `years` | `decade` */

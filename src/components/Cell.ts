@@ -38,6 +38,7 @@ class Cell extends Components<CellProps> {
 
   render() {
     const { unitDate } = this.instance.store;
+    const { minDate, maxDate } = this.options;
     const length = typeCompareLengthMap[this.type];
     const parsed = parseDate(this.date).slice(0, length);
     const [year, monthindex, day] = parsed;
@@ -60,6 +61,10 @@ class Cell extends Components<CellProps> {
       const [std, end] = decade(unitDate);
       if (!between(year, std, end)) classList.push('--other');
     }
+
+    const N = Number;
+    const isOver = !between(N(this.date), N(minDate), N(maxDate));
+    if (isOver) classList.push('--disabled');
 
     // Create element
     const $el = create$('div', {
@@ -109,11 +114,15 @@ class Cell extends Components<CellProps> {
     if (currentUnit !== nextUnit) this.dp.setCurrentUnit(nextUnit);
 
     const date = this.date;
-    const isUnSelect = this.isActive() && this.options.toggleSelected;
+    const isEndUnit = this.type + 's' === this.options.minUnit;
+    const isUnSelect =
+      isEndUnit && this.isActive() && this.options.toggleSelected;
     this.dp.setSelectedDate(isUnSelect ? null : date);
     if (currentUnit !== 'days' || this.options.moveOtherMonths) {
       this.dp.setUnitDate(date);
     }
+
+    if (this.options.autoClose && isEndUnit) this.dp.hide();
   }
 
   private handleClickCell(event: MouseEvent) {
@@ -121,7 +130,6 @@ class Cell extends Components<CellProps> {
     const eventProps: Record<string, any> = { event, type, date, $element };
     if (type === 'day') eventProps.dayIndex = this.date.getDay();
     this.eventManager.trigger('clickCell', eventProps);
-    if (this.options.autoClose) this.dp.hide();
   }
 }
 

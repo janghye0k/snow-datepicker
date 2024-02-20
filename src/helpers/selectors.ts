@@ -3,8 +3,8 @@ const CONTAINER_ID = `${PREFIX}-container` as const;
 
 const classNameMap = {
   controls: 'controls',
-  'controls.btn': 'controls__btn',
-  'controls.title': 'controls__title',
+  controlsBtn: 'controls__btn',
+  controlsTitle: 'controls__title',
   content: 'content',
   days: 'content__days',
   months: 'content__months',

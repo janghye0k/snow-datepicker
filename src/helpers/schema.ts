@@ -124,12 +124,17 @@ export default function checkSchema(options: Options): InternalOptions {
   });
 
   const { minDate, maxDate } = opt;
-  opt.minDate = !minDate
+  const min = !minDate
     ? new Date(MIN_DATE)
     : new Date(Math.max(Number(MIN_DATE), Number(new Date(minDate))));
-  opt.maxDate = !maxDate
+  const max = !maxDate
     ? new Date(MAX_DATE)
     : new Date(Math.min(Number(new Date(maxDate)), Number(maxDate)));
+  min.setHours(0), min.setMinutes(0), min.setSeconds(1);
+  max.setHours(23), max.setMinutes(59), max.setSeconds(59);
+
+  opt.minDate = min;
+  opt.maxDate = max;
 
   return opt;
 }
