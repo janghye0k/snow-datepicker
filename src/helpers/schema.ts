@@ -25,7 +25,6 @@ export function checkUnit(unit: Unit, minUnit?: Unit) {
 }
 
 const DEFUALT_OPTIONS: Options = {
-  dateFormat: 'YYYY-MM-DD',
   toggleSelected: true,
   shortcuts: true,
   position: 'bottom-start',

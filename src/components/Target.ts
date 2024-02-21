@@ -1,87 +1,75 @@
-import type { InputFormats } from '@t/locale';
 import {
   Evt,
   assignIn,
-  between,
   create$,
-  entries,
   find$,
   forEach,
   get,
   isDateLike,
-  keys,
   on,
-  values,
 } from 'doumi';
-import Components from './Components';
+import Components from '@/components/Components';
 import { cn } from '@/helpers/selectors';
 import { effect } from '@janghye0k/observable';
 import CalendarIcon from '@/icons/calendar';
-import { error } from '@/helpers/util';
 import { DATEFORMAT_REGEXP, PREFIX } from '@/helpers/consts';
+import { parseDate } from '@/helpers/util';
 
-type InputState = {
-  targetKey: 'year' | 'month' | 'day';
-  isSelectChange: boolean;
+type InputState = ReturnType<typeof createInputState>;
+type ValueKey = 'day' | 'month' | 'year';
+type IndexMap = Record<ValueKey, [number, number]>;
+type EditState = {
+  indexMap: IndexMap;
+  target: ValueKey;
   count: number;
 };
 
-function checkDateFormat(dateFormat: string) {
-  let indexMap: Record<string, number[]> = { year: [], month: [], day: [] };
-  let adder = 0;
-  const makeIdxArr = (idx: number, size: number) => [
-    idx + adder,
-    idx + adder + size,
-  ];
+const IGNORE_REGEXP = /[^Y|M|D|\d]*/g;
 
-  const format = dateFormat.replace(DATEFORMAT_REGEXP, (match, idx) => {
-    switch (match) {
-      case 'YY':
-        indexMap.year = makeIdxArr(idx, 2);
-        return match;
-      case 'YYY':
-        indexMap.year = makeIdxArr(idx, 2);
-        adder--;
-        return 'YY';
-      case 'YYYY':
-        indexMap.year = makeIdxArr(idx, 4);
-        return match;
-      case 'MM':
-        indexMap.month = makeIdxArr(idx, 2);
-        return match;
-      case 'D':
-        indexMap.day = makeIdxArr(idx, 2);
-        adder++;
-        return 'DD';
-      case 'DD':
-        indexMap.day = makeIdxArr(idx, 2);
-        return match;
-    }
-    return '';
+function createInputState(dateFormat: string) {
+  // save rest str before target str
+  const beforeStrMap = {
+    year: '',
+    month: '',
+    day: '',
+    rest: '',
+  };
+  const formatStrMap = {
+    year: '',
+    month: '',
+    day: '',
+  };
+  const keyOrders: ValueKey[] = [];
+  const valueMap = { year: 0, month: 0, day: 0 };
+
+  let prevIdx = 0;
+  const rest = dateFormat.replace(DATEFORMAT_REGEXP, (match, idx) => {
+    const length = match.length;
+    const prevStr = dateFormat.slice(prevIdx, idx);
+    prevIdx = idx + length;
+    const has = (val: string) => match.includes(val);
+    const target = has('Y') ? 'year' : has('M') ? 'month' : 'day';
+    formatStrMap[target] = match;
+    beforeStrMap[target] = prevStr;
+    keyOrders.push(target);
+    return ''.padStart(length, ' ');
   });
+  beforeStrMap.rest = rest.slice(prevIdx);
 
-  if (values(indexMap).some((arr) => arr.length === 0)) {
-    error(
-      'Invalid options',
-      'options.dateFormat & options.locale.formats.date must have `YY(or YYYY)`, `MM`, `DD`'
-    );
-  }
-  indexMap = entries(indexMap)
-    .sort((a, b) => a[0][0] - b[0][0])
-    .reduce((acc, [value, key]) => {
-      acc[key] = value;
-      return acc;
-    }, {} as any);
-  return { format, indexMap };
+  return { beforeStrMap, formatStrMap, keyOrders, valueMap };
 }
-
-const INPUT_INITIAL_STATE = { targetKey: '', isSelectChange: false, count: 0 };
 
 class Target extends Components {
   $el!: HTMLElement;
   $input!: HTMLInputElement;
-  inputFormats!: InputFormats;
+  $inputBox!: HTMLElement;
   inputState!: InputState;
+  editState!: EditState;
+
+  get inputDate() {
+    const { year, month, day } = this.inputState.valueMap;
+    return new Date(`${year}-${month}-${day}`);
+  }
 
   beforeDestroy(): void {
     this.$el = create$('input');
@@ -93,9 +81,12 @@ class Target extends Components {
     this.unsubscribers.push(
       effect(
         (date) => {
-          this.$input.value = !date
-            ? this.inputFormats.format
-            : converter.format(date, this.inputFormats.format);
+          if (!date) return (this.$input.value = converter.dateFormat);
+          this.$input.value = converter.format(date, converter.dateFormat);
+          const [year, monthindex, day] = parseDate(date);
+          const { valueMap } = this.inputState;
+          (valueMap.year = year), (valueMap.day = day);
+          valueMap.month = monthindex + 1;
         },
         [store.state.date]
       )
@@ -103,17 +94,13 @@ class Target extends Components {
   }
 
   beforeInit(): void {
-    // Get input format
-    this.inputFormats = checkDateFormat(
-      this.options.dateFormat ?? this.instance.converter.locale.formats.date
-    );
     // Set input state
-    this.inputState = { ...INPUT_INITIAL_STATE } as InputState;
+    this.inputState = createInputState(this.instance.converter.dateFormat);
   }
 
   render() {
     this.$el.classList.add(PREFIX, cn('inputRoot'));
-    const $inputBox = create$('div', { className: cn('inputBox') });
+    this.$inputBox = create$('div', { className: cn('inputBox') });
     const $input = create$('input', {
       className: cn('input'),
       type: 'text',
@@ -122,15 +109,15 @@ class Target extends Components {
         this.instance.converter.locale.placeholder ??
         'Choose a date',
       readOnly: this.options.readOnly,
-      value: this.inputFormats.format,
+      value: this.instance.converter.dateFormat,
     });
     this.$input = $input;
     const $iconBox = create$('button', {
       className: cn('calendarBtn'),
       innerHTML: CalendarIcon,
     });
-    $inputBox.replaceChildren($input, $iconBox);
-    this.$el.appendChild($inputBox);
+    this.$inputBox.replaceChildren($input, $iconBox);
+    this.$el.appendChild(this.$inputBox);
     assignIn(this.dp, { $input });
   }
 
@@ -145,33 +132,80 @@ class Target extends Components {
       assignIn(evt.currentTarget, { isPointerDown: true })
     );
 
-    on(this.$input, 'keydown', (evt) => this.handleKeyDown(evt));
-    on(this.$input, 'blur', () => this.handleBlur());
+    on(this.$input, 'keydown', (evt) => this.handleEscapeAndSubmit(evt));
+    on(this.$input, 'blur', (evt) => this.handleBlur(evt));
     on(this.$input, 'focus', (evt) => this.handleFocus(evt));
     on(this.$input, 'pointerup', (evt) => this.handlePointerUp(evt));
-    on(this.$input, 'select', (evt) => this.handleSelectInput(evt));
     on(this.$input, 'keydown', (evt) => this.handleKeydownInput(evt));
     on(this.$input, 'paste', (evt) => this.handlePaste(evt));
   }
 
-  /** Set date & reset input state */
-  private handleBlur() {
-    this.setToInputDate();
-    this.inputState = { ...{ ...INPUT_INITIAL_STATE } } as InputState;
-    const $inputBox = find$('.' + cn('inputBox'), this.$el) as HTMLElement;
-    $inputBox.classList.remove('--active');
+  private formatTargetValue(key: ValueKey) {
+    const { valueMap, formatStrMap } = this.inputState;
+    if (key !== 'month') {
+      return String(valueMap[key]).padStart(formatStrMap[key].length, '0');
+    }
+
+    const formatMonthSize = formatStrMap.month.length;
+    if (formatMonthSize <= 2) {
+      return String(valueMap.month).padStart(formatMonthSize, '0');
+    }
+    if (valueMap.month === 0) return formatStrMap.month;
+    const { converter } = this.instance;
+    return converter.localeMonth(valueMap.month - 1, formatMonthSize === 3);
   }
 
-  /** Set input state when change selection */
-  private handleSelectInput(event: Evt<'select', HTMLInputElement>) {
+  private getIndexMap(): IndexMap;
+  private getIndexMap(target: ValueKey): [number, number];
+  private getIndexMap(target?: ValueKey) {
+    const { beforeStrMap, keyOrders } = this.inputState;
+    const indexMap = {} as IndexMap;
+    let idx = 0;
+    keyOrders.forEach((key) => {
+      const beforeStr = beforeStrMap[key];
+      idx += beforeStr.length;
+      const valueSize = this.formatTargetValue(key).length;
+      indexMap[key] = [idx, (idx += valueSize)];
+    });
+    return target && target in indexMap ? indexMap[target] : indexMap;
+  }
+
+  private findNearSelectionTarget(selectionStart: number) {
+    const indexMap = this.getIndexMap();
+    let prevDiff = Infinity;
+    let target = '' as ValueKey;
+    forEach(indexMap, ([std, end], key) => {
+      const diff = Math.min(
+        Math.abs(selectionStart - std),
+        Math.abs(end - selectionStart)
+      );
+      if (target && diff > prevDiff) return;
+      prevDiff = diff;
+      target = key as ValueKey;
+    });
+    return { target, indexMap };
+  }
+
+  /** Select first editable text field */
+  private handleFocus(event: Evt<'focus', HTMLInputElement>) {
     event.preventDefault();
-    const curTargetKey = this.getNearEditableTargetKey(
-      event.currentTarget.selectionStart as number
-    );
-    if (this.inputState.targetKey !== curTargetKey) {
-      this.inputState.targetKey = curTargetKey;
-      this.inputState.isSelectChange = true;
+    this.$inputBox.classList.add('--active');
+    if (get(event.currentTarget, 'isPointerDown')) {
+      return assignIn(event.currentTarget, { isPointerDown: false });
     }
+    const { target, indexMap } = this.findNearSelectionTarget(0);
+    this.editState = { target, indexMap, count: 0 };
+    event.currentTarget.setSelectionRange(...indexMap[target]);
+  }
+
+  /** Select near eidtable text field */
+  private handlePointerUp(event: Evt<'pointerup', HTMLInputElement>) {
+    event.preventDefault();
+    assignIn(event.currentTarget, { isPointerDown: false });
+    const selectionStart = event.currentTarget.selectionStart ?? 0;
+    const { target, indexMap } = this.findNearSelectionTarget(selectionStart);
+    this.editState = { target, indexMap, count: 0 };
+    event.currentTarget.setSelectionRange(...indexMap[target]);
   }
 
   /** Make input[type="text"] like input[type="date"] */
@@ -180,224 +214,164 @@ class Target extends Components {
     const num = Number(event.key); // Current key number
     if (isNaN(num)) return; // If not a number, return
 
-    // Update input state
-    if (this.inputState.isSelectChange) {
-      (this.inputState.count = 0), (this.inputState.isSelectChange = false);
-    }
-    this.inputState.count++;
-
-    // Change input value
-    const { indexMap } = this.inputFormats;
     const { value } = event.currentTarget;
-    const selectionStart = event.currentTarget.selectionStart ?? 0;
-    const selectionEnd = event.currentTarget.selectionEnd as number;
+    const { formatStrMap, valueMap, keyOrders } = this.inputState;
+    const { indexMap, target } = this.editState;
+    const indexes = indexMap[target];
+    const maxCount = target !== 'year' ? 2 : formatStrMap[target].length;
 
-    const text = value.slice(selectionStart, selectionEnd);
-    let changedValue = (text.replace(/[^1-9]/g, '0') + num).slice(1);
+    this.editState.count++;
 
-    const { targetKey } = this.inputState;
-    if (targetKey === 'year') {
-      if (this.inputState.count === 1) {
-        const [std, end] = indexMap[targetKey];
-        changedValue = `${num}`.padStart(end - std, '0');
-      }
-    }
-
-    if (targetKey === 'month') {
-      if (this.inputState.count === 1) {
-        if (num > 1) this.inputState.count++;
-        changedValue = `0${num}`;
-      }
-      if (this.inputState.count === 2) {
-        const month = Number(changedValue);
-        if (month < 1) changedValue = '01';
-        else if (month > 12) changedValue = `0${num}`;
-      }
-    }
-
-    if (targetKey === 'day') {
-      if (this.inputState.count === 1) {
-        if (num > 3) this.inputState.count++;
-        changedValue = `0${num}`;
-      }
-      if (this.inputState.count === 2) {
-        const day = Number(changedValue);
-        const { year, month } = this.extractDateStringFromValue(
-          this.$input.value
-        );
-        const lastDate = new Date(Number(year), Number(month), 0, 12);
-        if (day < 1) changedValue = '01';
-        else if (day > (isNaN(lastDate.getDate()) ? 31 : lastDate.getDate())) {
-          changedValue = `0${num}`;
-        }
-      }
-    }
-
-    // Set input text date
-    event.currentTarget.value =
-      value.slice(0, selectionStart) + changedValue + value.slice(selectionEnd);
-
-    // Select next editable text area
-
-    if (this.inputState.count < selectionEnd - selectionStart) {
-      event.currentTarget.setSelectionRange(selectionStart, selectionEnd);
-    } else {
-      const targetKeys = keys(indexMap);
-      const idx = targetKeys.findIndex((item) => item === targetKey);
-      const nextItem =
-        indexMap[
-          targetKeys.at(
-            idx === -1 || idx === 2 ? -1 : idx + 1
-          ) as keyof typeof indexMap
-        ];
-      this.inputState.count = 0;
-      event.currentTarget.setSelectionRange(nextItem[0], nextItem[1]);
-    }
-  }
-
-  /** Extract (year, month, day) string from input */
-  private extractDateStringFromValue(value: string) {
-    const { indexMap } = this.inputFormats;
-    const data: Record<string, string> = {
-      year: 'YYYY',
-      month: 'MM',
-      day: 'DD',
-    };
-    forEach(indexMap, ([std, end], key) => {
-      data[key] = value.slice(std, end);
-    });
-    return data;
-  }
-
-  /** Make input value to date */
-  private getInputValueDate() {
-    const [year, month, day] = values(
-      this.extractDateStringFromValue(this.$input.value)
-    ).map((item) => Number(item));
-    return new Date(year, month - 1, day, 12);
-  }
-
-  /** Reset Input value to formatted datepicker selected date */
-  private resetDate() {
-    const selectedDate = this.dp.selectedDate;
-    this.$input.value = !selectedDate
-      ? this.inputFormats.format
-      : this.instance.converter.format(selectedDate, this.inputFormats.format);
-  }
-
-  /** Set datepicker's selected date to input value date */
-  private setToInputDate() {
-    const date = this.getInputValueDate();
-    if (this.options.readOnly) return;
-    if (!isDateLike(date)) return this.resetDate();
-    this.dp.setSelectedDate(date);
-    this.dp.setUnitDate(date);
-  }
-
-  /** Escape input or submit input value */
-  private handleKeyDown(event: Evt<'keydown', HTMLInputElement>) {
-    if (this.options.readOnly) return;
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      this.resetDate();
-      event.currentTarget.blur();
-      return false;
-    }
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      this.setToInputDate();
-      event.currentTarget.blur();
-      return false;
-    }
-  }
-
-  /** Select first editable text field */
-  private handleFocus(event: Evt<'focus', HTMLInputElement>) {
-    if (get(event.currentTarget, 'isPointerDown')) {
-      return assignIn(event.currentTarget, { isPointerDown: false });
-    }
-    const { indexMap } = this.inputFormats;
-    const item = values(indexMap)[0] as [number, number];
-    event.currentTarget.setSelectionRange(...item);
-    const $inputBox = find$('.' + cn('inputBox'), this.$el) as HTMLElement;
-    $inputBox.classList.add('--active');
-  }
-
-  /** Select near eidtable text field */
-  private handlePointerUp(event: Evt<'pointerup', HTMLInputElement>) {
-    assignIn(event.currentTarget, { isPointerDown: false });
-    const { indexMap } = this.inputFormats;
-    const selectionStart = event.currentTarget.selectionStart ?? 0;
-    const [std, end] = indexMap[this.getNearEditableTargetKey(selectionStart)];
-    event.currentTarget.setSelectionRange(std, end);
-  }
-
-  /** Find near eidtable text field target key */
-  private getNearEditableTargetKey(selectionStart: number) {
-    const { indexMap } = this.inputFormats;
-    let diff = Infinity;
-    let target = '';
-    forEach(indexMap, ([std, end], key) => {
-      if (!key) return (target = key);
-      if (between(selectionStart, std, end)) {
-        diff = 0;
-        target = key;
+    if (target === 'year') {
+      valueMap[target] =
+        this.editState.count === 1 ? num : Number(`${valueMap[target]}${num}`);
+    } else if (target === 'month') {
+      if (this.editState.count === 1) {
+        valueMap[target] = num;
+        if (num > 1) this.editState.count++;
       } else {
-        const curDiff = Math.min(
-          Math.abs(selectionStart - std),
-          Math.abs(selectionStart - end)
-        );
-        if (curDiff < diff) {
-          diff = curDiff;
-          target = key;
-        }
+        valueMap[target] = num < 3 ? Number(valueMap[target] + `${num}`) : num;
       }
-    });
-    return target as 'year' | 'month' | 'day';
+    } else {
+      if (this.editState.count === 1) {
+        valueMap[target] = num;
+        const max = valueMap.month && valueMap.month !== 2 ? 3 : 2;
+        if (num > max) this.editState.count++;
+      } else {
+        const max = new Date(valueMap.year, valueMap.month, 0, 12).getDate();
+        const value = Number(valueMap[target] + `${num}`);
+        valueMap[target] = value > max ? num : value;
+      }
+    }
+
+    const selectionText = value.slice(...indexes);
+    const changeText = this.formatTargetValue(target);
+    const textDiff = selectionText.length - changeText.length;
+    if (textDiff !== 0) {
+      this.editState.indexMap = this.getIndexMap();
+    }
+
+    // Change input value text
+    event.currentTarget.value =
+      value.slice(0, indexes[0]) + changeText + value.slice(indexes[1]);
+
+    if (this.editState.count >= maxCount) {
+      const nextIdx = keyOrders.findIndex((item) => item === target) + 1;
+      const nextTarget = keyOrders[nextIdx > 2 ? 2 : nextIdx];
+      this.editState.target = nextTarget;
+      this.editState.count = 0;
+    }
+    event.currentTarget.setSelectionRange(
+      ...this.editState.indexMap[this.editState.target]
+    );
   }
 
   /** Change input value, If paste text is match with format */
   private handlePaste(event: Evt<'paste', HTMLInputElement>) {
     if (document.activeElement !== event.currentTarget) return;
     event.preventDefault();
-    const paste: string = (
+    // Get paste text
+    let paste: string = (
       (event?.clipboardData || (window as any).clipboardData)?.getData(
         'text'
       ) ?? ''
     ).trim();
 
-    const { indexMap, format } = this.inputFormats;
-    if (paste.length !== format.length) return;
-    let checkStr = paste;
-    const indexMapArr = entries(indexMap);
-    indexMapArr.forEach(([[std, end], key]) => {
-      const replaceChar = key === 'year' ? 'Y' : key === 'month' ? 'M' : 'D';
-      checkStr =
-        checkStr.slice(0, std) +
-        ''.padStart(end - std, replaceChar) +
-        checkStr.slice(end);
-    });
-    if (checkStr !== format) return;
+    const { formatStrMap, beforeStrMap, keyOrders } = this.inputState;
 
-    const data = this.extractDateStringFromValue(paste);
-    const params = values(data).map((value) => Number(value));
-    if (
-      params.some((value, index) => {
-        if (isNaN(value)) return true;
-        if (index === 1 && !between(value, 1, 12)) return true;
-        if (index === 2) {
-          const maxDate = new Date(params[0], params[1], 0, 12).getDate();
-          if (!between(value, 1, maxDate)) return true;
-        }
-        return false;
-      })
-    )
+    // Replace month string to number
+    const formatMonthSize = formatStrMap.month.length;
+    if (formatMonthSize > 2) {
+      const monthStrs =
+        this.instance.converter.locale[
+          formatMonthSize === 3 ? 'monthsShort' : 'months'
+        ];
+      monthStrs.forEach(
+        (item, idx) => (paste = paste.replace(item, `${idx + 1}`))
+      );
+    }
+
+    // Parse paste text
+    let items: string[] = [];
+    let prevIdx = 0;
+    paste.replace(IGNORE_REGEXP, (match, idx) => {
+      const length = match.length;
+      if (length === 0) return '';
+      items.push(paste.slice(prevIdx, idx));
+      items.push(match);
+      prevIdx = idx + length;
+      return '';
+    });
+    items.push(paste.slice(prevIdx));
+    items = items.filter((item) => item.length);
+
+    // Check paste text is match with format and it has date-like value
+    const data = { year: '', month: '', day: '' };
+    let itemPos = 0;
+    for (const key of keyOrders) {
+      const beforeStr = beforeStrMap[key];
+      if (beforeStr.length) {
+        if (beforeStr !== items[itemPos]) return;
+        itemPos++;
+      }
+      const item = items[itemPos];
+      itemPos++;
+      if (item === formatStrMap[key] || isNaN(Number(item))) return;
+      data[key] = item;
+    }
+
+    if ((items[itemPos] ?? '') !== beforeStrMap.rest || items.at(itemPos + 1))
       return;
-    event.currentTarget.value = paste;
-    event.currentTarget.setSelectionRange(
-      indexMapArr[2][0][0],
-      indexMapArr[2][0][1]
+    if (!isDateLike(`${data.year}-${data.month}-${data.day}`)) return;
+
+    forEach(
+      data,
+      (value, key) => ((this.inputState.valueMap as any)[key] = value)
     );
+    event.currentTarget.value =
+      keyOrders.reduce(
+        (acc, key) => acc + beforeStrMap[key] + this.formatTargetValue(key),
+        ''
+      ) + beforeStrMap.rest;
+  }
+
+  /** Reset Input value to formatted datepicker selected date */
+  private resetDate() {
+    const { converter } = this.instance;
+    const selectedDate = this.dp.selectedDate;
+    this.$input.value = !selectedDate
+      ? converter.dateFormat
+      : converter.format(selectedDate, converter.dateFormat);
+  }
+
+  /** Set datepicker's selected date to input value date */
+  private setToInputDate() {
+    const date = this.inputDate;
+    if (this.options.readOnly) return;
+    if (!isDateLike(date)) return this.resetDate();
+    this.dp.setSelectedDate(date);
+    this.dp.setUnitDate(date);
+  }
+
+  /** Set date & reset input state */
+  private handleBlur(event: Evt<'blur', HTMLInputElement>) {
+    this.$inputBox.classList.remove('--active');
+    if (!get(event.currentTarget, 'dpDisableInputBlur')) this.setToInputDate();
+    assignIn(event.currentTarget, { dpDisableInputBlur: false });
+  }
+
+  /** Escape input or submit input value */
+  private handleEscapeAndSubmit(event: Evt<'keydown', HTMLInputElement>) {
+    if (this.options.readOnly) return;
+    const isEnter = event.key === 'Enter';
+    const isEscape = event.key === 'Escape';
+    if (isEnter || isEscape) {
+      event.preventDefault();
+      assignIn(event.currentTarget, { dpDisableInputBlur: true });
+      event.currentTarget.blur();
+      isEnter ? this.setToInputDate() : this.resetDate();
+      return false;
+    }
   }
 }
 
