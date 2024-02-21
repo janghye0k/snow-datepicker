@@ -148,7 +148,7 @@ class Target extends Components {
       assignIn(evt.currentTarget, { isPointerDown: true })
     );
 
-    on(this.$input, 'keydown', (evt) => this.handleEscapeAndSubmit(evt));
+    on(this.$input, 'keydown', (evt) => this.handleKeydown(evt));
     on(this.$input, 'blur', (evt) => this.handleBlur(evt));
     on(this.$input, 'focus', (evt) => this.handleFocus(evt));
     on(this.$input, 'pointerup', (evt) => this.handlePointerUp(evt));
@@ -391,7 +391,7 @@ class Target extends Components {
   }
 
   /** Escape input or submit input value */
-  private handleEscapeAndSubmit(event: Evt<'keydown', HTMLInputElement>) {
+  private handleKeydown(event: Evt<'keydown', HTMLInputElement>) {
     if (this.options.readOnly) return;
     const isEnter = event.key === 'Enter';
     const isEscape = event.key === 'Escape';
@@ -400,6 +400,24 @@ class Target extends Components {
       assignIn(event.currentTarget, { dpDisableInputBlur: true });
       event.currentTarget.blur();
       isEnter ? this.setToInputDate() : this.resetDate();
+      return false;
+    }
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      const { keyOrders } = this.inputState;
+      const { target, indexMap } = this.editState;
+      const adder = event.shiftKey ? -1 : 1;
+      const keySize = keyOrders.length;
+
+      let nextIdx = keyOrders.findIndex((item) => item === target) + adder;
+      if (nextIdx < 0) nextIdx = keySize + nextIdx;
+      else if (nextIdx >= keySize) nextIdx = nextIdx % keySize;
+
+      const nextTarget = keyOrders[nextIdx];
+      this.editState.count = 0;
+      this.editState.target = nextTarget;
+      event.currentTarget.setSelectionRange(...indexMap[nextTarget]);
+
       return false;
     }
   }
