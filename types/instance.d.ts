@@ -25,7 +25,10 @@ export type Store = {
 export type Converter = {
   readonly locale: Locale;
   readonly weekIndexes: number[];
+  readonly dateFormat: string;
   format(value: DateLike, format: string): string;
   time: (value: DateLike) => string;
   date: (value: DateLike) => string;
+  localeMonth: (monthIndex: number, short?: boolean) => string;
+  localeWeekday: (weekdayIndex: number, options?: 'short' | 'min') => string;
 };

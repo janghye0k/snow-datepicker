@@ -1,4 +1,4 @@
-import { capitalize, isDateLike, range } from 'doumi';
+import { isDateLike, range } from 'doumi';
 import LocaleEn from '@/locale/en';
 import type { DateLike, Options } from '@t/options';
 import type { Converter } from '@t/instance';
@@ -23,22 +23,7 @@ export function craeteConverter({
   locale = LocaleEn,
   dateFormat,
 }: Prams = {}): Converter {
-  const month = (monthIndex: number, short?: boolean) => {
-    const monthStr = locale.months[monthIndex];
-    if (!short) return monthStr;
-    return locale.monthsShort[monthIndex] || monthStr.slice(0, 3);
-  };
-
-  const weekday = (weekdayIndex: number, options?: 'short' | 'min') => {
-    const weekdayStr = locale.weekdays[weekdayIndex];
-    if (!options) return weekdayStr;
-    return locale[`weekdays${capitalize(options)}` as 'weekdaysMin'][
-      weekdayIndex
-    ];
-  };
-
   const hour = (hours: number) => hours % 12 || 12;
-
   const meridiem = (hours: number) => (hours < 12 ? 'AM' : 'PM');
 
   const converter: Converter = {
@@ -48,6 +33,9 @@ export function craeteConverter({
     get weekIndexes() {
       const { weekStart = 0 } = locale;
       return range(weekStart, 7).map((item) => item % 7);
+    },
+    get dateFormat() {
+      return dateFormat ?? locale.formats.date;
     },
     /**
      * Format date
@@ -88,9 +76,9 @@ export function craeteConverter({
           case 'MM':
             return (M + 1).toString().padStart(2, '0');
           case 'MMM':
-            return month(M, true);
+            return this.localeMonth(M, true);
           case 'MMMM':
-            return month(M);
+            return this.localeMonth(M);
           case 'D':
             return D;
           case 'DD':
@@ -98,11 +86,11 @@ export function craeteConverter({
           case 'd':
             return W;
           case 'dd':
-            return weekday(W, 'min');
+            return this.localeWeekday(W, 'min');
           case 'ddd':
-            return weekday(W, 'short');
+            return this.localeWeekday(W, 'short');
           case 'dddd':
-            return weekday(W);
+            return this.localeWeekday(W);
           case 'H':
             return H;
           case 'HH':
@@ -151,6 +139,30 @@ export function craeteConverter({
      */
     date(value: DateLike): string {
       return this.format(value, dateFormat ?? locale.formats.date);
+    },
+
+    /**
+     * Convert monthindex to locale format month string
+     * @param {number} monthIndex The value to convert
+     * @param {boolean} [short] If `true`, it return short string of month
+     * @returns {string} Returns month string
+     */
+    localeMonth(monthIndex: number, short?: boolean): string {
+      const monthStr = locale.months[monthIndex];
+      if (!short) return monthStr;
+      return locale.monthsShort[monthIndex] || monthStr.slice(0, 3);
+    },
+
+    /**
+     * Convert weekdayindex to locale format weekday string
+     * @param {number} weekdayIndex The value to convert
+     * @param {'short' | 'min'} [options] The options to convert value
+     * @returns {string} Returns weekday string
+     */
+    localeWeekday(weekdayIndex: number, options?: 'short' | 'min'): string {
+      if (options === 'short') return locale.weekdaysShort[weekdayIndex];
+      if (options === 'min') return locale.weekdaysMin[weekdayIndex];
+      return locale.weekdays[weekdayIndex];
     },
   };
 
