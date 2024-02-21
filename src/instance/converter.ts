@@ -34,9 +34,6 @@ export function craeteConverter({
       const { weekStart = 0 } = locale;
       return range(weekStart, 7).map((item) => item % 7);
     },
-    get dateFormat() {
-      return dateFormat ?? locale.formats.date;
-    },
     /**
      * Format date
      * @param {DateLike} value The value to format.

@@ -12,8 +12,9 @@ import Components from '@/components/Components';
 import { cn } from '@/helpers/selectors';
 import { effect } from '@janghye0k/observable';
 import CalendarIcon from '@/icons/calendar';
-import { DATEFORMAT_REGEXP, PREFIX } from '@/helpers/consts';
+import { DATEFORMAT_REGEXP, PREFIX, UNIT_ORDER } from '@/helpers/consts';
 import { parseDate } from '@/helpers/util';
+import { InternalOptions } from '@t/options';
 
 type InputState = ReturnType<typeof createInputState>;
 type ValueKey = 'day' | 'month' | 'year';
@@ -26,7 +27,10 @@ type EditState = {
 
 const IGNORE_REGEXP = /[^Y|M|D|\d]*/g;
 
-function createInputState(dateFormat: string) {
+function createInputState(
+  dateFormat: string,
+  minUnit: InternalOptions['minUnit']
+) {
   // save rest str before target str
   const beforeStrMap = {
     year: '',
@@ -39,7 +43,7 @@ function createInputState(dateFormat: string) {
     month: '',
     day: '',
   };
-  const keyOrders: ValueKey[] = [];
+  let keyOrders: ValueKey[] = [];
   const valueMap = { year: 0, month: 0, day: 0 };
 
   let prevIdx = 0;
@@ -56,7 +60,14 @@ function createInputState(dateFormat: string) {
   });
   beforeStrMap.rest = rest.slice(prevIdx);
 
-  return { beforeStrMap, formatStrMap, keyOrders, valueMap };
+  const minOrder = UNIT_ORDER[minUnit];
+  keyOrders = keyOrders.filter((key) => UNIT_ORDER[key + 's'] >= minOrder);
+
+  const format = keyOrders.reduce(
+    (acc, key) => acc + beforeStrMap[key] + formatStrMap[key],
+    ''
+  );
+  return { beforeStrMap, formatStrMap, keyOrders, valueMap, format };
 }
 
 class Target extends Components {
@@ -81,12 +92,12 @@ class Target extends Components {
     this.unsubscribers.push(
       effect(
         (date) => {
-          if (!date) return (this.$input.value = converter.dateFormat);
-          this.$input.value = converter.format(date, converter.dateFormat);
+          if (!date) return (this.$input.value = this.inputState.format);
           const [year, monthindex, day] = parseDate(date);
           const { valueMap } = this.inputState;
           (valueMap.year = year), (valueMap.day = day);
           valueMap.month = monthindex + 1;
+          this.$input.value = converter.format(date, this.inputState.format);
         },
         [store.state.date]
       )
@@ -95,7 +106,10 @@ class Target extends Components {
 
   beforeInit(): void {
     // Set input state
-    this.inputState = createInputState(this.instance.converter.dateFormat);
+    this.inputState = createInputState(
+      this.options.dateFormat ?? this.instance.converter.locale.formats.date,
+      this.options.minUnit
+    );
   }
 
   render() {
@@ -109,7 +123,7 @@ class Target extends Components {
         this.instance.converter.locale.placeholder ??
         'Choose a date',
       readOnly: this.options.readOnly,
-      value: this.instance.converter.dateFormat,
+      value: this.inputState.format,
     });
     this.$input = $input;
     const $iconBox = create$('button', {
@@ -155,9 +169,7 @@ class Target extends Components {
     return converter.localeMonth(valueMap.month - 1, formatMonthSize === 3);
   }
 
-  private getIndexMap(): IndexMap;
-  private getIndexMap(target: ValueKey): [number, number];
-  private getIndexMap(target?: ValueKey) {
+  private getIndexMap(): IndexMap {
     const { beforeStrMap, keyOrders } = this.inputState;
     const indexMap = {} as IndexMap;
     let idx = 0;
@@ -167,7 +179,16 @@ class Target extends Components {
       const valueSize = this.formatTargetValue(key).length;
       indexMap[key] = [idx, (idx += valueSize)];
     });
-    return target && target in indexMap ? indexMap[target] : indexMap;
+    return indexMap;
+  }
+
+  private convertInputStateValue() {
+    const { keyOrders, beforeStrMap } = this.inputState;
+    return (
+      keyOrders.reduce((acc, key) => {
+        return acc + beforeStrMap[key] + this.formatTargetValue(key);
+      }, '') + beforeStrMap.rest
+    );
   }
 
   private findNearSelectionTarget(selectionStart: number) {
@@ -257,7 +278,9 @@ class Target extends Components {
 
     if (this.editState.count >= maxCount) {
       const nextIdx = keyOrders.findIndex((item) => item === target) + 1;
-      const nextTarget = keyOrders[nextIdx > 2 ? 2 : nextIdx];
+      const keyOrderSize = keyOrders.length - 1;
+      const nextTarget =
+        keyOrders[nextIdx > keyOrderSize ? keyOrderSize : nextIdx];
       this.editState.target = nextTarget;
       this.editState.count = 0;
     }
@@ -320,19 +343,20 @@ class Target extends Components {
       data[key] = item;
     }
 
+    // If paste rest string & format rest string is not matched return
     if ((items[itemPos] ?? '') !== beforeStrMap.rest || items.at(itemPos + 1))
       return;
+    // If is not date-like value return
     if (!isDateLike(`${data.year}-${data.month}-${data.day}`)) return;
 
+    // Change input-state value
     forEach(
       data,
       (value, key) => ((this.inputState.valueMap as any)[key] = value)
     );
-    event.currentTarget.value =
-      keyOrders.reduce(
-        (acc, key) => acc + beforeStrMap[key] + this.formatTargetValue(key),
-        ''
-      ) + beforeStrMap.rest;
+
+    // Replace display text
+    event.currentTarget.value = this.convertInputStateValue();
   }
 
   /** Reset Input value to formatted datepicker selected date */
@@ -340,8 +364,8 @@ class Target extends Components {
     const { converter } = this.instance;
     const selectedDate = this.dp.selectedDate;
     this.$input.value = !selectedDate
-      ? converter.dateFormat
-      : converter.format(selectedDate, converter.dateFormat);
+      ? this.inputState.format
+      : converter.format(selectedDate, this.inputState.format);
   }
 
   /** Set datepicker's selected date to input value date */
