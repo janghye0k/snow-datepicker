@@ -12,6 +12,7 @@ export function createStore({ minUnit }: Params): Store {
   const date = observable<Date | null | undefined>(null);
   const currentUnit = observable<Unit>(minUnit || 'days');
   const unitDate = observable(new Date());
+  const focusDate = observable<Date | null>(null);
   const viewState = observable(() => {
     const ud = unitDate();
     const cu = currentUnit();
@@ -25,6 +26,7 @@ export function createStore({ minUnit }: Params): Store {
       date,
       currentUnit,
       unitDate,
+      focusDate,
       viewState,
     },
     get currentUnit(): Unit {

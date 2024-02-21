@@ -1,7 +1,7 @@
 import { cn } from '@/helpers/selectors';
 import { effect } from '@janghye0k/observable';
-import { create$, findAll$, isArray, range } from 'doumi';
-import { decade, getCalendarDates } from '@/helpers/util';
+import { create$, findAll$, isArray, on, range } from 'doumi';
+import { decade, getCalendarDates, parseDate } from '@/helpers/util';
 import Components from './Components';
 import Cell, { CellType } from './Cell';
 
@@ -35,8 +35,37 @@ class Content extends Components {
             $cell.tabIndex = -1;
           }
         });
-      }, [store.state.date, true])
+      }, [store.state.date, true]),
+
+      effect(
+        (date) => {
+          const [year, monthindex, day] = parseDate(date);
+
+          const currentUnit = store.currentUnit;
+          const comapre = (date: Date) => {
+            let isSame = true;
+            isSame = isSame && date.getFullYear() === year;
+            if (currentUnit === 'years') return isSame;
+            isSame = isSame && date.getMonth() === monthindex;
+            if (currentUnit === 'months') return isSame;
+            return isSame && date.getDate() === day;
+          };
+
+          const $cells = findAll$('.' + cn('cell'), this.$el);
+          $cells.forEach(($cell) => {
+            $cell.classList.remove('--focus');
+            const cell = ($cell as any).dpCell as Cell;
+            const isFocus = comapre(cell.date);
+            if (isFocus) $cell.classList.add('--focus');
+          });
+        },
+        [store.state.focusDate]
+      )
     );
+  }
+
+  bindEvents(): void {
+    on(this.$el, 'mouseleave', () => this.instance.store.state.focusDate(null));
   }
 
   private generateWeekDays() {

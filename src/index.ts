@@ -23,6 +23,7 @@ import { effect } from '@janghye0k/observable';
 import Target from '@/components/Target';
 import { autoUpdate, computePosition, flip } from '@floating-ui/dom';
 import { CONTAINER_ID, PREFIX } from '@/helpers/consts';
+import { createShortcutsHandler } from './helpers/shortcuts';
 
 class DatePicker {
   private options: InternalOptions;
@@ -121,7 +122,7 @@ class DatePicker {
     this.eventSubcribe();
 
     // Set options value
-    const { selectedDate, unit } = opts;
+    const { selectedDate, unit, shortcuts } = opts;
     const initDate =
       selectedDate && isDateLike(selectedDate) ? new Date(selectedDate) : null;
     if (initDate) {
@@ -129,6 +130,9 @@ class DatePicker {
       this.setUnitDate(initDate);
     }
     if (unit) this.setCurrentUnit(unit);
+    if (shortcuts) {
+      on(this.$datepicker, 'keydown', createShortcutsHandler(this));
+    }
 
     // Popup setting
     this.calendarPositionUpdate();
@@ -161,6 +165,14 @@ class DatePicker {
    */
   get selectedDate(): Date | null {
     return this.instance.store.selectedDate;
+  }
+
+  /**
+   * Focus date of calendar, if not focused returns `null`
+   * @returns {Date | null}
+   */
+  get focusDate(): Date | null {
+    return this.instance.store.state.focusDate();
   }
 
   /** Rendering datepicker components */
@@ -263,10 +275,18 @@ class DatePicker {
     const prevDate = this.selectedDate;
     const nextDate = isDateLike(value) ? new Date(value) : null;
     let date = nextDate;
-    if (nextDate) {
-      if (nextDate < minDate) date = minDate;
-      else if (nextDate > maxDate) date = maxDate;
+    if (date) {
+      if (date < minDate) date = minDate;
+      else if (date > maxDate) date = maxDate;
+      date.setHours(12), date.setMinutes(0);
+      date.setSeconds(0), date.setMilliseconds(0);
     }
+    if (prevDate) {
+      prevDate.setHours(12), prevDate.setMinutes(0);
+      prevDate.setSeconds(0), prevDate.setMilliseconds(0);
+    }
+    if (Number(date) === Number(prevDate)) return;
+
     const eventProps = { prevDate, date };
 
     const beforeResults = this.eventManager.trigger('beforeSelect', eventProps);
@@ -296,6 +316,15 @@ class DatePicker {
    */
   setCurrentUnit(value: Unit) {
     this.instance.store.setCurrentUnit(value);
+  }
+
+  /**
+   * Set focus date of datepicker
+   * @param {*} value The value to change
+   */
+  setFocusDate(value: any) {
+    const date = !isDateLike(value) ? null : new Date(value);
+    this.instance.store.state.focusDate(date);
   }
 
   private addUnitDate(direction: 'next' | 'prev') {
@@ -396,6 +425,7 @@ class DatePicker {
     const elementKeys = ['$datepicker', '$container', '$hide'];
     elementKeys.forEach((key) => get(this, key).remove());
     keysIn(this).forEach((key) => delete (this as any)[key]);
+    this.$target.outerHTML = this.originTemplate;
   }
 }
 

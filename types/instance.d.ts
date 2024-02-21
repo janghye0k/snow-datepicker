@@ -12,6 +12,7 @@ export type Store = {
     date: Observable<Date | null | undefined>;
     currentUnit: Observable<Unit>;
     unitDate: Observable<Date>;
+    focusDate: Observable<Date | null>;
     viewState: Observable<string>;
   };
   readonly currentUnit: Unit;

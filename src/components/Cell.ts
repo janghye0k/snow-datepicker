@@ -30,6 +30,14 @@ class Cell extends Components<CellProps> {
       .every((item, idx) => item === parsed[idx]);
   }
 
+  isFocus() {
+    const { focusDate } = this.dp;
+    const parsed = parseDate(this.date);
+    return parseDate(focusDate)
+      .slice(0, typeCompareLengthMap[this.type])
+      .every((item, idx) => item === parsed[idx]);
+  }
+
   isToday() {
     const length = typeCompareLengthMap[this.type];
     const todays = parseDate().slice(0, length);
@@ -51,6 +59,7 @@ class Cell extends Components<CellProps> {
     const classList = [cn('cell'), `--${this.type}`];
     if (this.isToday()) classList.push('--today');
     if (isActive) classList.push('--active');
+    if (this.isFocus()) classList.push('--focus');
 
     if (this.type === 'day') {
       const isOtherMonth = monthindex !== unitMonth;
@@ -111,6 +120,11 @@ class Cell extends Components<CellProps> {
   bindEvents(): void {
     on(this.$el as HTMLElement, 'click', () => this.handleSelectCell());
     on(this.$el, 'click', (evt) => this.handleClickCell(evt));
+    on(this.$el, 'mouseenter', () => this.handleMouseEnter());
+  }
+
+  private handleMouseEnter() {
+    this.instance.store.state.focusDate(this.date);
   }
 
   private handleSelectCell() {
@@ -121,14 +135,14 @@ class Cell extends Components<CellProps> {
 
     const date = this.date;
     const isEndUnit = this.type + 's' === this.options.minUnit;
-    const isUnSelect =
-      isEndUnit && this.isActive() && this.options.toggleSelected;
-    this.dp.setSelectedDate(isUnSelect ? null : date);
+    if (isEndUnit) {
+      const isUnSelect = this.isActive() && this.options.toggleSelected;
+      this.dp.setSelectedDate(isUnSelect ? null : date);
+      if (this.options.autoClose) this.dp.hide();
+    }
     if (currentUnit !== 'days' || this.options.moveOtherMonths) {
       this.dp.setUnitDate(date);
     }
-
-    if (this.options.autoClose && isEndUnit) this.dp.hide();
   }
 
   private handleClickCell(event: MouseEvent) {
