@@ -136,7 +136,9 @@ class Target extends Components {
   }
 
   bindEvents(): void {
-    on(find$('.' + cn('calendarBtn')), 'click', () => this.dp.show());
+    on(find$('.' + cn('calendarBtn')), 'click', () =>
+      this.handleClickCalendarButton()
+    );
     on(this.$input, 'drop', (event: any) => {
       event.dataTransfer.dropEffect = 'none';
       event.stopPropagation();
@@ -152,6 +154,10 @@ class Target extends Components {
     on(this.$input, 'pointerup', (evt) => this.handlePointerUp(evt));
     on(this.$input, 'keydown', (evt) => this.handleKeydownInput(evt));
     on(this.$input, 'paste', (evt) => this.handlePaste(evt));
+  }
+
+  private handleClickCalendarButton() {
+    this.dp.isShow() ? this.dp.hide() : this.dp.show();
   }
 
   private formatTargetValue(key: ValueKey) {

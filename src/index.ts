@@ -170,8 +170,8 @@ class DatePicker {
 
     const $controls = create$('div', { className: cn('controls') });
     const $content = create$('div', { className: cn('content') });
-    const $arrow = create$('div', { className: cn('arrow') });
-    this.$datepicker.replaceChildren($controls, $content, $arrow);
+    this.$datepicker.replaceChildren($controls, $content);
+    this.$datepicker.tabIndex = -1;
 
     this.components.push(new Controls($controls, defaultProps));
     this.components.push(new Content($content, defaultProps));
@@ -342,6 +342,7 @@ class DatePicker {
 
   /** Hide calendar */
   hide() {
+    if (!this.isShow()) return;
     if (this.options.animation) {
       // When animation is `true`
       this.$datepicker.classList.add('--scaleDown');
@@ -363,20 +364,20 @@ class DatePicker {
   /** Show calendar */
   show() {
     if (this.isShow()) return;
-
     const $conatiner = this.$container;
+    $conatiner.appendChild(this.$datepicker);
 
     if (this.options.animation) {
       // When animation is `true`
       this.$datepicker.classList.add('--scaleUp');
       const onAnimeEnd = (event: any) => {
         event.currentTarget.classList.remove('--scaleUp');
+        this.$datepicker.focus();
         off(this.$datepicker, 'animationend', onAnimeEnd);
       };
       on(this.$datepicker, 'animationend', onAnimeEnd);
-    }
+    } else this.$datepicker.focus();
 
-    $conatiner.appendChild(this.$datepicker);
     (find$('.' + cn('inputBox')) as HTMLElement).classList.add('--active');
     on(document, 'click', this.handleClickOutside, { capture: true });
     this.eventManager.trigger('show', {});

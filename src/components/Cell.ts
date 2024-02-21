@@ -20,6 +20,7 @@ const typeCompareLengthMap = {
 class Cell extends Components<CellProps> {
   type!: CellType;
   date!: Date;
+  $el!: HTMLElement;
 
   isActive() {
     const { selectedDate } = this.instance.store;
@@ -44,10 +45,13 @@ class Cell extends Components<CellProps> {
     const [year, monthindex, day] = parsed;
     const unitMonth = unitDate.getMonth();
 
+    const isActive = this.isActive();
+
     // Make classList
     const classList = [cn('cell'), `--${this.type}`];
     if (this.isToday()) classList.push('--today');
-    if (this.isActive()) classList.push('--active');
+    if (isActive) classList.push('--active');
+
     if (this.type === 'day') {
       const isOtherMonth = monthindex !== unitMonth;
       const isHidden = isOtherMonth && this.options.showOtherMonths === false;
@@ -67,8 +71,10 @@ class Cell extends Components<CellProps> {
     if (isOver) classList.push('--disabled');
 
     // Create element
-    const $el = create$('div', {
+    const $el = create$('button', {
       classList,
+      role: 'gridcell',
+      tabIndex: isActive ? 0 : -1,
       dataset: { year, monthindex, day },
       innerHTML: `${parsed[length - 1] + (this.type === 'month' ? 1 : 0)}`,
     });

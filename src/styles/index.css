@@ -127,11 +127,11 @@
   background-color: var(--datepicker-bg);
 }
 
-.datepicker.--scaleUp {
+.datepicker-calendar.--scaleUp {
   animation: ease 0.2s scaleUp;
 }
 
-.datepicker.--scaleDown {
+.datepicker-calendar.--scaleDown {
   animation: ease 0.2s scaleDown;
 }
 
@@ -253,6 +253,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 3px;
+  background-color: transparent;
   cursor: pointer;
 }
 

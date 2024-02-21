@@ -27,7 +27,13 @@ class Content extends Components {
         const $cells = findAll$('.' + cn('cell'), this.$el);
         $cells.forEach(($cell) => {
           const cell = ($cell as any).dpCell as Cell;
-          $cell.classList[cell.isActive() ? 'add' : 'remove']('--active');
+          if (cell.isActive()) {
+            $cell.classList.add('--active');
+            $cell.tabIndex = 0;
+          } else {
+            $cell.classList.remove('--active');
+            $cell.tabIndex = -1;
+          }
         });
       }, [store.state.date, true])
     );
@@ -40,6 +46,7 @@ class Content extends Components {
     } = this.instance.converter;
     return weekIndexes.map((index: number) => {
       const $weekday = create$('div', {
+        role: 'gridcell',
         className: cn('weekday'),
         dataset: { dayindex: index },
         innerHTML: weekdaysMin[index],
@@ -66,6 +73,10 @@ class Content extends Components {
     }
   }
 
+  render(): void {
+    this.$el.role = 'grid';
+  }
+
   renderCells() {
     const { instance, options, dp, eventManager } = this;
     const type = instance.store.currentUnit.slice(0, -1) as CellType;
@@ -81,7 +92,7 @@ class Content extends Components {
     }
 
     dates.forEach((date) => {
-      const $cell = create$('div');
+      const $cell = create$('button');
       this.$el.appendChild($cell);
       new Cell($cell, { type, date, dp, instance, options, eventManager });
     });

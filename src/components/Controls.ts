@@ -12,6 +12,7 @@ class Controls extends Components {
   $title!: HTMLElement;
 
   render() {
+    this.$el.role = 'navigation';
     this.$prevBtn = create$('button', {
       className: cn('controlsBtn'),
       dataset: { action: 'prev' },
