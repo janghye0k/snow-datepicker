@@ -362,6 +362,8 @@ class DatePicker {
 
   /** Show calendar */
   show() {
+    if (this.isShow()) return;
+
     const $conatiner = this.$container;
 
     if (this.options.animation) {
