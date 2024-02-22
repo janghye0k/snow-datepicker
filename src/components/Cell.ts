@@ -87,6 +87,8 @@ class Cell extends Components<CellProps> {
       dataset: { year, monthindex, day },
       innerHTML: `${parsed[length - 1] + (this.type === 'month' ? 1 : 0)}`,
     });
+    if (this.type === 'day' && this.date.getDay() === 0)
+      $el.classList.add('--dayoff');
 
     // Trigger event
     const eventProps = { date: this.date, type: this.type };

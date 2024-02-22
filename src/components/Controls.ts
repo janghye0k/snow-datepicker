@@ -38,8 +38,17 @@ class Controls extends Components {
     });
 
     // Trigger unit date change when click controlsBtn
-    on(this.$prevBtn, 'click', () => this.dp.prev());
-    on(this.$nextBtn, 'click', () => this.dp.next());
+    on(this.$prevBtn, 'click', (e) => {
+      e.preventDefault();
+      this.dp.prev(), this.dp.setFocusDate(null);
+    });
+    on(this.$nextBtn, 'click', (e) => {
+      e.preventDefault();
+      this.dp.next(), this.dp.setFocusDate(null);
+    });
+    [this.$prevBtn, this.$nextBtn].forEach(($el) =>
+      on($el, 'keydown', (evt) => evt.key === 'Enter' && $el.click())
+    );
   }
 
   subscribe() {

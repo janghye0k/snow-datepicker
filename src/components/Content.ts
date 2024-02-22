@@ -56,7 +56,10 @@ class Content extends Components {
             $cell.classList.remove('--focus');
             const cell = ($cell as any).dpCell as Cell;
             const isFocus = comapre(cell.date);
-            if (isFocus) $cell.classList.add('--focus');
+            if (isFocus) {
+              $cell.focus();
+              $cell.classList.add('--focus');
+            }
           });
         },
         [store.state.focusDate]

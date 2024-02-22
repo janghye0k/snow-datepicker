@@ -269,7 +269,12 @@
   justify-content: center;
   border-radius: 3px;
   background-color: transparent;
+  outline: 0;
   cursor: pointer;
+}
+
+.datepicker-content__cell.--dayoff {
+  color: rgb(235, 0, 0);
 }
 
 .datepicker-content__cell:hover,

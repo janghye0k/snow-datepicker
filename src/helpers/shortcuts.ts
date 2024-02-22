@@ -47,13 +47,14 @@ export function createShortcutsHandler(dp: DatePicker) {
 
     if (event.key === 'PageUp' || event.key === 'PageDown') {
       event.preventDefault();
+      event.stopPropagation();
       const adder = event.key === 'PageUp' ? 1 : -1;
       const nextIdx =
         UNIT_LIST.findIndex((item) => item === dp.currentUnit) + adder;
       if (between(nextIdx, 0, 2)) {
         dp.setCurrentUnit((UNIT_LIST as any)[nextIdx]);
       }
-
+      event.currentTarget.focus();
       return;
     }
 
@@ -75,8 +76,22 @@ export function createShortcutsHandler(dp: DatePicker) {
     if (!isArrowKey(key)) return;
     event.preventDefault();
 
-    const currentUnit = dp.currentUnit;
-    const date = dp.focusDate ?? dp.selectedDate ?? dp.unitDate;
+    const { focusDate, unitDate, selectedDate, currentUnit } = dp;
+    let date = focusDate;
+    if (!date) {
+      date = unitDate;
+      if (
+        selectedDate &&
+        selectedDate.getFullYear() === date.getFullYear() &&
+        selectedDate.getMonth() === date.getMonth()
+      ) {
+        date = selectedDate;
+      } else {
+        if (key === 'ArrowLeft' || key === 'ArrowUp')
+          date = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        else date = new Date(date.getFullYear(), date.getMonth(), 1);
+      }
+    }
     const parsed = parseDate(date);
     const [year, monthindex, day] = parsed;
     const isUp = key === 'ArrowRight' || key === 'ArrowUp';
