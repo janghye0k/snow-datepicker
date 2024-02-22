@@ -24,6 +24,7 @@ import Target from '@/components/Target';
 import { autoUpdate, computePosition, flip } from '@floating-ui/dom';
 import { CONTAINER_ID, PREFIX } from '@/helpers/consts';
 import { createShortcutsHandler } from '@/helpers/shortcuts';
+import Button from '@/components/Button';
 
 class DatePicker {
   private options: InternalOptions;
@@ -187,6 +188,22 @@ class DatePicker {
 
     this.components.push(new Controls($controls, defaultProps));
     this.components.push(new Content($content, defaultProps));
+
+    if (this.options.buttons) {
+      // Render buttons
+      const $buttonWrapper = create$('div', { className: cn('buttonWrapper') });
+      const buttonOptions = isArray(this.options.buttons)
+        ? this.options.buttons
+        : [this.options.buttons];
+      buttonOptions.forEach((buttonOption) => {
+        const $btn = create$('button', { className: cn('button') });
+        $buttonWrapper.appendChild($btn);
+        new Button($btn, { ...defaultProps, buttonOption });
+      });
+      this.$datepicker.appendChild($buttonWrapper);
+    }
+
+    // Determine inline calendar
     if (this.options.inline) {
       this.$datepicker.classList.add('--inline');
       this.$target.replaceWith(this.$datepicker);

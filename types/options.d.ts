@@ -1,4 +1,6 @@
-import { Locale } from './locale';
+import { BUTTON_PRESETS } from '@/helpers/consts';
+import DatePicker from '@/index';
+import { Locale } from '@t/locale';
 
 export type Position =
   | 'top'
@@ -23,6 +25,19 @@ export type TitleFormat = {
 };
 
 export type View = 'days' | 'months' | 'years';
+
+type ArrayElement<ArrayType extends readonly unknown[]> =
+  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+
+export type ButtonPresetType = ArrayElement<typeof BUTTON_PRESETS>;
+export type ButtonOptions = {
+  id?: string;
+  className?: string;
+  dataset?: Record<string, string>;
+  attrs?: Record<string, string>;
+  innerHTML?: string;
+  onClick?: (event: MouseEvent, datepicker: DatePicker) => any;
+};
 
 export type InternalOptions = {
   /** Get the formatted date according to the string of tokens passed in. By default, `YYYY-MM-DD` */
@@ -63,7 +78,11 @@ export type InternalOptions = {
   inline: boolean;
   /** The active date */
   selectedDate?: Date;
-  buttons?: string | string[];
+  buttons?:
+    | ButtonPresetType
+    | ButtonPresetType[]
+    | ButtonOptions
+    | ButtonOptions[];
   /** Add custom classes. */
   className?: string;
   /** Language of the calendar. */

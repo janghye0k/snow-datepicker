@@ -1,16 +1,24 @@
 import {
   assign,
   forEach,
+  isArray,
   isDate,
   isObject,
   isPlainObject,
   isString,
   isUndefined,
   reduce,
+  values,
 } from 'doumi';
 import type { InternalOptions, Options, View } from '@t/options';
 import { error } from '@/helpers/util';
-import { VIEW_ORDER, VIEW_LIST, MIN_DATE, MAX_DATE } from '@/helpers/consts';
+import {
+  VIEW_ORDER,
+  VIEW_LIST,
+  MIN_DATE,
+  MAX_DATE,
+  BUTTON_PRESETS,
+} from '@/helpers/consts';
 
 export function isView(view: any) {
   return isString(view) && VIEW_LIST.includes(view);
@@ -91,6 +99,30 @@ const VALIDATION_MAP: ValidationMap = assign(
         if (matcher.includes(typeof val[key])) return;
         inValid(`titleFormat.${key}`, matcher.join(' | '));
       });
+    },
+    buttons: (val: InternalOptions['buttons']) => {
+      if (isUndefined(val)) return;
+      const buttons = isArray(val) ? val : [val];
+      const isError = !buttons.every((button) => {
+        if (isString(button) && BUTTON_PRESETS.includes(button)) return true;
+        if (isPlainObject(button)) {
+          const { className, id, dataset, attrs, innerHTML } = button;
+          const isValidString = [className, id, innerHTML].every(
+            (item) => isUndefined(item) && isString(item)
+          );
+          const isValidObject = [dataset, attrs].every(
+            (obj) =>
+              isUndefined(obj) || values(obj).every((item) => isString(item))
+          );
+          return isValidString && isValidObject;
+        }
+        return false;
+      });
+      if (isError)
+        error(
+          'buttons',
+          `value must be in ${BUTTON_PRESETS.map((item) => '`' + item + '`').join(' | ')} or button-options object`
+        );
     },
   }
 );

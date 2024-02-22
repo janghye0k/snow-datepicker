@@ -213,11 +213,31 @@
   flex-grow: 1;
 }
 
+.datepicker-buttonWrapper {
+  border-top: 1px solid var(--datepicker-border-color);
+  padding: 4px;
+  display: flex;
+}
+
+.datepicker-button {
+  height: 32px;
+  font-size: 14px;
+  text-align: center;
+  padding-inline: 8px;
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--datepicker-main-color);
+  cursor: pointer;
+  flex-grow: 1;
+}
+
+.datepicker-button:hover,
 .datepicker-controls__title:hover,
 .datepicker-controls__btn:hover {
   background-color: color-mix(in srgb, var(--datepicker-color) 9%, transparent);
 }
 
+.datepicker-button:active,
 .datepicker-controls__title:active,
 .datepicker-controls__btn:active {
   background-color: color-mix(

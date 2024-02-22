@@ -10,7 +10,6 @@ const classNameMap = {
   years: 'content__years',
   weekday: 'content__weekday',
   cell: 'content__cell',
-  arrow: 'calendar__arrow',
   calendar: 'calendar',
   inputRoot: 'inputRoot',
   inputBox: 'inputBox',
@@ -18,6 +17,8 @@ const classNameMap = {
   input: 'input',
   backdrop: 'backdrop',
   calendarBtn: 'calendarBtn',
+  button: 'button',
+  buttonWrapper: 'buttonWrapper',
 } as const;
 
 type ClassNameKey = keyof typeof classNameMap;

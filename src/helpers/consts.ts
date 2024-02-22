@@ -16,3 +16,5 @@ export const MAX_DATE = new Date(9999, 11, 31, 23, 59, 59);
 
 export const PREFIX = 'datepicker';
 export const CONTAINER_ID = `${PREFIX}-container`;
+
+export const BUTTON_PRESETS = ['clear', 'today'] as const;
