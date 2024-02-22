@@ -135,7 +135,7 @@ class DatePicker {
     }
 
     // Popup setting
-    this.calendarPositionUpdate();
+    if (!this.options.inline) this.calendarPositionUpdate();
   }
 
   /** Converter instance for convert date to datepicker's locale format */
@@ -187,7 +187,10 @@ class DatePicker {
 
     this.components.push(new Controls($controls, defaultProps));
     this.components.push(new Content($content, defaultProps));
-    new Target(this.$target, defaultProps);
+    if (this.options.inline) {
+      this.$datepicker.classList.add('--inline');
+      this.$target.replaceWith(this.$datepicker);
+    } else new Target(this.$target, defaultProps);
   }
 
   /** Update calendar position automatically */
@@ -371,7 +374,7 @@ class DatePicker {
 
   /** Hide calendar */
   hide() {
-    if (!this.isShow()) return;
+    if (this.options.inline || !this.isShow()) return;
     if (this.options.animation) {
       // When animation is `true`
       this.$datepicker.classList.add('--scaleDown');
@@ -392,7 +395,7 @@ class DatePicker {
 
   /** Show calendar */
   show() {
-    if (this.isShow()) return;
+    if (this.options.inline || this.isShow()) return;
     const $conatiner = this.$container;
     $conatiner.appendChild(this.$datepicker);
 

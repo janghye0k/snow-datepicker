@@ -127,6 +127,12 @@
   background-color: var(--datepicker-bg);
 }
 
+.datepicker-calendar.--inline {
+  position: unset;
+  top: unset;
+  left: unset;
+}
+
 .datepicker-calendar:focus-visible {
   outline: none;
   border-color: color-mix(

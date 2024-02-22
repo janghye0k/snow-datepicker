@@ -59,6 +59,8 @@ export type InternalOptions = {
   minDate: Date;
   /** The maximum date of calendar, Can't be set to more than `9999-12-31` */
   maxDate: Date;
+  /** Makes the calendar to be permanently visible */
+  inline: boolean;
   /** The active date */
   selectedDate?: Date;
   buttons?: string | string[];

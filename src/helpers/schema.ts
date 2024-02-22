@@ -37,6 +37,7 @@ const DEFUALT_OPTIONS: Options = {
   autoClose: true,
   readOnly: false,
   animation: true,
+  inline: false,
   titleFormat: {},
 };
 
