@@ -1,4 +1,4 @@
-import type { DateLike, InternalOptions, Options, Unit } from '@t/options';
+import type { DateLike, InternalOptions, Options, View } from '@t/options';
 import type { Instance } from '@t/instance';
 import type { EventManager } from '@t/event';
 import checkSchema from '@/helpers/schema';
@@ -23,7 +23,7 @@ import { effect } from '@janghye0k/observable';
 import Target from '@/components/Target';
 import { autoUpdate, computePosition, flip } from '@floating-ui/dom';
 import { CONTAINER_ID, PREFIX } from '@/helpers/consts';
-import { createShortcutsHandler } from './helpers/shortcuts';
+import { createShortcutsHandler } from '@/helpers/shortcuts';
 
 class DatePicker {
   private options: InternalOptions;
@@ -122,14 +122,14 @@ class DatePicker {
     this.eventSubcribe();
 
     // Set options value
-    const { selectedDate, unit, shortcuts } = opts;
+    const { selectedDate, view, shortcuts } = opts;
     const initDate =
       selectedDate && isDateLike(selectedDate) ? new Date(selectedDate) : null;
     if (initDate) {
       this.setSelectedDate(initDate);
-      this.setUnitDate(initDate);
+      this.setViewDate(initDate);
     }
-    if (unit) this.setCurrentUnit(unit);
+    if (view) this.setCurrentView(view);
     if (shortcuts) {
       on(this.$datepicker, 'keydown', createShortcutsHandler(this));
     }
@@ -144,19 +144,19 @@ class DatePicker {
   }
 
   /**
-   * Current unit of calendar
+   * Current view of calendar
    * @returns {'years' | 'months' | 'days'}
    */
-  get currentUnit(): Unit {
-    return this.instance.store.currentUnit;
+  get currentView(): View {
+    return this.instance.store.currentView;
   }
 
   /**
-   * Current unit date
+   * Current view date
    * @returns {Date}
    */
-  get unitDate(): Date {
-    return this.instance.store.unitDate;
+  get viewDate(): Date {
+    return this.instance.store.viewDate;
   }
 
   /**
@@ -237,17 +237,17 @@ class DatePicker {
       ),
 
       effect(
-        (unit, prevUnit) => {
-          this.eventManager.trigger('changeUnit', { unit, prevUnit });
+        (view, prevView) => {
+          this.eventManager.trigger('changeView', { view, prevView });
         },
-        [store.state.currentUnit]
+        [store.state.currentView]
       ),
 
       effect(
         (date, prevDate) => {
-          this.eventManager.trigger('changeUnitDate', { date, prevDate });
+          this.eventManager.trigger('changeViewDate', { date, prevDate });
         },
-        [store.state.unitDate]
+        [store.state.viewDate]
       )
     );
   }
@@ -301,24 +301,24 @@ class DatePicker {
   }
 
   /**
-   * Set unit date of datepicker
-   * @param {DateLike} value The unit date to change.
+   * Set view date of datepicker
+   * @param {DateLike} value The view date to change.
    */
-  setUnitDate(value: DateLike) {
+  setViewDate(value: DateLike) {
     if (!isDateLike(value)) return;
     const { minDate, maxDate } = this.options;
-    let unitDate = new Date(value);
-    if (unitDate < minDate) unitDate = minDate;
-    else if (unitDate > maxDate) unitDate = maxDate;
-    this.instance.store.setUnitDate(unitDate);
+    let viewDate = new Date(value);
+    if (viewDate < minDate) viewDate = minDate;
+    else if (viewDate > maxDate) viewDate = maxDate;
+    this.instance.store.setViewDate(viewDate);
   }
 
   /**
-   * Set current unit of datepicker
-   * @param {Unit} value The unit to change. (e.g. `days` | `months` | `years`)
+   * Set current view of datepicker
+   * @param {View} value The view to change. (e.g. `days` | `months` | `years`)
    */
-  setCurrentUnit(value: Unit) {
-    this.instance.store.setCurrentUnit(value);
+  setCurrentView(value: View) {
+    this.instance.store.setCurrentView(value);
   }
 
   /**
@@ -330,14 +330,14 @@ class DatePicker {
     this.instance.store.state.focusDate(date);
   }
 
-  private addUnitDate(direction: 'next' | 'prev') {
+  private addViewDate(direction: 'next' | 'prev') {
     const adder = direction === 'prev' ? -1 : 1;
-    const { currentUnit, unitDate } = this;
-    const params = parseDate(unitDate).slice(0, 2);
+    const { currentView, viewDate } = this;
+    const params = parseDate(viewDate).slice(0, 2);
     let [year, month] = params;
     month += 1;
 
-    switch (currentUnit) {
+    switch (currentView) {
       case 'days':
         month += adder;
         if (month === 0) (month = 12), (year -= 1);
@@ -353,23 +353,23 @@ class DatePicker {
 
     const y = String(year).padStart(4, '0');
     const m = String(month).padStart(2, '0');
-    const nextUnitDate = new Date(`${y}-${m}-01`);
+    const nextViewDate = new Date(`${y}-${m}-01`);
     if (this.options.navigationLoop) {
       const { minDate, maxDate } = this.options;
-      if (nextUnitDate < minDate) return this.setUnitDate(maxDate);
-      else if (maxDate < nextUnitDate) return this.setUnitDate(minDate);
+      if (nextViewDate < minDate) return this.setViewDate(maxDate);
+      else if (maxDate < nextViewDate) return this.setViewDate(minDate);
     }
-    this.setUnitDate(nextUnitDate);
+    this.setViewDate(nextViewDate);
   }
 
   /** Move to next `month` | `years` | `decade` */
   next() {
-    this.addUnitDate('next');
+    this.addViewDate('next');
   }
 
   /** Move to previous `month` | `years` | `decade` */
   prev() {
-    this.addUnitDate('prev');
+    this.addViewDate('prev');
   }
 
   /** Hide calendar */

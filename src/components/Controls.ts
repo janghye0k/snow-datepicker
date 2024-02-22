@@ -3,7 +3,7 @@ import Components from './Components';
 import { cn } from '@/helpers/selectors';
 import { effect } from '@janghye0k/observable';
 import { create$, on } from 'doumi';
-import { Unit } from '@t/options';
+import { View } from '@t/options';
 import { decade, parseDate } from '@/helpers/util';
 
 class Controls extends Components {
@@ -31,13 +31,13 @@ class Controls extends Components {
   bindEvents(): void {
     const { store } = this.instance;
 
-    // Trigger unit change when click title
+    // Trigger view change when click title
     on(this.$title, 'click', () => {
-      const nextUnit = store.currentUnit === 'days' ? 'months' : 'years';
-      store.setCurrentUnit(nextUnit);
+      const nextView = store.currentView === 'days' ? 'months' : 'years';
+      store.setCurrentView(nextView);
     });
 
-    // Trigger unit date change when click controlsBtn
+    // Trigger view date change when click controlsBtn
     on(this.$prevBtn, 'click', (e) => {
       e.preventDefault();
       this.dp.prev(), this.dp.setFocusDate(null);
@@ -84,17 +84,17 @@ class Controls extends Components {
     this.unsubscribers.push(
       effect(
         (state) => {
-          const [currentUnit, year, monthindex] = state.split('__');
+          const [currentView, year, monthindex] = state.split('__');
 
           // Auto re-render title
-          const format = titleFormat[currentUnit as Unit];
-          this.$title.innerHTML = converter.format(this.dp.unitDate, format);
+          const format = titleFormat[currentView as View];
+          this.$title.innerHTML = converter.format(this.dp.viewDate, format);
 
           // Hide control button when the maximum/minimum date is exceeded
           if (!this.options.navigationLoop) {
             this.$prevBtn.disabled = false;
             this.$nextBtn.disabled = false;
-            btnHideCheckMap[currentUnit as Unit](
+            btnHideCheckMap[currentView as View](
               Number(year),
               Number(monthindex)
             );

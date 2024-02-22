@@ -25,8 +25,8 @@ export type PickerEventMap = {
   renderCell: PickerEvent;
   beforeSelect: PickerEvent;
   select: PickerEvent;
-  changeUnit: PickerEvent;
-  changeUnitDate: PickerEvent;
+  changeView: PickerEvent;
+  changeViewDate: PickerEvent;
 };
 
 export type PickerEventProps = {

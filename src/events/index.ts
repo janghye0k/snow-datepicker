@@ -13,8 +13,8 @@ const OPTION_EVENT_KEYS = [
   'onRenderCell',
   'onBeforeSelect',
   'onSelect',
-  'onChangeUnit',
-  'onChangeUnitDate',
+  'onChangeView',
+  'onChangeViewDate',
 ];
 
 function createEventManager(

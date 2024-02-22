@@ -1,5 +1,5 @@
 import type { Observable } from '@janghye0k/observable';
-import type { DateLike, Unit } from '@t/options';
+import type { DateLike, View } from '@t/options';
 import type { Locale } from '@t/locale';
 
 export type Instance = {
@@ -10,17 +10,17 @@ export type Instance = {
 export type Store = {
   state: {
     date: Observable<Date | null | undefined>;
-    currentUnit: Observable<Unit>;
-    unitDate: Observable<Date>;
+    currentView: Observable<View>;
+    viewDate: Observable<Date>;
     focusDate: Observable<Date | null>;
     viewState: Observable<string>;
   };
-  readonly currentUnit: Unit;
-  readonly unitDate: Date;
+  readonly currentView: View;
+  readonly viewDate: Date;
   readonly selectedDate: Date | null;
   setSelectedDate: (date: any) => void;
-  setCurrentUnit: (date: Unit) => void;
-  setUnitDate: (date: DateLike) => void;
+  setCurrentView: (date: View) => void;
+  setViewDate: (date: DateLike) => void;
 };
 
 export type Converter = {

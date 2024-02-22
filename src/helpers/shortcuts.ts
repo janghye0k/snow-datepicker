@@ -1,4 +1,4 @@
-import { UNIT_LIST } from '@/helpers/consts';
+import { VIEW_LIST } from '@/helpers/consts';
 import { between, find$, type Evt } from 'doumi';
 import DatePicker from '..';
 import { decade, parseDate } from '@/helpers/util';
@@ -50,9 +50,9 @@ export function createShortcutsHandler(dp: DatePicker) {
       event.stopPropagation();
       const adder = event.key === 'PageUp' ? 1 : -1;
       const nextIdx =
-        UNIT_LIST.findIndex((item) => item === dp.currentUnit) + adder;
+        VIEW_LIST.findIndex((item) => item === dp.currentView) + adder;
       if (between(nextIdx, 0, 2)) {
-        dp.setCurrentUnit((UNIT_LIST as any)[nextIdx]);
+        dp.setCurrentView((VIEW_LIST as any)[nextIdx]);
       }
       event.currentTarget.focus();
       return;
@@ -60,13 +60,13 @@ export function createShortcutsHandler(dp: DatePicker) {
 
     if (!ctrlKey && !shiftKey && !altKey && event.key === 'Enter') {
       event.preventDefault();
-      const { focusDate, currentUnit } = dp;
+      const { focusDate, currentView } = dp;
       if (!focusDate) return;
       const [year, monthindex, day] = parseDate(focusDate);
       let sufix = `[data-year="${year}"]`;
-      if (currentUnit !== 'years') {
+      if (currentView !== 'years') {
         sufix += `[data-monthindex="${monthindex}"]`;
-        if (currentUnit !== 'months') sufix += `[data-day="${day}"]`;
+        if (currentView !== 'months') sufix += `[data-day="${day}"]`;
       }
       const $cell = find$(`.${cn('cell')}${sufix}`, dp.$datepicker);
       if ($cell) $cell.click();
@@ -76,10 +76,10 @@ export function createShortcutsHandler(dp: DatePicker) {
     if (!isArrowKey(key)) return;
     event.preventDefault();
 
-    const { focusDate, unitDate, selectedDate, currentUnit } = dp;
+    const { focusDate, viewDate, selectedDate, currentView } = dp;
     let date = focusDate;
     if (!date) {
-      date = unitDate;
+      date = viewDate;
       if (
         selectedDate &&
         selectedDate.getFullYear() === date.getFullYear() &&
@@ -100,18 +100,18 @@ export function createShortcutsHandler(dp: DatePicker) {
     if (!ctrlKey && !shiftKey && !altKey) {
       // Move focus cell
       const params = [...parsed] as [number, number, number];
-      params[ADD_IDX_MAP[currentUnit]] += ADDER_MAP[currentUnit][key];
-      if (currentUnit === 'years') {
+      params[ADD_IDX_MAP[currentView]] += ADDER_MAP[currentView][key];
+      if (currentView === 'years') {
         if (params[0] < startYear - 1) params[0] += 2;
         if (params[0] > endYear + 1) params[0] -= 2;
       }
       const nextDate = new Date(...params);
       if (
-        (currentUnit === 'days' && nextDate.getMonth() !== monthindex) ||
-        (currentUnit === 'months' && nextDate.getMonth() !== year) ||
-        (currentUnit === 'years' && between(year, startYear, endYear))
+        (currentView === 'days' && nextDate.getMonth() !== monthindex) ||
+        (currentView === 'months' && nextDate.getMonth() !== year) ||
+        (currentView === 'years' && between(year, startYear, endYear))
       )
-        dp.setUnitDate(nextDate);
+        dp.setViewDate(nextDate);
       dp.setFocusDate(nextDate);
       return;
     } else if (ctrlKey && !shiftKey && !altKey) {
@@ -119,13 +119,13 @@ export function createShortcutsHandler(dp: DatePicker) {
       const adder = isUp ? 1 : -1;
       const nextDate = new Date(year, monthindex + adder, day);
       dp.setFocusDate(nextDate);
-      dp.setUnitDate(nextDate);
+      dp.setViewDate(nextDate);
     } else if (!ctrlKey && shiftKey && !altKey) {
       // Move year
       const adder = isUp ? 1 : -1;
       const nextDate = new Date(year + adder, monthindex, day);
       dp.setFocusDate(nextDate);
-      dp.setUnitDate(nextDate);
+      dp.setViewDate(nextDate);
     } else if (!ctrlKey && !shiftKey && altKey) {
       // Move decade
       let nextYear = year + (isUp ? 10 : -10);
@@ -133,7 +133,7 @@ export function createShortcutsHandler(dp: DatePicker) {
       if (nextYear > 9999) nextYear = 100 + nextYear - 10000;
       const nextDate = new Date(nextYear, monthindex, day);
       dp.setFocusDate(nextDate);
-      dp.setUnitDate(nextDate);
+      dp.setViewDate(nextDate);
     }
     event.currentTarget.focus();
   };

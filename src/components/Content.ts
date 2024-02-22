@@ -16,7 +16,7 @@ class Content extends Components {
         (state) => {
           this.$el.className = [cn('content'), `--${state}`].join(' ');
         },
-        [store.state.currentUnit, true]
+        [store.state.currentView, true]
       ),
 
       effect(() => {
@@ -41,13 +41,13 @@ class Content extends Components {
         (date) => {
           const [year, monthindex, day] = parseDate(date);
 
-          const currentUnit = store.currentUnit;
+          const currentView = store.currentView;
           const comapre = (date: Date) => {
             let isSame = true;
             isSame = isSame && date.getFullYear() === year;
-            if (currentUnit === 'years') return isSame;
+            if (currentView === 'years') return isSame;
             isSame = isSame && date.getMonth() === monthindex;
-            if (currentUnit === 'months') return isSame;
+            if (currentView === 'months') return isSame;
             return isSame && date.getDate() === day;
           };
 
@@ -89,17 +89,17 @@ class Content extends Components {
 
   private generateDates() {
     const { store, converter } = this.instance;
-    const { unitDate, currentUnit } = store;
+    const { viewDate, currentView } = store;
 
-    switch (currentUnit) {
+    switch (currentView) {
       case 'days':
-        return getCalendarDates(unitDate, converter.locale.weekStart);
+        return getCalendarDates(viewDate, converter.locale.weekStart);
       case 'months':
         // eslint-disable-next-line
-        const year = unitDate.getFullYear();
+        const year = viewDate.getFullYear();
         return range(12).map((idx) => new Date(year, idx, 1, 12));
       case 'years':
-        return range(decade(unitDate)[0] - 1, 12).map(
+        return range(decade(viewDate)[0] - 1, 12).map(
           (year) => new Date(year, 0, 1, 12)
         );
     }
@@ -111,7 +111,7 @@ class Content extends Components {
 
   renderCells() {
     const { instance, options, dp, eventManager } = this;
-    const type = instance.store.currentUnit.slice(0, -1) as CellType;
+    const type = instance.store.currentView.slice(0, -1) as CellType;
     const dates = this.generateDates();
 
     if (!isArray(this.cells)) this.cells = [];

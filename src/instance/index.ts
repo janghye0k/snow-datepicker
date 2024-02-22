@@ -4,9 +4,9 @@ import { createStore } from './store';
 import { craeteConverter } from './converter';
 
 function createInstance(options: InternalOptions): Instance {
-  const { minUnit, locale, dateFormat } = options;
+  const { minView, locale, dateFormat } = options;
   const converter = craeteConverter({ locale, dateFormat });
-  const store = createStore({ minUnit });
+  const store = createStore({ minView });
 
   const instance: Instance = { converter, store };
   return instance;

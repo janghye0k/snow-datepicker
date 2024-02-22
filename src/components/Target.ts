@@ -12,7 +12,7 @@ import Components from '@/components/Components';
 import { cn } from '@/helpers/selectors';
 import { effect } from '@janghye0k/observable';
 import CalendarIcon from '@/icons/calendar';
-import { DATEFORMAT_REGEXP, PREFIX, UNIT_ORDER } from '@/helpers/consts';
+import { DATEFORMAT_REGEXP, PREFIX, VIEW_ORDER } from '@/helpers/consts';
 import { parseDate } from '@/helpers/util';
 import { InternalOptions } from '@t/options';
 
@@ -29,7 +29,7 @@ const IGNORE_REGEXP = /[^Y|M|D|\d]*/g;
 
 function createInputState(
   dateFormat: string,
-  minUnit: InternalOptions['minUnit']
+  minView: InternalOptions['minView']
 ) {
   // save rest str before target str
   const beforeStrMap = {
@@ -60,8 +60,8 @@ function createInputState(
   });
   beforeStrMap.rest = rest.slice(prevIdx);
 
-  const minOrder = UNIT_ORDER[minUnit];
-  keyOrders = keyOrders.filter((key) => UNIT_ORDER[key + 's'] >= minOrder);
+  const minOrder = VIEW_ORDER[minView];
+  keyOrders = keyOrders.filter((key) => VIEW_ORDER[key + 's'] >= minOrder);
 
   const format = keyOrders.reduce(
     (acc, key) => acc + beforeStrMap[key] + formatStrMap[key],
@@ -108,7 +108,7 @@ class Target extends Components {
     // Set input state
     this.inputState = createInputState(
       this.options.dateFormat ?? this.instance.converter.locale.formats.date,
-      this.options.minUnit
+      this.options.minView
     );
   }
 
@@ -380,7 +380,7 @@ class Target extends Components {
     if (this.options.readOnly) return;
     if (!isDateLike(date)) return this.resetDate();
     this.dp.setSelectedDate(date);
-    this.dp.setUnitDate(date);
+    this.dp.setViewDate(date);
   }
 
   /** Set date & reset input state */

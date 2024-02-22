@@ -8,19 +8,19 @@ import {
   isUndefined,
   reduce,
 } from 'doumi';
-import type { InternalOptions, Options, Unit } from '@t/options';
+import type { InternalOptions, Options, View } from '@t/options';
 import { error } from '@/helpers/util';
-import { UNIT_ORDER, UNIT_LIST, MIN_DATE, MAX_DATE } from '@/helpers/consts';
+import { VIEW_ORDER, VIEW_LIST, MIN_DATE, MAX_DATE } from '@/helpers/consts';
 
-export function isUnit(unit: any) {
-  return isString(unit) && UNIT_LIST.includes(unit);
+export function isView(view: any) {
+  return isString(view) && VIEW_LIST.includes(view);
 }
 
-export function checkUnit(unit: Unit, minUnit?: Unit) {
-  if (!minUnit) return true;
+export function checkView(view: View, minView?: View) {
+  if (!minView) return true;
   return (
-    UNIT_ORDER[unit as keyof typeof UNIT_ORDER] >=
-    UNIT_ORDER[minUnit as keyof typeof UNIT_ORDER]
+    VIEW_ORDER[view as keyof typeof VIEW_ORDER] >=
+    VIEW_ORDER[minView as keyof typeof VIEW_ORDER]
   );
 }
 
@@ -28,8 +28,8 @@ const DEFUALT_OPTIONS: Options = {
   toggleSelected: true,
   shortcuts: true,
   position: 'bottom-start',
-  unit: 'days',
-  minUnit: 'days',
+  view: 'days',
+  minView: 'days',
   showOtherMonths: true,
   selectOtherMonths: true,
   moveOtherMonths: true,
@@ -97,7 +97,7 @@ const VALIDATION_MAP: ValidationMap = assign(
 
 export default function checkSchema(options: Options): InternalOptions {
   const opt = assign({}, DEFUALT_OPTIONS, options) as any;
-  if (!checkUnit(opt.unit, opt.minUnit)) opt.unit = opt.minUnit;
+  if (!checkView(opt.view, opt.minView)) opt.view = opt.minView;
   if (opt.titleFormat === undefined) opt.titleFormat = {};
   if (isPlainObject(opt.titleFormat)) {
     forEach(DEFAULT_TITLE_FORMAT, (value, key) => {

@@ -22,7 +22,7 @@ export type TitleFormat = {
   years: string;
 };
 
-export type Unit = 'days' | 'months' | 'years';
+export type View = 'days' | 'months' | 'years';
 
 export type InternalOptions = {
   /** Get the formatted date according to the string of tokens passed in. By default, `YYYY-MM-DD` */
@@ -33,10 +33,10 @@ export type InternalOptions = {
   shortcuts: boolean;
   /** Position of the calendar relative to the input field. By default, `bottom-start` */
   position: Position;
-  /** The initial unit of the calendar. (e.g. `days` | `months` | `years`) By default, `days` */
-  unit: Unit;
-  /** The minimum unit of the calendar. The values are same as unit. By default, `days` */
-  minUnit: Unit;
+  /** The initial view of the calendar. (e.g. `days` | `months` | `years`) By default, `days` */
+  view: View;
+  /** The minimum view of the calendar. The values are same as view. By default, `days` */
+  minView: View;
   /** If `true`, dates from other months will be displayed in days view. By default, `true` */
   showOtherMonths: boolean;
   /** If `true`, it will be possible to select dates from other months. By default, `true` */
@@ -77,8 +77,8 @@ export type InternalOptions = {
   onRenderCell?: Function;
   onBeforeSelect?: Function;
   onSelect?: Function;
-  onChangeUnit?: Function;
-  onChangeUnitDate?: Function;
+  onChangeView?: Function;
+  onChangeViewDate?: Function;
 };
 
 export type Options = Partial<

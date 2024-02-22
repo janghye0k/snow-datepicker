@@ -46,12 +46,12 @@ class Cell extends Components<CellProps> {
   }
 
   render() {
-    const { unitDate } = this.instance.store;
+    const { viewDate } = this.instance.store;
     const { minDate, maxDate } = this.options;
     const length = typeCompareLengthMap[this.type];
     const parsed = parseDate(this.date).slice(0, length);
     const [year, monthindex, day] = parsed;
-    const unitMonth = unitDate.getMonth();
+    const viewMonth = viewDate.getMonth();
 
     const isActive = this.isActive();
 
@@ -62,7 +62,7 @@ class Cell extends Components<CellProps> {
     if (this.isFocus()) classList.push('--focus');
 
     if (this.type === 'day') {
-      const isOtherMonth = monthindex !== unitMonth;
+      const isOtherMonth = monthindex !== viewMonth;
       const isHidden = isOtherMonth && this.options.showOtherMonths === false;
       const isDisabled =
         isOtherMonth && this.options.selectOtherMonths === false;
@@ -71,7 +71,7 @@ class Cell extends Components<CellProps> {
       if (isDisabled) classList.push('--disabled');
     }
     if (this.type === 'year') {
-      const [std, end] = decade(unitDate);
+      const [std, end] = decade(viewDate);
       if (!between(year, std, end)) classList.push('--other');
     }
 
@@ -130,20 +130,20 @@ class Cell extends Components<CellProps> {
   }
 
   private handleSelectCell() {
-    const { currentUnit } = this.instance.store;
+    const { currentView } = this.instance.store;
 
-    const nextUnit = this.type === 'year' ? 'months' : 'days';
-    if (currentUnit !== nextUnit) this.dp.setCurrentUnit(nextUnit);
+    const nextView = this.type === 'year' ? 'months' : 'days';
+    if (currentView !== nextView) this.dp.setCurrentView(nextView);
 
     const date = this.date;
-    const isEndUnit = this.type + 's' === this.options.minUnit;
-    if (isEndUnit) {
+    const isEndView = this.type + 's' === this.options.minView;
+    if (isEndView) {
       const isUnSelect = this.isActive() && this.options.toggleSelected;
       this.dp.setSelectedDate(isUnSelect ? null : date);
       if (this.options.autoClose) this.dp.hide();
     }
-    if (currentUnit !== 'days' || this.options.moveOtherMonths) {
-      this.dp.setUnitDate(date);
+    if (currentView !== 'days' || this.options.moveOtherMonths) {
+      this.dp.setViewDate(date);
     }
   }
 

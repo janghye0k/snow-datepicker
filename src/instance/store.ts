@@ -1,22 +1,22 @@
-import type { DateLike, InternalOptions, Unit } from '@t/options';
+import type { DateLike, InternalOptions, View } from '@t/options';
 import type { Store } from '@t/instance';
 import { observable } from '@janghye0k/observable';
 import { isDateLike, isNullish } from 'doumi';
-import { checkUnit, isUnit } from '@/helpers/schema';
+import { checkView, isView } from '@/helpers/schema';
 import { decade, parseDate } from '@/helpers/util';
-import { UNIT_ORDER } from '@/helpers/consts';
+import { VIEW_ORDER } from '@/helpers/consts';
 
-type Params = Pick<InternalOptions, 'minUnit'>;
+type Params = Pick<InternalOptions, 'minView'>;
 
-export function createStore({ minUnit }: Params): Store {
+export function createStore({ minView }: Params): Store {
   const date = observable<Date | null | undefined>(null);
-  const currentUnit = observable<Unit>(minUnit || 'days');
-  const unitDate = observable(new Date());
+  const currentView = observable<View>(minView || 'days');
+  const viewDate = observable(new Date());
   const focusDate = observable<Date | null>(null);
   const viewState = observable(() => {
-    const ud = unitDate();
-    const cu = currentUnit();
-    let args = parseDate(ud).slice(0, 3 - UNIT_ORDER[cu]);
+    const ud = viewDate();
+    const cu = currentView();
+    let args = parseDate(ud).slice(0, 3 - VIEW_ORDER[cu]);
     args = args.length ? args : decade(ud);
     return `${cu}__${args.join('__')}`;
   });
@@ -24,16 +24,16 @@ export function createStore({ minUnit }: Params): Store {
   const store: Store = {
     state: {
       date,
-      currentUnit,
-      unitDate,
+      currentView,
+      viewDate,
       focusDate,
       viewState,
     },
-    get currentUnit(): Unit {
-      return currentUnit();
+    get currentView(): View {
+      return currentView();
     },
-    get unitDate(): Date {
-      return unitDate();
+    get viewDate(): Date {
+      return viewDate();
     },
     get selectedDate(): Date | null {
       const selectedDate = date();
@@ -42,15 +42,15 @@ export function createStore({ minUnit }: Params): Store {
     setSelectedDate: (value: any): void => {
       date(!isDateLike(value) ? null : new Date(value));
     },
-    setCurrentUnit: (value: Unit): void => {
-      let nextUnit = isUnit(value) ? value : minUnit;
-      if (!checkUnit(value, minUnit)) nextUnit = minUnit;
-      currentUnit(nextUnit);
+    setCurrentView: (value: View): void => {
+      let nextView = isView(value) ? value : minView;
+      if (!checkView(value, minView)) nextView = minView;
+      currentView(nextView);
     },
-    setUnitDate: (value: DateLike): void => {
+    setViewDate: (value: DateLike): void => {
       if (!isDateLike(value))
-        return console.log(`This unitDate is invalid date - ${value}`);
-      unitDate(new Date(value));
+        return console.log(`This viewDate is invalid date - ${value}`);
+      viewDate(new Date(value));
     },
   };
 
