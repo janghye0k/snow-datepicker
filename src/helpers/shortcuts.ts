@@ -94,21 +94,26 @@ export function createShortcutsHandler(dp: DatePicker) {
     }
     const parsed = parseDate(date);
     const [year, monthindex, day] = parsed;
+    const [startYear, endYear] = decade(date);
     const isUp = key === 'ArrowRight' || key === 'ArrowUp';
 
     if (!ctrlKey && !shiftKey && !altKey) {
       // Move focus cell
       const params = [...parsed] as [number, number, number];
       params[ADD_IDX_MAP[currentUnit]] += ADDER_MAP[currentUnit][key];
+      if (currentUnit === 'years') {
+        if (params[0] < startYear - 1) params[0] += 2;
+        if (params[0] > endYear + 1) params[0] -= 2;
+      }
       const nextDate = new Date(...params);
       if (
         (currentUnit === 'days' && nextDate.getMonth() !== monthindex) ||
         (currentUnit === 'months' && nextDate.getMonth() !== year) ||
-        (currentUnit === 'years' &&
-          between(year, ...(decade(date) as [number, number])))
+        (currentUnit === 'years' && between(year, startYear, endYear))
       )
         dp.setUnitDate(nextDate);
       dp.setFocusDate(nextDate);
+      return;
     } else if (ctrlKey && !shiftKey && !altKey) {
       // Move month
       const adder = isUp ? 1 : -1;
@@ -130,6 +135,7 @@ export function createShortcutsHandler(dp: DatePicker) {
       dp.setFocusDate(nextDate);
       dp.setUnitDate(nextDate);
     }
+    event.currentTarget.focus();
   };
 
   return handleShrotchust;
