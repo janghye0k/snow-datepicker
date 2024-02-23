@@ -108,7 +108,7 @@ const VALIDATION_MAP: ValidationMap = assign(
         if (isPlainObject(button)) {
           const { className, id, dataset, attrs, innerHTML } = button;
           const isValidString = [className, id, innerHTML].every(
-            (item) => isUndefined(item) && isString(item)
+            (item) => isUndefined(item) || isString(item)
           );
           const isValidObject = [dataset, attrs].every(
             (obj) =>
