@@ -2,7 +2,16 @@ import type { PickerRenderCellReturns } from '@t/event';
 import { decade, parseDate } from '@/helpers/util';
 import { cn } from '@/helpers/selectors';
 import Components, { DefaultProps } from './Components';
-import { between, create$, entries, isPlainObject, isString, on } from 'doumi';
+import {
+  between,
+  create$,
+  entries,
+  isNull,
+  isPlainObject,
+  isString,
+  on,
+} from 'doumi';
+import type { View } from '@t/options';
 
 export type CellType = 'day' | 'month' | 'year';
 
@@ -24,25 +33,22 @@ class Cell extends Components<CellProps> {
 
   isActive() {
     const { selectedDate } = this.instance.store;
-    const parsed = parseDate(this.date);
-    return parseDate(selectedDate)
-      .slice(0, typeCompareLengthMap[this.type])
-      .every((item, idx) => item === parsed[idx]);
+    return (
+      !isNull(selectedDate) &&
+      this.dp.isSameDate(this.date, selectedDate, (this.type + 's') as View)
+    );
   }
 
   isFocus() {
     const { focusDate } = this.dp;
-    const parsed = parseDate(this.date);
-    return parseDate(focusDate)
-      .slice(0, typeCompareLengthMap[this.type])
-      .every((item, idx) => item === parsed[idx]);
+    return (
+      !isNull(focusDate) &&
+      this.dp.isSameDate(this.date, focusDate, (this.type + 's') as View)
+    );
   }
 
   isToday() {
-    const length = typeCompareLengthMap[this.type];
-    const todays = parseDate().slice(0, length);
-    const parsed = parseDate(this.date).slice(0, length);
-    return todays.every((item, idx) => item === parsed[idx]);
+    return this.dp.isSameDate(this.date, new Date(), (this.type + 's') as View);
   }
 
   render() {

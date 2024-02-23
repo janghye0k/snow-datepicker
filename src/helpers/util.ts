@@ -22,12 +22,6 @@ export const decade = (date: Date) => {
   return [start, end];
 };
 
-export const isSameDate = (date: Date, compare: Date) => {
-  const arr1 = parseDate(date);
-  const arr2 = parseDate(compare);
-  return arr1.every((value, index) => arr2[index] === value);
-};
-
 export const getCalendarDates = (date: Date, weekStart: number = 0) => {
   const [year, month] = parseDate(date);
 

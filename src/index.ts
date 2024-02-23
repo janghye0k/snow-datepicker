@@ -22,7 +22,7 @@ import createEventManager from './events';
 import { effect } from '@janghye0k/observable';
 import Target from '@/components/Target';
 import { autoUpdate, computePosition, flip } from '@floating-ui/dom';
-import { CONTAINER_ID, PREFIX } from '@/helpers/consts';
+import { CONTAINER_ID, PREFIX, VIEW_ORDER } from '@/helpers/consts';
 import { createShortcutsHandler } from '@/helpers/shortcuts';
 import Button from '@/components/Button';
 
@@ -345,6 +345,23 @@ class DatePicker {
   setFocusDate(value: any) {
     const date = !isDateLike(value) ? null : new Date(value);
     this.instance.store.state.focusDate(date);
+  }
+
+  /**
+   * Check arguments date is same date in given view.
+   * @param {Date} date The value to check
+   * @param {Date} compare The value to compare
+   * @param {'days' | 'months' | 'years'} view The view state to use for comparison.
+   * @returns {boolean} Returns the value and compare in the same view
+   * @example
+   *
+   * isSameDate(new Date('2024-01-01'), new Date('2024-01-30')) // false
+   * isSameDate(new Date('2024-01-01'), new Date('2024-01-30'), 'months') // true
+   */
+  isSameDate(date: Date, compare: Date, view: View = 'days'): boolean {
+    const arr1 = parseDate(date).slice(0, 4 - VIEW_ORDER[view]);
+    const arr2 = parseDate(compare);
+    return arr1.every((value, index) => arr2[index] === value);
   }
 
   private addViewDate(direction: 'next' | 'prev') {
