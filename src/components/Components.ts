@@ -18,6 +18,7 @@ class Components<T extends DefaultProps = DefaultProps> {
   $el: Element;
   eventManager: EventManager;
   unsubscribers: Function[] = [];
+  [key: string]: any;
   constructor(
     element: Element,
     { dp, instance, options, eventManager, ...props }: T
@@ -28,13 +29,13 @@ class Components<T extends DefaultProps = DefaultProps> {
     this.options = options;
     this.eventManager = eventManager;
     this.assignProps(props);
+    this.beforeInit();
     this.init();
   }
 
   beforeInit() {}
 
   init() {
-    this.beforeInit();
     this.render();
     this.bindEvents();
     this.subscribe();

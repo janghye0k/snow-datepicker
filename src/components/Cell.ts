@@ -27,9 +27,8 @@ const typeCompareLengthMap = {
 };
 
 class Cell extends Components<CellProps> {
-  type!: CellType;
-  date!: Date;
-  $el!: HTMLElement;
+  declare type: CellType;
+  declare date: Date;
 
   isActive() {
     const { selectedDate } = this.instance.store;

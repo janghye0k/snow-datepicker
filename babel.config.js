@@ -11,7 +11,7 @@ module.exports = (api, targets) => {
           targets: isTestEnv ? { node: 'current' } : targets,
         },
       ],
-      '@babel/preset-typescript',
+      ['@babel/preset-typescript', { allowDeclareFields: true }],
     ],
   };
 };

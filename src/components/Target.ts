@@ -71,11 +71,10 @@ function createInputState(
 }
 
 class Target extends Components {
-  $el!: HTMLElement;
-  $input!: HTMLInputElement;
-  $inputBox!: HTMLElement;
-  inputState!: InputState;
-  editState!: EditState;
+  declare $input: HTMLInputElement;
+  declare $inputBox: HTMLElement;
+  declare inputState: InputState;
+  declare editState: EditState;
 
   get inputDate() {
     const { year, month, day } = this.inputState.valueMap;
@@ -106,15 +105,16 @@ class Target extends Components {
 
   beforeInit(): void {
     // Set input state
-    this.inputState = createInputState(
+    const inputState = createInputState(
       this.options.dateFormat ?? this.instance.converter.locale.formats.date,
       this.options.minView
     );
+    assignIn(this, { inputState });
   }
 
   render() {
     this.$el.classList.add(PREFIX, cn('inputRoot'));
-    this.$inputBox = create$('div', { className: cn('inputBox') });
+    const $inputBox = create$('div', { className: cn('inputBox') });
     const $input = create$('input', {
       className: cn('input'),
       type: 'text',
@@ -125,7 +125,7 @@ class Target extends Components {
       readOnly: this.options.readOnly,
       value: this.inputState.format,
     });
-    this.$input = $input;
+    assignIn(this, { $input, $inputBox });
     const $iconBox = create$('button', {
       className: cn('calendarBtn'),
       innerHTML: CalendarIcon,

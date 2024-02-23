@@ -1,6 +1,6 @@
 import type { PickerEventProps } from '@t/event';
 import { assign } from 'doumi';
-import DatePicker from '..';
+import DatePicker from '@/datepicker';
 
 class PickerEvent {
   datepicker!: DatePicker;

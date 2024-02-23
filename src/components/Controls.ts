@@ -7,9 +7,9 @@ import { View } from '@t/options';
 import { decade, parseDate } from '@/helpers/util';
 
 class Controls extends Components {
-  $prevBtn!: HTMLButtonElement;
-  $nextBtn!: HTMLButtonElement;
-  $title!: HTMLElement;
+  declare $title: HTMLElement;
+  declare $prevBtn: HTMLButtonElement;
+  declare $nextBtn: HTMLButtonElement;
 
   render() {
     this.$el.role = 'navigation';
@@ -58,6 +58,7 @@ class Controls extends Components {
 
     const parsed = { min: parseDate(minDate), max: parseDate(maxDate) };
     const decades = { min: decade(minDate), max: decade(maxDate) };
+
     const btnHideCheckMap = {
       days: (year: number, monthindex: number) => {
         if (year <= parsed.min[0] && monthindex - 1 < parsed.min[1]) {

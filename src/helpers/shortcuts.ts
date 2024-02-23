@@ -1,6 +1,6 @@
 import { VIEW_LIST } from '@/helpers/consts';
 import { between, find$, type Evt } from 'doumi';
-import DatePicker from '..';
+import DatePicker from '@/datepicker';
 import { decade, parseDate } from '@/helpers/util';
 import { cn } from '@/helpers/selectors';
 

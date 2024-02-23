@@ -8,9 +8,8 @@ export type ButtonProps = DefaultProps & {
 };
 
 class Button extends Components<ButtonProps> {
-  $el!: HTMLElement;
-  buttonOption!: ButtonProps['buttonOption'];
-  onClick!: (...args: any) => any;
+  declare buttonOption: ButtonProps['buttonOption'];
+  declare onClick: (...args: any) => any;
 
   render(): void {
     let $el: HTMLButtonElement;
