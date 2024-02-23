@@ -1,6 +1,7 @@
 import { BUTTON_PRESETS } from '@/helpers/consts';
 import DatePicker from '@/index';
 import { Locale } from '@t/locale';
+import type { PickerEventListenerMap } from './event';
 
 export type Position =
   | 'top'
@@ -89,15 +90,15 @@ export type InternalOptions = {
   locale?: Locale;
   /** Datepicker placeholder */
   placeHolder?: string;
-  onShow?: Function;
-  onHide?: Function;
-  onFocus?: Function;
-  onClickCell?: Function;
-  onRenderCell?: Function;
-  onBeforeSelect?: Function;
-  onSelect?: Function;
-  onChangeView?: Function;
-  onChangeViewDate?: Function;
+  onShow?: PickerEventListenerMap['show'];
+  onHide?: PickerEventListenerMap['hide'];
+  onFocus?: PickerEventListenerMap['focus'];
+  onClickCell?: PickerEventListenerMap['clickCell'];
+  onRenderCell?: PickerEventListenerMap['renderCell'];
+  onBeforeSelect?: PickerEventListenerMap['beforeSelect'];
+  onSelect?: PickerEventListenerMap['select'];
+  onChangeView?: PickerEventListenerMap['changeView'];
+  onChangeViewDate?: PickerEventListenerMap['changeViewDate'];
 };
 
 export type Options = Partial<

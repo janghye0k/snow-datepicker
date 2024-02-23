@@ -38,8 +38,8 @@ class Content extends Components {
       }, [store.state.date, true]),
 
       effect(
-        (date) => {
-          const [year, monthindex, day] = parseDate(date);
+        (focusDate) => {
+          const [year, monthindex, day] = parseDate(focusDate);
 
           const currentView = store.currentView;
           const comapre = (date: Date) => {
@@ -54,11 +54,16 @@ class Content extends Components {
           const $cells = findAll$('.' + cn('cell'), this.$el);
           $cells.forEach(($cell) => {
             $cell.classList.remove('--focus');
-            const cell = ($cell as any).dpCell as Cell;
-            const isFocus = comapre(cell.date);
+            const { date, type } = ($cell as any).dpCell as Cell;
+            const isFocus = comapre(date);
             if (isFocus) {
-              $cell.focus();
-              $cell.classList.add('--focus');
+              $cell.focus(), $cell.classList.add('--focus');
+              const eventProps = {
+                $element: $cell,
+                type,
+                date,
+              };
+              this.eventManager.trigger('focus', eventProps);
             }
           });
         },

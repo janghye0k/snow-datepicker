@@ -45,10 +45,9 @@ function createEventManager(
     trigger: (eventName, eventProps) => {
       const listeners = listenerMap[eventName];
       if (!isArray(listeners)) return;
-      const pickerEvent = new PickerEvent(eventProps);
+      const pickerEvent = new PickerEvent({ ...eventProps, datepicker });
 
       return listeners.map((listener) => {
-        pickerEvent.setDatePicker(datepicker);
         return listener(pickerEvent);
       });
     },

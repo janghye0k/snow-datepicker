@@ -97,7 +97,7 @@ class Cell extends Components<CellProps> {
       $el.classList.add('--dayoff');
 
     // Trigger event
-    const eventProps = { date: this.date, type: this.type };
+    const eventProps = { date: this.date, type: this.type, $element: $el };
     const results: PickerRenderCellReturns[] = [];
     (this.eventManager.trigger('renderCell', eventProps) ?? []).forEach(
       (result: any) => {
@@ -156,7 +156,6 @@ class Cell extends Components<CellProps> {
   private handleClickCell(event: MouseEvent) {
     const { type, date, $el: $element } = this;
     const eventProps: Record<string, any> = { event, type, date, $element };
-    if (type === 'day') eventProps.dayIndex = this.date.getDay();
     this.eventManager.trigger('clickCell', eventProps);
   }
 }
