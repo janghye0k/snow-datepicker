@@ -10,6 +10,7 @@ export type ButtonProps = DefaultProps & {
 class Button extends Components<ButtonProps> {
   $el!: HTMLElement;
   buttonOption!: ButtonProps['buttonOption'];
+  onClick!: (...args: any) => any;
 
   render(): void {
     let $el: HTMLButtonElement;
@@ -22,24 +23,25 @@ class Button extends Components<ButtonProps> {
       if (attrs) {
         forEach(attrs, (value, key) => $el.setAttribute(key, value));
       }
-      if (onClick) {
-        on($el, 'click', (event) => onClick(event, this.dp));
-      }
+      if (onClick) this.onClick = (e: MouseEvent) => onClick(e, this.dp);
     } else {
-      const onclick =
+      this.onClick =
         this.buttonOption === 'clear'
           ? () => this.dp.setSelectedDate(null)
           : () => this.dp.setSelectedDate(new Date());
       $el = create$('button', {
         className: cn('button'),
         innerHTML: capitalize(this.buttonOption),
-        onclick,
       });
     }
 
     const $origin = this.$el;
     this.$el = $el;
     $origin.replaceWith($el);
+  }
+
+  bindEvents(): void {
+    on(this.$el, 'click', this.onClick);
   }
 }
 

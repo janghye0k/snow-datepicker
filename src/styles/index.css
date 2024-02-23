@@ -289,8 +289,11 @@
   justify-content: center;
   border-radius: 3px;
   background-color: transparent;
-  outline: 0;
   cursor: pointer;
+}
+
+.datepicker-content__cell:focus {
+  outline: 0;
 }
 
 .datepicker-content__cell.--dayoff {
@@ -324,6 +327,7 @@
 }
 
 .datepicker-content__cell.--active:hover,
+.datepicker-content__cell.--active:focus,
 .datepicker-content__cell.--active.--focus {
   background-color: var(--datepicker-main-color);
 }

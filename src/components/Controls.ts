@@ -46,9 +46,10 @@ class Controls extends Components {
       e.preventDefault();
       this.dp.next(), this.dp.setFocusDate(null);
     });
-    [this.$prevBtn, this.$nextBtn].forEach(($el) =>
-      on($el, 'keydown', (evt) => evt.key === 'Enter' && $el.click())
-    );
+    [this.$prevBtn, this.$nextBtn].forEach(($el) => {
+      on($el, 'keydown', (evt) => evt.key === 'Enter' && $el.click());
+      on($el, 'focus', () => this.instance.store.state.focusDate(null));
+    });
   }
 
   subscribe() {
