@@ -90,6 +90,8 @@ export type InternalOptions = {
   locale?: Locale;
   /** Datepicker placeholder */
   placeHolder?: string;
+  /** If `true`, calendar apper with backdrop */
+  backdrop?: boolean;
   onShow?: PickerEventListenerMap['show'];
   onHide?: PickerEventListenerMap['hide'];
   onFocus?: PickerEventListenerMap['focus'];

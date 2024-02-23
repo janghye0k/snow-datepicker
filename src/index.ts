@@ -32,8 +32,8 @@ class DatePicker {
   private eventManager: EventManager;
   private originTemplate: string;
 
-  private $hide = create$('div');
   private $container = DatePicker.createContainer();
+  private $hide = create$('div');
   private components: any[] = [];
   private unsubscribers: Function[] = [];
 
@@ -47,9 +47,7 @@ class DatePicker {
       id: CONTAINER_ID,
       classList: [PREFIX, CONTAINER_ID],
       role: 'presentation',
-      innerHTML: /*html*/ `
-        <div role="presentation" class="${cn('backdrop')}"></div>
-      `,
+      innerHTML: /*html*/ `<div role="presentation" class="${cn('backdrop')}"></div>`,
     });
     document.body.appendChild($container);
     return $container;
@@ -136,7 +134,7 @@ class DatePicker {
     }
 
     // Popup setting
-    if (!this.options.inline) this.calendarPositionUpdate();
+    if (!opts.inline && !opts.backdrop) this.calendarPositionUpdate();
   }
 
   /** Converter instance for convert date to datepicker's locale format */
@@ -208,6 +206,8 @@ class DatePicker {
       this.$datepicker.classList.add('--inline');
       this.$target.replaceWith(this.$datepicker);
     } else new Target(this.$target, defaultProps);
+
+    if (this.options.backdrop) this.$datepicker.classList.add('--center');
   }
 
   /** Update calendar position automatically */
@@ -409,11 +409,13 @@ class DatePicker {
   /** Hide calendar */
   hide() {
     if (this.options.inline || !this.isShow()) return;
+
     if (this.options.animation) {
       // When animation is `true`
-      this.$datepicker.classList.add('--scaleDown');
+      const animationName = this.options.backdrop ? '--fadeOut' : '--scaleDown';
+      this.$datepicker.classList.add(animationName);
       const onAnimeEnd = (event: any) => {
-        event.currentTarget.classList.remove('--scaleDown');
+        event.currentTarget.classList.remove(animationName);
         this.$hide.replaceChildren(this.$datepicker);
         off(this.$datepicker, 'animationend', onAnimeEnd);
       };
@@ -421,6 +423,7 @@ class DatePicker {
     } else {
       this.$hide.replaceChildren(this.$datepicker);
     }
+    this.$datepicker.classList.remove('--show');
 
     this.eventManager.trigger('hide', {});
     if (this.$input !== document.activeElement)
@@ -432,12 +435,14 @@ class DatePicker {
     if (this.options.inline || this.isShow()) return;
     const $conatiner = this.$container;
     $conatiner.appendChild(this.$datepicker);
+    this.$datepicker.classList.add('--show');
 
     if (this.options.animation) {
       // When animation is `true`
-      this.$datepicker.classList.add('--scaleUp');
+      const animationName = this.options.backdrop ? '--fadeIn' : '--scaleUp';
+      this.$datepicker.classList.add(animationName);
       const onAnimeEnd = (event: any) => {
-        event.currentTarget.classList.remove('--scaleUp');
+        event.currentTarget.classList.remove(animationName);
         this.$datepicker.focus();
         off(this.$datepicker, 'animationend', onAnimeEnd);
       };

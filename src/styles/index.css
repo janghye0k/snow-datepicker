@@ -97,22 +97,22 @@
 }
 
 .datepicker-backdrop {
+  z-index: -1;
   position: fixed;
   inset: 0;
-  width: 0;
-  height: 0;
   background-color: color-mix(
     in srgb,
     var(--datepicker-color) 33%,
     transparent
   );
   opacity: 0;
-  transition: ease-out opacity 0.1s;
+  transition: ease all 0.3s;
+  user-select: none;
+  pointer-events: none;
 }
 
-.datepicker-backdrop.--active {
-  width: 100%;
-  height: 100%;
+.datepicker-container:has(.datepicker-calendar.--center.--show)
+  .datepicker-backdrop {
   opacity: 1;
 }
 
@@ -133,6 +133,13 @@
   left: unset;
 }
 
+.datepicker-calendar.--center {
+  position: fixed;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .datepicker-calendar:focus-visible {
   outline: none;
   border-color: color-mix(
@@ -147,7 +154,8 @@
 }
 
 .datepicker-calendar.--scaleDown {
-  animation: ease 0.2s scaleDown;
+  animation: ease 0.2s scaleUp;
+  animation-direction: reverse;
 }
 
 @keyframes scaleUp {
@@ -161,14 +169,23 @@
   }
 }
 
-@keyframes scaleDown {
+.datepicker-calendar.--fadeIn {
+  animation: ease 0.2s fadeIn;
+}
+
+.datepicker-calendar.--fadeOut {
+  animation: ease 0.2s fadeIn;
+  animation-direction: reverse;
+}
+
+@keyframes fadeIn {
   0% {
-    opacity: 1;
-    scale: 100%;
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 10px));
   }
   100% {
-    opacity: 0;
-    scale: 66%;
+    opacity: 1;
+    transform: translate(-50%, -50%);
   }
 }
 

@@ -46,6 +46,7 @@ const DEFUALT_OPTIONS: Options = {
   readOnly: false,
   animation: true,
   inline: false,
+  backdrop: false,
   titleFormat: {},
 };
 
