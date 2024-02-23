@@ -57,16 +57,16 @@ describe('OPTIONS TEST', () => {
     });
   });
 
-  describe('options.unit', () => {
+  describe('options.view', () => {
     const date = new Date('2024-01-01');
     const cases = [
-      { unit: 'days', contains: 'January' },
-      { unit: 'months', contains: '2024' },
-      { unit: 'years', contains: '2020 - 2029' },
+      { view: 'days', contains: 'January' },
+      { view: 'months', contains: '2024' },
+      { view: 'years', contains: '2020 - 2029' },
     ];
-    cases.forEach(({ unit, contains }) =>
-      it(`should ${unit} unit`, () => {
-        create($el, { unit, selectedDate: date });
+    cases.forEach(({ view, contains }) =>
+      it(`should ${view} view`, () => {
+        create($el, { view, selectedDate: date });
         const $title = datepicker.$datepicker.querySelector(
           '.datepicker-controls__title'
         );
@@ -144,7 +144,7 @@ describe('OPTIONS TEST', () => {
       );
       $febFirst.click();
 
-      expect(datepicker.unitDate.getMonth()).toBe(1);
+      expect(datepicker.viewDate.getMonth()).toBe(1);
     });
 
     it(`should not be show other month when click other months's day`, () => {
@@ -155,7 +155,7 @@ describe('OPTIONS TEST', () => {
       );
       $febFirst.click();
 
-      expect(datepicker.unitDate.getMonth()).toBe(0);
+      expect(datepicker.viewDate.getMonth()).toBe(0);
     });
   });
 
@@ -210,7 +210,7 @@ describe('OPTIONS TEST', () => {
       });
 
       datepicker.prev();
-      expect(datepicker.unitDate.getMonth()).toBe(0);
+      expect(datepicker.viewDate.getMonth()).toBe(0);
     });
 
     it('should not be select under minimun date', () => {
@@ -238,9 +238,9 @@ describe('OPTIONS TEST', () => {
       });
 
       datepicker.next();
-      expect(datepicker.unitDate.getFullYear()).toBe(2024);
-      expect(datepicker.unitDate.getMonth()).toBe(0);
-      expect(datepicker.unitDate.getDate()).toBe(1);
+      expect(datepicker.viewDate.getFullYear()).toBe(2024);
+      expect(datepicker.viewDate.getMonth()).toBe(0);
+      expect(datepicker.viewDate.getDate()).toBe(1);
     });
 
     it('should not be select over maximum date', () => {
@@ -270,7 +270,7 @@ describe('OPTIONS TEST', () => {
       datepicker.next();
       datepicker.next();
 
-      expect(datepicker.unitDate.getMonth()).toBe(0);
+      expect(datepicker.viewDate.getMonth()).toBe(0);
     });
 
     it('should not be loop, if `false`', () => {
@@ -284,11 +284,52 @@ describe('OPTIONS TEST', () => {
       datepicker.next();
       datepicker.next();
 
-      expect(datepicker.unitDate.getMonth()).toBe(2);
+      expect(datepicker.viewDate.getMonth()).toBe(2);
     });
   });
 
-  describe('options.shortcuts', () => {});
+  describe('options.buttons', () => {
+    it('should be render preset buttons', () => {
+      create($el, {
+        selectedDate: new Date('2024-02-01'),
+        buttons: ['clear', 'today'],
+      });
 
-  describe('options.buttons', () => {});
+      const $btns =
+        datepicker.$datepicker.querySelectorAll('.datepicker-button');
+      expect($btns.length).toBe(2);
+      const [$clear, $today] = [...$btns];
+
+      $clear.click();
+      expect(datepicker.selectedDate).toBe(null);
+
+      $today.click();
+      expect(datepicker.isSameDate(datepicker.selectedDate, new Date())).toBe(
+        true
+      );
+    });
+
+    it('should be render custom buttons', () => {
+      let isClick = false;
+
+      create($el, {
+        selectedDate: new Date('2024-02-01'),
+        buttons: {
+          id: 'my-id',
+          className: 'my-button',
+          innerHTML: 'MyButton',
+          dataset: { test: 'test' },
+          onClick: () => (isClick = true),
+        },
+      });
+
+      const $btn = datepicker.$datepicker.querySelector('.my-button');
+      expect($btn).not.toBe(null);
+      expect($btn.id).toBe('my-id');
+      expect($btn.textContent.includes('MyButton')).toBe(true);
+      expect($btn.dataset.test).toBe('test');
+      $btn.click();
+      expect(isClick).toBe(true);
+    });
+  });
 });
