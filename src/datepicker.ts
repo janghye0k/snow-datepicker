@@ -136,6 +136,9 @@ class DatePicker {
 
     // Popup setting
     if (!opts.inline && !opts.backdrop) this.calendarPositionUpdate();
+
+    // Set color scheme
+    this.setTheme(opts.theme);
   }
 
   /** Converter instance for convert date to datepicker's locale format */
@@ -453,6 +456,14 @@ class DatePicker {
     (find$('.' + cn('inputBox')) as HTMLElement).classList.add('--active');
     on(document, 'click', this.handleClickOutside, { capture: true });
     this.eventManager.trigger('show', {});
+  }
+
+  setTheme(theme: 'light' | 'dark') {
+    const isDark = theme === 'dark';
+    if (theme !== 'light' && !isDark) return;
+    [this.$container, this.$datepicker, this.$target].forEach(($el) =>
+      $el.classList[isDark ? 'add' : 'remove']('--dark')
+    );
   }
 
   /** Datepicker calendar is visible */

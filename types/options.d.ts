@@ -77,6 +77,8 @@ export type InternalOptions = {
   maxDate: Date;
   /** Makes the calendar to be permanently visible */
   inline: boolean;
+  /** If, `dark`, datepicker's color scheme set to dark mode */
+  theme: 'light' | 'dark';
   /** The active date */
   selectedDate?: Date;
   buttons?:
