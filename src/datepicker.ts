@@ -458,12 +458,22 @@ class DatePicker {
     this.eventManager.trigger('show', {});
   }
 
+  /**
+   * Set datepicker theme mode
+   * @param {'light' | 'dark'} theme
+   */
   setTheme(theme: 'light' | 'dark') {
     const isDark = theme === 'dark';
     if (theme !== 'light' && !isDark) return;
     [this.$container, this.$datepicker, this.$target].forEach(($el) =>
       $el.classList[isDark ? 'add' : 'remove']('--dark')
     );
+  }
+
+  setSize(size: 'small' | 'normal') {
+    const isSmall = size === 'small';
+    if (size !== 'normal' && !isSmall) return;
+    this.$target.classList[isSmall ? 'add' : 'remove']('--small');
   }
 
   /** Datepicker calendar is visible */

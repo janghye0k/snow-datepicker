@@ -10,6 +10,7 @@
   "rules": {
     "prettier/prettier": true,
     "selector-max-compound-selectors": null,
-    "color-named": null
+    "color-named": null,
+    "no-descending-specificity": null
   }
 }

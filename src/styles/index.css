@@ -31,7 +31,7 @@
 
 .datepicker-inputRoot {
   display: inline-block;
-  min-width: 160px;
+  min-width: 140px;
 }
 
 .datepicker-inputBox {
@@ -58,14 +58,15 @@
   border-radius: 100%;
   margin-block: auto;
   background-color: transparent;
+  flex-shrink: 0;
   transition: ease 0.1s all;
 
-  & svg {
+  & > svg {
     flex-grow: 1;
-    flex-shrink: 1;
+    flex-shrink: 0;
     flex-basis: 0;
-    width: 60%;
-    height: 60%;
+    width: 20px;
+    height: 20px;
     fill: var(--datepicker-text-color);
   }
 
@@ -79,9 +80,8 @@
 }
 
 .datepicker-input {
-  min-width: 100px;
+  min-width: 108px;
   flex-grow: 1;
-  flex-shrink: 1;
   border-top-left-radius: inherit;
   border-bottom-left-radius: inherit;
   background-color: var(--datepicker-background-color);
@@ -94,6 +94,31 @@
 
   &:hover {
     background-color: rgba(var(--datepicker-accent-color-rgb), 7%);
+  }
+}
+
+.datepicker-inputRoot.--small {
+  min-width: 100px;
+
+  & .datepicker-inputBox {
+    height: 32px;
+  }
+
+  & .datepicker-input {
+    padding-inline: 4px;
+    min-width: 88px;
+    width: 88px;
+    flex-grow: 0;
+  }
+
+  & .datepicker-calendarBtn {
+    width: 28px;
+    height: 28px;
+
+    & > svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 

@@ -48,6 +48,7 @@ const DEFUALT_OPTIONS: Options = {
   inline: false,
   backdrop: false,
   theme: 'light',
+  size: 'normal',
   titleFormat: {},
 };
 
@@ -88,6 +89,10 @@ const VALIDATION_MAP: ValidationMap = assign(
     theme: (val: any) => {
       if (isString(val) && (val === 'light' || val === 'dark')) return;
       inValid('theme', 'light | dark');
+    },
+    size: (val: any) => {
+      if (isString(val) && (val === 'small' || val === 'normal')) return;
+      inValid('theme', 'small | normal');
     },
     className: (val: any) => {
       if (isUndefined(val) || isString(val)) return;

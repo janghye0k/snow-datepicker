@@ -79,6 +79,8 @@ export type InternalOptions = {
   inline: boolean;
   /** If, `dark`, datepicker's color scheme set to dark mode */
   theme: 'light' | 'dark';
+  /** The size of datepicker input. */
+  size: 'small' | 'normal';
   /** The active date */
   selectedDate?: Date;
   buttons?:
