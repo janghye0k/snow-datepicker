@@ -1,6 +1,6 @@
 import { VIEW_LIST } from '@/helpers/consts';
 import { between, find$, type Evt } from 'doumi';
-import DatePicker from '@/datepicker';
+import SnowDatePicker from '@/datepicker';
 import { decade, parseDate } from '@/helpers/util';
 import { cn } from '@/helpers/selectors';
 
@@ -37,7 +37,7 @@ const isArrowKey = (
 ): key is 'ArrowLeft' | 'ArrowRight' | 'ArrowUp' | 'ArrowDown' =>
   AVAILABLE_KEYS.includes(key);
 
-export function createShortcutsHandler(dp: DatePicker) {
+export function createShortcutsHandler(dp: SnowDatePicker) {
   const handleShrotchust = (event: Evt<'keydown'>) => {
     const { ctrlKey, shiftKey, altKey, key } = event;
     if (key === 'Escape') {

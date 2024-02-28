@@ -1,29 +1,32 @@
 {
   "private": true,
-  "name": "@janghye0k/datepicker",
+  "name": "snow-datepicker",
   "version": "0.0.0",
-  "description": "Javascript datepicker",
-  "main": "datepicker.js",
+  "description": "Pure (vanilla) javascript datepicker",
+  "main": "snow-datepicker.js",
   "types": "index.d.ts",
   "module": "index.esm.js",
   "exports": {
     ".": {
       "import": "./index.esm.js",
-      "browser": "./datepicker.js"
+      "browser": "./snow-datepicker.js"
     }
   },
   "keywords": [
-    "vanilla",
+    "snow-datepicker",
     "datepicker",
-    "calendar"
+    "date",
+    "calendar",
+    "pure-javascript",
+    "vanilla-javascript"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/janghye0k/datepicker"
+    "url": "https://github.com/janghye0k/snow-datepicker"
   },
   "bugs": {
     "email": "d0oR.hyeok@gmail.com",
-    "url": "https://github.com/janghye0k/datepicker/issues"
+    "url": "https://github.com/janghye0k/snow-datepicker/issues"
   },
   "author": "JangHyeok Kim",
   "license": "MIT",
@@ -42,7 +45,8 @@
     "test": "pnpm test:coverage",
     "prepare": "husky install",
     "release": "semantic-release",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build",
+    "doc": "pnpm -C ./docs"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",

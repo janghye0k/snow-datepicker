@@ -1,5 +1,5 @@
 import { BUTTON_PRESETS } from '@/helpers/consts';
-import DatePicker from '@/index';
+import SnowDatePicker from '@/index';
 import { Locale } from '@t/locale';
 import type { PickerEventListenerMap } from './event';
 
@@ -37,7 +37,7 @@ export type ButtonOptions = {
   dataset?: Record<string, string>;
   attrs?: Record<string, string>;
   innerHTML?: string;
-  onClick?: (event: MouseEvent, datepicker: DatePicker) => any;
+  onClick?: (event: MouseEvent, datepicker: SnowDatePicker) => any;
 };
 
 export type InternalOptions = {

@@ -1,3 +1,5 @@
+const pkg = require('./package.json');
+
 /**
  * @type {import('semantic-release').GlobalConfig}
  */
@@ -37,7 +39,7 @@ module.exports = {
       '@semantic-release/github',
       {
         assets: [
-          { path: 'dist_zip/datepicker.zip', label: 'DatePicker build files' },
+          { path: `dist_zip/${pkg.name}.zip`, label: 'DatePicker build files' },
         ],
       },
     ],

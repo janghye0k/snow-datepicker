@@ -39,7 +39,7 @@ const createContainer = () => {
   return $container;
 };
 
-class DatePicker {
+class SnowDatePicker {
   private options: InternalOptions;
   private instance: Instance;
   private eventManager: EventManager;
@@ -493,4 +493,4 @@ class DatePicker {
   }
 }
 
-export default DatePicker;
+export default SnowDatePicker;

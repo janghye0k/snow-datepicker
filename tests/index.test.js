@@ -1,4 +1,4 @@
-import DatePicker from '@/index';
+import SnowDatePicker from '@/index';
 
 let $el;
 /** @type {import('../src/index').default} */
@@ -9,7 +9,7 @@ let datepicker;
  * @param {import('../types/options').Options} [options]
  */
 function create(element, options) {
-  datepicker = new DatePicker(element, options);
+  datepicker = new SnowDatePicker(element, options);
 }
 
 beforeEach(() => {
@@ -22,25 +22,25 @@ beforeEach(() => {
 describe('COMMON TESTS', () => {
   it('initialized with default options', () => {
     create($el);
-    expect(datepicker).toBeInstanceOf(DatePicker);
+    expect(datepicker).toBeInstanceOf(SnowDatePicker);
   });
 
   it('datepicker container should be created', () => {
     create($el);
-    expect(document.getElementById(DatePicker.containerId)).not.toBeNull();
+    expect(document.getElementById(SnowDatePicker.containerId)).not.toBeNull();
   });
 
   it('datepicker should be added to the container when visible', async () => {
     create($el);
     expect(
       document
-        .getElementById(DatePicker.containerId)
+        .getElementById(SnowDatePicker.containerId)
         .contains(datepicker.$datepicker)
     ).toBe(false);
     datepicker.show();
     expect(
       document
-        .getElementById(DatePicker.containerId)
+        .getElementById(SnowDatePicker.containerId)
         .contains(datepicker.$datepicker)
     ).toBe(true);
   });

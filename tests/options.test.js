@@ -1,5 +1,6 @@
-import DatePicker from '@/index';
+import SnowDatePicker from '@/index';
 import ko from '@/locale/ko';
+import { cn } from '@/helpers/selectors';
 
 let $el;
 /** @type {import('../src/index').default} */
@@ -10,7 +11,7 @@ let datepicker;
  * @param {import('../types/options').Options} [options]
  */
 function create(element, options) {
-  datepicker = new DatePicker(element, options);
+  datepicker = new SnowDatePicker(element, options);
 }
 
 beforeEach(() => {
@@ -68,7 +69,7 @@ describe('OPTIONS TEST', () => {
       it(`should ${view} view`, () => {
         create($el, { view, selectedDate: date });
         const $title = datepicker.$datepicker.querySelector(
-          '.datepicker-controls__title'
+          '.' + cn('controlsTitle')
         );
         expect($title.textContent.includes(contains)).toBe(true);
       })
@@ -188,7 +189,7 @@ describe('OPTIONS TEST', () => {
       );
       $day.click();
 
-      const $container = document.getElementById(DatePicker.containerId);
+      const $container = document.getElementById(SnowDatePicker.containerId);
       expect($container.contains(datepicker.$datepicker)).toBe(false);
     });
   });
@@ -295,8 +296,7 @@ describe('OPTIONS TEST', () => {
         buttons: ['clear', 'today'],
       });
 
-      const $btns =
-        datepicker.$datepicker.querySelectorAll('.datepicker-button');
+      const $btns = datepicker.$datepicker.querySelectorAll('.' + cn('button'));
       expect($btns.length).toBe(2);
       const [$clear, $today] = [...$btns];
 

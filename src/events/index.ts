@@ -1,7 +1,7 @@
 import type { EventManager } from '@t/event';
 import { get, isArray, isFunction } from 'doumi';
 import PickerEvent from './picker-event';
-import DatePicker from '@/index';
+import SnowDatePicker from '@/index';
 import { Options } from '@t/options';
 
 const OPTION_EVENT_KEYS = [
@@ -18,7 +18,7 @@ const OPTION_EVENT_KEYS = [
 ];
 
 function createEventManager(
-  datepicker: DatePicker,
+  datepicker: SnowDatePicker,
   options: Options
 ): EventManager {
   const listenerMap: { [eventName: string]: Function[] } = {};

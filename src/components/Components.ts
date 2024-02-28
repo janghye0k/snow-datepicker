@@ -1,18 +1,18 @@
 import type { Instance } from '@t/instance';
 import type { InternalOptions } from '@t/options';
 import type { EventManager } from '@t/event';
-import DatePicker from '@/index';
+import SnowDatePicker from '@/index';
 import { assign } from 'doumi';
 
 interface DefaultProps {
-  dp: DatePicker;
+  dp: SnowDatePicker;
   instance: Instance;
   options: InternalOptions;
   eventManager: EventManager;
 }
 
 class Components<T extends DefaultProps = DefaultProps> {
-  dp: DatePicker;
+  dp: SnowDatePicker;
   instance: Instance;
   options: InternalOptions;
   $el: Element;

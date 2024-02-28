@@ -23,11 +23,17 @@ const alias = aliasPlugin({
   entries: aliasOptions,
 });
 
-const banner =
-  `// ${pkg.name} v${pkg.version}\n` +
-  `// ${pkg.repository.url}\n` +
-  `// (c) 2023 - ${new Date().getFullYear()} ${pkg.author}\n` +
-  `// ${pkg.name} may be freely distributed under the MIT license.\n`;
+const libName = pkg.name
+  .split('-')
+  .map((str) => capitalize(str))
+  .join(' ');
+
+const banner = [
+  `// ${libName} v${pkg.version}`,
+  `// ${pkg.repository.url}`,
+  `// (c) 2023 - ${new Date().getFullYear()} ${pkg.author}`,
+  `// ${libName} may be freely distributed under the MIT license.`,
+].join('\n');
 
 function createCSSConfig(input, output) {
   return {
@@ -146,7 +152,7 @@ function createLocaleConfigs() {
 }
 
 const entry = 'src/index.ts';
-const BUILD_FILENAME = 'datepicker';
+const BUILD_FILENAME = pkg.name;
 
 module.exports = [
   createCSSConfig('src/styles/index.css', `dist/${BUILD_FILENAME}`),

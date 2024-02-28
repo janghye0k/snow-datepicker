@@ -1,7 +1,7 @@
 import { isDate, range } from 'doumi';
 
 export function error(title: string, body?: string) {
-  const messages = [`[DatePicker]: ${title}`];
+  const messages = [`[SnowDatePicker]: ${title}`];
   if (typeof body === 'string') messages.push(body);
   throw new Error(messages.join('\n'));
 }

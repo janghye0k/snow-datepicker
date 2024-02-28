@@ -1,25 +1,27 @@
-.datepicker {
-  --datepicker-text-color-rgb: 50, 50, 50; /* #323232 */
-  --datepicker-border-color-rgb: 205, 205, 205; /* #CDCDCD */
-  --datepicker-background-color-rgb: 255, 255, 255; /* #FFFFFF */
-  --datepicker-accent-color-rgb: 61, 159, 240; /* #3D9FF0 */
+.snow-datepicker {
+  --snow-datepicker-text-color-rgb: 50, 50, 50; /* #323232 */
+  --snow-datepicker-border-color-rgb: 205, 205, 205; /* #CDCDCD */
+  --snow-datepicker-background-color-rgb: 255, 255, 255; /* #FFFFFF */
+  --snow-datepicker-accent-color-rgb: 61, 159, 240; /* #3D9FF0 */
 
-  --datepicker-text-color: rgb(var(--datepicker-text-color-rgb));
-  --datepicker-border-color: rgb(var(--datepicker-border-color-rgb));
-  --datepicker-background-color: rgb(var(--datepicker-background-color-rgb));
-  --datepicker-accent-color: rgb(var(--datepicker-accent-color-rgb));
-  --datepicker-weekday-color: #fb9052;
-  --datepicker-dayoff-color: rgb(235, 0, 0);
+  --snow-datepicker-text-color: rgb(var(--snow-datepicker-text-color-rgb));
+  --snow-datepicker-border-color: rgb(var(--snow-datepicker-border-color-rgb));
+  --snow-datepicker-background-color: rgb(
+    var(--snow-datepicker-background-color-rgb)
+  );
+  --snow-datepicker-accent-color: rgb(var(--snow-datepicker-accent-color-rgb));
+  --snow-datepicker-weekday-color: #fb9052;
+  --snow-datepicker-dayoff-color: rgb(235, 0, 0);
 }
 
-.datepicker.--dark {
-  --datepicker-text-color-rgb: 238, 238, 238; /* #EEEEEE */
-  --datepicker-border-color-rgb: 138, 138, 138; /* #8A8A8A */
-  --datepicker-background-color-rgb: 27, 27, 27; /* #1B1B1B */
+.snow-datepicker.--dark {
+  --snow-datepicker-text-color-rgb: 238, 238, 238; /* #EEEEEE */
+  --snow-datepicker-border-color-rgb: 138, 138, 138; /* #8A8A8A */
+  --snow-datepicker-background-color-rgb: 27, 27, 27; /* #1B1B1B */
 }
 
-.datepicker,
-.datepicker * {
+.snow-datepicker,
+.snow-datepicker * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -29,26 +31,26 @@
   vertical-align: baseline;
 }
 
-.datepicker-inputRoot {
+.snow-datepicker-inputRoot {
   display: inline-block;
   min-width: 140px;
 }
 
-.datepicker-inputBox {
+.snow-datepicker-inputBox {
   display: flex;
   height: 40px;
-  border: 1px solid var(--datepicker-border-color);
+  border: 1px solid var(--snow-datepicker-border-color);
   border-radius: 4px;
   color: #333;
-  background-color: var(--datepicker-background-color);
+  background-color: var(--snow-datepicker-background-color);
   transition: ease all 0.2s;
 
   &.--active {
-    border-color: var(--datepicker-accent-color);
+    border-color: var(--snow-datepicker-accent-color);
   }
 }
 
-.datepicker-calendarBtn {
+.snow-datepicker-calendarBtn {
   position: relative;
   height: 32px;
   width: 32px;
@@ -67,25 +69,25 @@
     flex-basis: 0;
     width: 20px;
     height: 20px;
-    fill: var(--datepicker-text-color);
+    fill: var(--snow-datepicker-text-color);
   }
 
   &:hover {
-    background-color: rgba(var(--datepicker-text-color-rgb), 8%);
+    background-color: rgba(var(--snow-datepicker-text-color-rgb), 8%);
   }
 
   &:active {
-    background-color: rgba(var(--datepicker-text-color-rgb), 12%);
+    background-color: rgba(var(--snow-datepicker-text-color-rgb), 12%);
   }
 }
 
-.datepicker-input {
+.snow-datepicker-input {
   min-width: 108px;
   flex-grow: 1;
   border-top-left-radius: inherit;
   border-bottom-left-radius: inherit;
-  background-color: var(--datepicker-background-color);
-  color: var(--datepicker-text-color);
+  background-color: var(--snow-datepicker-background-color);
+  color: var(--snow-datepicker-text-color);
   border: 0;
   outline: 0;
   font-size: 14px;
@@ -93,25 +95,25 @@
   transition: ease-out all 0.1s;
 
   &:hover {
-    background-color: rgba(var(--datepicker-accent-color-rgb), 7%);
+    background-color: rgba(var(--snow-datepicker-accent-color-rgb), 7%);
   }
 }
 
-.datepicker-inputRoot.--small {
+.snow-datepicker-inputRoot.--small {
   min-width: 100px;
 
-  & .datepicker-inputBox {
+  & .snow-datepicker-inputBox {
     height: 32px;
   }
 
-  & .datepicker-input {
+  & .snow-datepicker-input {
     padding-inline: 4px;
     min-width: 88px;
     width: 88px;
     flex-grow: 0;
   }
 
-  & .datepicker-calendarBtn {
+  & .snow-datepicker-calendarBtn {
     width: 28px;
     height: 28px;
 
@@ -122,38 +124,38 @@
   }
 }
 
-.datepicker-container {
+.snow-datepicker-container {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 10;
 }
 
-.datepicker-backdrop {
+.snow-datepicker-backdrop {
   z-index: -1;
   position: fixed;
   inset: 0;
-  background-color: rgba(var(--datepicker-text-color-rgb), 33%);
+  background-color: rgba(var(--snow-datepicker-text-color-rgb), 33%);
   opacity: 0;
   transition: ease all 0.3s;
   user-select: none;
   pointer-events: none;
 }
 
-.datepicker-container:has(.datepicker-calendar.--center.--show)
-  .datepicker-backdrop {
+.snow-datepicker-container:has(.snow-datepicker-calendar.--center.--show)
+  .snow-datepicker-backdrop {
   opacity: 1;
 }
 
-.datepicker-calendar {
+.snow-datepicker-calendar {
   position: absolute;
   top: 0;
   left: 0;
   width: 256px;
-  border: 1px solid var(--datepicker-border-color);
+  border: 1px solid var(--snow-datepicker-border-color);
   border-radius: 4px;
-  color: var(--datepicker-text-color);
-  background-color: var(--datepicker-background-color);
+  color: var(--snow-datepicker-text-color);
+  background-color: var(--snow-datepicker-background-color);
 
   &.--inline {
     position: unset;
@@ -169,7 +171,7 @@
   }
 
   &:focus-visible {
-    outline: 1px solid rgba(var(--datepicker-text-color-rgb), 15%);
+    outline: 1px solid rgba(var(--snow-datepicker-text-color-rgb), 15%);
   }
 
   &.--scaleUp {
@@ -213,14 +215,14 @@
   }
 }
 
-.datepicker-controls {
+.snow-datepicker-controls {
   padding: 4px;
-  border-bottom: 1px solid var(--datepicker-border-color);
+  border-bottom: 1px solid var(--snow-datepicker-border-color);
   display: flex;
   align-items: center;
 }
 
-.datepicker-controls__title {
+.snow-datepicker-controls__title {
   margin-inline: auto;
   padding-inline: 0.5rem;
   height: 32px;
@@ -231,11 +233,11 @@
 
   & i {
     font-style: normal;
-    color: rgba(var(--datepicker-text-color-rgb), 60%);
+    color: rgba(var(--snow-datepicker-text-color-rgb), 60%);
   }
 }
 
-.datepicker-controls__btn {
+.snow-datepicker-controls__btn {
   padding: 0.25rem;
   width: 32px;
   height: 32px;
@@ -245,7 +247,7 @@
   font-size: 1.5rem;
   border: 1px solid transparent;
   border-radius: 4px;
-  color: rgba(var(--datepicker-text-color-rgb), 66%);
+  color: rgba(var(--snow-datepicker-text-color-rgb), 66%);
   background-color: transparent;
   cursor: pointer;
 
@@ -254,43 +256,43 @@
   }
 }
 
-.datepicker-buttonWrapper {
-  border-top: 1px solid var(--datepicker-border-color);
+.snow-datepicker-buttonWrapper {
+  border-top: 1px solid var(--snow-datepicker-border-color);
   padding: 4px;
   display: flex;
 }
 
-.datepicker-button {
+.snow-datepicker-button {
   height: 32px;
   font-size: 14px;
   text-align: center;
   padding-inline: 8px;
   border-radius: 4px;
   background-color: transparent;
-  color: var(--datepicker-accent-color);
+  color: var(--snow-datepicker-accent-color);
   cursor: pointer;
   flex-grow: 1;
 }
 
-.datepicker-button:hover,
-.datepicker-controls__title:hover,
-.datepicker-controls__btn:hover {
-  background-color: rgba(var(--datepicker-text-color-rgb), 9%);
+.snow-datepicker-button:hover,
+.snow-datepicker-controls__title:hover,
+.snow-datepicker-controls__btn:hover {
+  background-color: rgba(var(--snow-datepicker-text-color-rgb), 9%);
 }
 
-.datepicker-button:active,
-.datepicker-controls__title:active,
-.datepicker-controls__btn:active {
-  background-color: rgba(var(--datepicker-text-color-rgb), 14%);
+.snow-datepicker-button:active,
+.snow-datepicker-controls__title:active,
+.snow-datepicker-controls__btn:active {
+  background-color: rgba(var(--snow-datepicker-text-color-rgb), 14%);
 }
 
-.datepicker-controls__btn:disabled {
+.snow-datepicker-controls__btn:disabled {
   pointer-events: none;
   user-select: none;
-  color: rgba(var(--datepicker-text-color-rgb), 20%);
+  color: rgba(var(--snow-datepicker-text-color-rgb), 20%);
 }
 
-.datepicker-content {
+.snow-datepicker-content {
   padding: 4px;
   font-size: 12px;
 
@@ -313,19 +315,19 @@
   }
 }
 
-.datepicker-content__weekday {
+.snow-datepicker-content__weekday {
   text-align: center;
-  color: var(--datepicker-weekday-color);
+  color: var(--snow-datepicker-weekday-color);
   cursor: default;
   margin-block: 8px 4px;
 }
 
-.datepicker-content__cell {
+.snow-datepicker-content__cell {
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 3px;
-  color: var(--datepicker-text-color);
+  color: var(--snow-datepicker-text-color);
   background-color: transparent;
   cursor: pointer;
 
@@ -334,48 +336,48 @@
   }
 
   &.--dayoff {
-    color: var(--datepicker-dayoff-color);
+    color: var(--snow-datepicker-dayoff-color);
   }
 
   &:hover,
   &.--focus {
-    background-color: rgba(var(--datepicker-text-color-rgb), 9%);
+    background-color: rgba(var(--snow-datepicker-text-color-rgb), 9%);
   }
 
   &.--today {
-    color: var(--datepicker-accent-color);
+    color: var(--snow-datepicker-accent-color);
   }
 
   &.--other {
-    color: rgba(var(--datepicker-text-color-rgb), 10%);
-    text-shadow: 0px 0px var(--datepicker-border-color);
+    color: rgba(var(--snow-datepicker-text-color-rgb), 10%);
+    text-shadow: 0px 0px var(--snow-datepicker-border-color);
   }
 
   &.--active {
-    color: var(--datepicker-background-color);
-    background-color: rgba(var(--datepicker-accent-color-rgb), 86%);
+    color: var(--snow-datepicker-background-color);
+    background-color: rgba(var(--snow-datepicker-accent-color-rgb), 86%);
   }
 
   &.--active:hover,
   &.--active:focus,
   &.--active.--focus {
-    background-color: var(--datepicker-accent-color);
+    background-color: var(--snow-datepicker-accent-color);
   }
 
   &.--active.--other {
-    background-color: rgba(var(--datepicker-accent-color-rgb), 60%);
+    background-color: rgba(var(--snow-datepicker-accent-color-rgb), 60%);
   }
 
   &.--active.--other:hover,
   &.--active.--other.--focus {
-    background-color: rgba(var(--datepicker-accent-color-rgb), 74%);
+    background-color: rgba(var(--snow-datepicker-accent-color-rgb), 74%);
   }
 
   &.--disabled {
     user-select: none;
     pointer-events: none;
     background-color: transparent;
-    color: rgba(var(--datepicker-text-color-rgb), 20%);
+    color: rgba(var(--snow-datepicker-text-color-rgb), 20%);
   }
 
   &.--hidden {

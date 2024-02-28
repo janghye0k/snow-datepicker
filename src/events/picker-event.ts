@@ -1,9 +1,9 @@
 import type { PickerEventProps } from '@t/event';
 import { assign } from 'doumi';
-import DatePicker from '@/datepicker';
+import SnowDatePicker from '@/datepicker';
 
 class PickerEvent {
-  datepicker!: DatePicker;
+  datepicker!: SnowDatePicker;
 
   constructor({ event, ...props }: PickerEventProps = {}) {
     if (event) this.assignData({ nativeEvent: event });
