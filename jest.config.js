@@ -5,6 +5,7 @@ const config = {
   verbose: true,
   testEnvironment: 'jsdom',
   coverageDirectory: 'coverage',
+  collectCoverageFrom: ['src/**/*.ts'],
   moduleDirectories: ['src', 'node_modules'],
   setupFilesAfterEnv: ['<rootDir>/tests/setupTests.js'],
   moduleFileExtensions: ['js', 'ts', 'json'],
