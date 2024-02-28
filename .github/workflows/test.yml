@@ -1,0 +1,43 @@
+name: Test
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'jest.config.js'
+      - '!docs/**'
+    branches:
+      - 'main'
+      - 'release'
+    pull_request:
+      - 'main'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
+
+      - name: Test script
+        run: pnpm test
