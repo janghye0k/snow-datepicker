@@ -21,5 +21,6 @@
       "@t/*": ["./types/*"]
     }
   },
-  "include": ["./src/**/*", "./types/**/*.d.ts"]
+  "include": ["./src/**/*", "./types/**/*.d.ts"],
+  "exclude": ["./docs/**/*"]
 }
