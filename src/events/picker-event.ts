@@ -3,7 +3,7 @@ import { assign } from 'doumi';
 import SnowDatePicker from '@/datepicker';
 
 class PickerEvent {
-  datepicker!: SnowDatePicker;
+  declare datepicker: SnowDatePicker;
 
   constructor({ event, ...props }: PickerEventProps = {}) {
     if (event) this.assignData({ nativeEvent: event });

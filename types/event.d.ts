@@ -40,15 +40,15 @@ export type PickerClickEvent = PickerCellEvent & {
 };
 
 export type PickerEventMap = {
-  show: PickerEvent;
-  hide: PickerEvent;
-  focus: PickerCellEvent;
-  renderCell: PickerCellEvent;
+  changeView: PickerViewEvent;
+  changeViewDate: PickerDateEvent;
   clickCell: PickerClickEvent;
+  renderCell: PickerCellEvent;
   beforeSelect: PickerDateEvent;
   select: PickerDateEvent;
-  changeViewDate: PickerDateEvent;
-  changeView: PickerViewEvent;
+  focus: PickerCellEvent;
+  show: PickerEvent;
+  hide: PickerEvent;
 };
 
 export type PickerRenderCellReturns = {
@@ -59,15 +59,15 @@ export type PickerRenderCellReturns = {
 };
 
 export type PickerEventListenerMap = {
-  show: (event: PickerEvent) => void;
-  hide: (event: PickerEvent) => void;
-  focus: (event: PickerCellEvent) => void;
-  renderCell: (event: PickerCellEvent) => PickerRenderCellReturns | void;
+  changeView: (event: PickerViewEvent) => void;
+  changeViewDate: (event: PickerDateEvent) => void;
   clickCell: (event: PickerCellEvent) => void;
+  renderCell: (event: PickerCellEvent) => PickerRenderCellReturns | void;
   beforeSelect: (event: PickerDateEvent) => void;
   select: (event: PickerDateEvent) => void;
-  changeViewDate: (event: PickerDateEvent) => void;
-  changeView: (event: PickerViewEvent) => void;
+  focus: (event: PickerCellEvent) => void;
+  show: (event: PickerEvent) => void;
+  hide: (event: PickerEvent) => void;
 };
 
 export type PickerEventProps = {
