@@ -4,6 +4,7 @@ import type { EventManager } from '@t/event';
 import checkSchema from '@/helpers/schema';
 import { error, parseDate } from '@/helpers/util';
 import {
+  assignIn,
   create$,
   find$,
   get,
@@ -139,6 +140,9 @@ class SnowDatePicker {
 
     // Set color scheme
     this.setTheme(opts.theme);
+
+    // Set size
+    this.setSize(opts.size);
   }
 
   /** Converter instance for convert date to datepicker's locale format */
@@ -209,6 +213,7 @@ class SnowDatePicker {
     if (this.options.inline) {
       this.$datepicker.classList.add('--inline');
       this.$target.replaceWith(this.$datepicker);
+      assignIn(this, { $target: this.$datepicker });
     } else new Target(this.$target, defaultProps);
 
     if (this.options.backdrop) this.$datepicker.classList.add('--center');
