@@ -235,6 +235,7 @@ class SnowDatePicker {
         placement: this.options.position as any,
         middleware: [flip()],
       }).then(({ x, y, placement }) => {
+        if (!this.options) return;
         const tfOrigin = this.options.animation
           ? {
               transformOrigin:
@@ -248,7 +249,7 @@ class SnowDatePicker {
         });
       });
     };
-    return autoUpdate($target, $datepicker, updatePosition);
+    this.unsubscribers.push(autoUpdate($target, $datepicker, updatePosition));
   }
 
   /** Subscrie events */
@@ -493,8 +494,8 @@ class SnowDatePicker {
     this.components.forEach((component) => component.destroy());
     const elementKeys = ['$datepicker', '$container', '$hide'];
     elementKeys.forEach((key) => get(this, key).remove());
-    keysIn(this).forEach((key) => delete (this as any)[key]);
     this.$target.outerHTML = this.originTemplate;
+    keysIn(this).forEach((key) => get(this, key) && delete (this as any)[key]);
   }
 }
 
