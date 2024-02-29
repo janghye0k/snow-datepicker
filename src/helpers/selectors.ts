@@ -23,17 +23,6 @@ const classNameMap = {
 
 type ClassNameKey = keyof typeof classNameMap;
 
-const get = (key: ClassNameKey) => PREFIX + '-' + classNameMap[key];
-
-function cn(find: ClassNameKey): string;
-function cn(...args: ClassNameKey[]): string[];
-function cn(
-  find: ClassNameKey,
-  ...args: Array<ClassNameKey>
-): string | string[] {
-  const className = get(find);
-  if (!args.length) return className;
-  return [className].concat(args.map((arg) => get(arg)));
-}
+const cn = (key: ClassNameKey) => PREFIX + '-' + classNameMap[key];
 
 export { cn };
