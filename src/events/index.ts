@@ -3,19 +3,7 @@ import { get, isArray, isFunction } from 'doumi';
 import PickerEvent from './picker-event';
 import SnowDatePicker from '@/index';
 import { Options } from '@t/options';
-
-const OPTION_EVENT_KEYS = [
-  'onShow',
-  'onHide',
-  'onFocus',
-  'onBlur',
-  'onClickCell',
-  'onRenderCell',
-  'onBeforeSelect',
-  'onSelect',
-  'onChangeView',
-  'onChangeViewDate',
-];
+import { OPTION_EVENT_KEYS } from '@/helpers/consts';
 
 function createEventManager(
   datepicker: SnowDatePicker,

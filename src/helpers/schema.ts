@@ -3,6 +3,8 @@ import {
   forEach,
   isArray,
   isDate,
+  isFunction,
+  isNullish,
   isObject,
   isPlainObject,
   isString,
@@ -18,45 +20,18 @@ import {
   MIN_DATE,
   MAX_DATE,
   BUTTON_PRESETS,
+  DEFUALT_OPTIONS,
+  DEFAULT_TITLE_FORMAT,
+  OPTION_EVENT_KEYS,
 } from '@/helpers/consts';
 
 export function isView(view: any) {
   return isString(view) && VIEW_LIST.includes(view);
 }
 
-export function checkView(view: View, minView?: View) {
-  if (!minView) return true;
-  return (
-    VIEW_ORDER[view as keyof typeof VIEW_ORDER] >=
-    VIEW_ORDER[minView as keyof typeof VIEW_ORDER]
-  );
+export function checkView(view: View, minView: View) {
+  return VIEW_ORDER[view] >= VIEW_ORDER[minView];
 }
-
-const DEFUALT_OPTIONS: Options = {
-  toggleSelected: true,
-  shortcuts: true,
-  position: 'bottom-start',
-  view: 'days',
-  minView: 'days',
-  showOtherMonths: true,
-  selectOtherMonths: true,
-  moveOtherMonths: true,
-  navigationLoop: true,
-  autoClose: true,
-  readOnly: false,
-  animation: true,
-  inline: false,
-  backdrop: false,
-  theme: 'light',
-  size: 'normal',
-  titleFormat: {},
-};
-
-const DEFAULT_TITLE_FORMAT = {
-  days: 'MMMM, <i>YYYY</i>',
-  months: 'YYYY',
-  years: 'YYYY1 - YYYY2',
-};
 
 function inValid(key: string, message: string) {
   error(`Invalid options`, `options.${key} should be ${message}`);
@@ -85,7 +60,41 @@ const VALIDATION_MAP: ValidationMap = assign(
     };
     return obj;
   }, {} as ValidationMap),
+  ['className', 'placeHolder'].reduce((obj, item) => {
+    obj[item] = (val: any) => {
+      if (isUndefined(val) || isString(val)) return;
+      inValid(item, 'string');
+    };
+    return obj;
+  }, {} as ValidationMap),
+  ['view', 'minView'].reduce((obj, item) => {
+    obj[item] = (val: any) => {
+      if (isUndefined(val) || VIEW_LIST.includes(val)) return;
+      inValid(item, VIEW_LIST.join(' | '));
+    };
+    return obj;
+  }, {} as ValidationMap),
+  OPTION_EVENT_KEYS.reduce((obj, item) => {
+    obj[item] = (val: any) => {
+      if (isUndefined(val) || isFunction(val)) return;
+      inValid(item, 'function');
+    };
+    return obj;
+  }, {} as ValidationMap),
   {
+    position: (val: any) => {
+      if (isUndefined(val)) return;
+      if (isString(val)) {
+        const [pos, edge, ...ele] = val.split('-');
+        if (
+          !ele.length &&
+          ['top', 'bottom', 'left', 'right'].includes(pos) &&
+          (isUndefined(edge) || ['start', 'end'].includes(edge))
+        )
+          return;
+      }
+      inValid('position', 'Position');
+    },
     theme: (val: any) => {
       if (isString(val) && (val === 'light' || val === 'dark')) return;
       inValid('theme', 'light | dark');
@@ -93,10 +102,6 @@ const VALIDATION_MAP: ValidationMap = assign(
     size: (val: any) => {
       if (isString(val) && (val === 'small' || val === 'normal')) return;
       inValid('theme', 'small | normal');
-    },
-    className: (val: any) => {
-      if (isUndefined(val) || isString(val)) return;
-      inValid('className', 'string');
     },
     titleFormat: (val: any) => {
       if (isUndefined(val)) return;
@@ -140,12 +145,11 @@ const VALIDATION_MAP: ValidationMap = assign(
 
 export default function checkSchema(options: Options): InternalOptions {
   const opt = assign({}, DEFUALT_OPTIONS, options) as any;
-  if (!checkView(opt.view, opt.minView)) opt.view = opt.minView;
   if (opt.titleFormat === undefined) opt.titleFormat = {};
   if (isPlainObject(opt.titleFormat)) {
     forEach(DEFAULT_TITLE_FORMAT, (value, key) => {
       const titleFormat = opt.titleFormat as Record<string, string>;
-      if (!isString(titleFormat[key])) titleFormat[key] = value;
+      if (isNullish(titleFormat[key])) titleFormat[key] = value;
     });
   }
 
@@ -155,6 +159,8 @@ export default function checkSchema(options: Options): InternalOptions {
     if (!validator) return;
     validator(value);
   });
+
+  if (!checkView(opt.view, opt.minView)) opt.view = opt.minView;
 
   const { minDate, maxDate } = opt;
   const min = !minDate
