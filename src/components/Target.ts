@@ -216,6 +216,7 @@ class Target extends Components {
   /** Select first editable text field */
   private handleFocus(event: Evt<'focus', HTMLInputElement>) {
     event.preventDefault();
+    if (this.options.readOnly) return;
     this.$inputBox.classList.add('--active');
     if (get(event.currentTarget, 'isPointerDown')) {
       return assignIn(event.currentTarget, { isPointerDown: false });
@@ -228,6 +229,7 @@ class Target extends Components {
   /** Select near eidtable text field */
   private handlePointerUp(event: Evt<'pointerup', HTMLInputElement>) {
     event.preventDefault();
+    if (this.options.readOnly) return;
     assignIn(event.currentTarget, { isPointerDown: false });
     const selectionStart = event.currentTarget.selectionStart ?? 0;
     const { target, indexMap } = this.findNearSelectionTarget(selectionStart);
@@ -237,6 +239,7 @@ class Target extends Components {
 
   /** Make input[type="text"] like input[type="date"] */
   private handleKeydownInput(event: Evt<'keydown', HTMLInputElement>) {
+    if (this.options.readOnly) return;
     if (!event.ctrlKey || event.key !== 'v') event.preventDefault();
     const num = Number(event.key); // Current key number
     if (isNaN(num)) return; // If not a number, return
@@ -297,6 +300,7 @@ class Target extends Components {
 
   /** Change input value, If paste text is match with format */
   private handlePaste(event: Evt<'paste', HTMLInputElement>) {
+    if (this.options.readOnly) return;
     if (document.activeElement !== event.currentTarget) return;
     event.preventDefault();
     // Get paste text
