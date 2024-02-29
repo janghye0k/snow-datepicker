@@ -103,7 +103,7 @@ export function craeteConverter({
           case 'm':
             return m;
           case 'mm':
-            return M.toString().padStart(2, '0');
+            return m.toString().padStart(2, '0');
           case 's':
             return s;
           case 'ss':
