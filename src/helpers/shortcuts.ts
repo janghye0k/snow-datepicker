@@ -54,7 +54,7 @@ export function createShortcutsHandler(dp: SnowDatePicker) {
       if (between(nextIdx, 0, 2)) {
         dp.setCurrentView((VIEW_LIST as any)[nextIdx]);
       }
-      event.currentTarget.focus();
+      dp.$datepicker.focus();
       return;
     }
 
@@ -135,7 +135,7 @@ export function createShortcutsHandler(dp: SnowDatePicker) {
       dp.setFocusDate(nextDate);
       dp.setViewDate(nextDate);
     }
-    event.currentTarget.focus();
+    dp.$datepicker.focus();
   };
 
   return handleShrotchust;

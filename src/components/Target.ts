@@ -78,7 +78,7 @@ class Target extends Components {
 
   get inputDate() {
     const { year, month, day } = this.inputState.valueMap;
-    return new Date(`${year}-${month}-${day}`);
+    return new Date(year, month - 1, day);
   }
 
   beforeDestroy(): void {
@@ -148,11 +148,19 @@ class Target extends Components {
       assignIn(evt.currentTarget, { isPointerDown: true })
     );
 
-    on(this.$input, 'keydown', (evt) => this.handleKeydown(evt));
     on(this.$input, 'blur', (evt) => this.handleBlur(evt));
     on(this.$input, 'focus', (evt) => this.handleFocus(evt));
     on(this.$input, 'pointerup', (evt) => this.handlePointerUp(evt));
-    on(this.$input, 'keydown', (evt) => this.handleKeydownInput(evt));
+    on(
+      document,
+      'keydown',
+      (e) => {
+        if (!document.activeElement?.isSameNode(this.$input)) return;
+        this.handleKeydown(e as any);
+        this.handleKeydownInput(e as any);
+      },
+      true
+    );
     on(this.$input, 'paste', (evt) => this.handlePaste(evt));
   }
 
@@ -244,7 +252,7 @@ class Target extends Components {
     const num = Number(event.key); // Current key number
     if (isNaN(num)) return; // If not a number, return
 
-    const { value } = event.currentTarget;
+    const { value } = this.$input;
     const { formatStrMap, valueMap, keyOrders } = this.inputState;
     const { indexMap, target } = this.editState;
     const indexes = indexMap[target];
@@ -282,7 +290,7 @@ class Target extends Components {
     }
 
     // Change input value text
-    event.currentTarget.value =
+    this.$input.value =
       value.slice(0, indexes[0]) + changeText + value.slice(indexes[1]);
 
     if (this.editState.count >= maxCount) {
@@ -293,7 +301,7 @@ class Target extends Components {
       this.editState.target = nextTarget;
       this.editState.count = 0;
     }
-    event.currentTarget.setSelectionRange(
+    this.$input.setSelectionRange(
       ...this.editState.indexMap[this.editState.target]
     );
   }
@@ -401,15 +409,17 @@ class Target extends Components {
     const isEscape = event.key === 'Escape';
     if (isEnter || isEscape) {
       event.preventDefault();
-      assignIn(event.currentTarget, { dpDisableInputBlur: true });
-      event.currentTarget.blur();
+      assignIn(this.$input, { dpDisableInputBlur: true });
+      this.$input.blur();
       isEnter ? this.setToInputDate() : this.resetDate();
       return false;
     }
+
     if (event.key === 'Tab') {
       event.preventDefault();
       const { keyOrders } = this.inputState;
       const { target, indexMap } = this.editState;
+
       const adder = event.shiftKey ? -1 : 1;
       const keySize = keyOrders.length;
 
@@ -420,7 +430,7 @@ class Target extends Components {
       const nextTarget = keyOrders[nextIdx];
       this.editState.count = 0;
       this.editState.target = nextTarget;
-      event.currentTarget.setSelectionRange(...indexMap[nextTarget]);
+      this.$input.setSelectionRange(...indexMap[nextTarget]);
 
       return false;
     }

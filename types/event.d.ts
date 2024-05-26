@@ -4,7 +4,10 @@ import { CellType } from '@/components/Cell';
 
 export type EventManager = {
   on: {
-    (eventName: keyof PickerEventMap, listener: Function): void;
+    <EventName extends keyof PickerEventListenerMap>(
+      eventName: EventName,
+      listener: PickerEventListenerMap[EventName]
+    ): void;
     (eventName: string, listener: Function): void;
   };
   off: {

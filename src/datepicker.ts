@@ -132,7 +132,8 @@ class SnowDatePicker {
     }
     if (view) this.setCurrentView(view);
     if (shortcuts) {
-      on(this.$datepicker, 'keydown', createShortcutsHandler(this));
+      const keydownHandler = createShortcutsHandler(this) as Function;
+      on(document, 'keydown', (e) => this.isShow() && keydownHandler(e), true);
     }
 
     // Popup setting
