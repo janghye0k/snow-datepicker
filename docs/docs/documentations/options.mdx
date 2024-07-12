@@ -1,0 +1,200 @@
+---
+sidebar_position: 2
+---
+
+import Table from '@site/src/components/Table/index';
+
+# Options
+
+These options are the properties that can be passed to the datepicker to customize its behavior.
+
+### className
+
+<Table type="string" />
+
+Add custom classes.
+
+### dateFormat
+
+<Table type="string" defaults="YYYY-MM-DD" />
+
+Get the formatted date according to the string of tokens passed in.
+
+- `YY` _2-digit year_
+- `YY1` _2-digit year of the first year in current decade_
+- `YY2` _2-digit year of the last year in current decade_
+- `YYYY` _full year_
+- `YYYY1` _full year of the first year in current decade_
+- `YYYY2` _full year of the last year in current decade_
+- `M` _month_
+- `MM` _month with leading zero_
+- `MMM` _short month name_
+- `MMMM` _full month name_
+- `D` _day_
+- `DD` _day with leading zero_
+- `d` _weekday index_
+- `dd` _min weekday name_
+- `ddd` _short weekday name_
+- `dddd` _full weekday name_
+
+### locale
+
+<Table type="Locale" />
+
+Language of the calendar. By default, english language is used.
+
+```typescript
+interface Locale {
+  name: string;
+  months: string[];
+  monthsShort: string[];
+  weekStart?: number;
+  weekdays: string[];
+  weekdaysShort: string[];
+  weekdaysMin: string[];
+  formats: { time: string; date: string };
+  placeholder?: string;
+}
+```
+
+### inline
+
+<Table type="boolean" defaults="false" />
+
+Makes the calendar to be permanently visible.
+
+### selectedDate
+
+<Table type="Date" />
+
+The active date.
+
+### minDate
+
+<Table type="Date" />
+
+The minimum date of calendar, Can't be set to less than `0100-01-01`
+
+### maxDate
+
+<Table type="Date" />
+
+The maximum date of calendar, Can't be set to more than `9999-12-31`
+
+### view
+
+<Table type="Date" defaults="days" />
+
+The initial view of the calendar. (e.g. `days` | `months` | `years`)
+
+### minView
+
+<Table type="Date" defaults="days" />
+
+The minimum view of the calendar. The values are same as view.
+
+### showOtherMonths
+
+<Table type="boolean" defaults="true" />
+
+If `true`, dates from other months will be displayed in days view.
+
+### selectOtherMonths
+
+<Table type="boolean" defaults="true" />
+
+If `true`, it will be possible to select dates from other months.
+
+### moveOtherMonths
+
+<Table type="boolean" defaults="true" />
+
+If `true` , then selecting dates from another month will be causing transition to this month.
+
+### shortcuts
+
+<Table type="boolean" defaults="true" />
+
+Enables keyboard navigation.
+
+### navigationLoop
+
+<Table type="boolean" defaults="true" />
+
+Whether to enable navigation when the maximum/minimum date is exceeded.
+
+### autoClose
+
+<Table type="boolean" defaults="true" />
+
+If `true`, the calendar will be hidden after selecting the date.
+
+### toggleSelected
+
+<Table type="boolean" defaults="true" />
+
+If `true`, then clicking on the active cell will remove the selection from it.
+
+### titleFormat
+
+<Table
+  type="TitleFormat"
+  defaults="{ days: 'MMMM, <i>YYYY</i>', months: 'YYYY', years: 'YYYY1 - YYYY2' }"
+/>
+
+Title templates in the calendar navigation.
+
+```typescript
+interface TitleFormat {
+  days: string;
+  months: string;
+  years: string;
+}
+```
+
+### position
+
+<Table type="string" defaults="bottom-start" />
+
+Position of the calendar relative to the input field.
+
+- `top` | `top-start` | `top-end`
+- `bottom` | `bottom-start` | `bottom-end`
+- `right` | `right-start` | `right-end`
+- `left` | `left-start` | `left-end`
+
+### animation
+
+<Table type="boolean" defaults="true" />
+
+If `true`, the calendar will open & close with animation.
+
+### backdrop
+
+<Table type="boolean" defaults="false" />
+
+If `true`, calendar apper with backdrop
+
+### readOnly
+
+<Table type="boolean" defaults="false" />
+
+If `true`, it will not be able to edit dates at input field.
+
+### placeHolder
+
+<Table type="string" />
+
+Datepicker placeholder
+
+### theme
+
+<Table type="light | dark" defaults="light" />
+
+If, `dark`, datepicker's color scheme set to dark mode
+
+### size
+
+<Table type="small | normal" defaults="normal" />
+
+The size of datepicker input.

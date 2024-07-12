@@ -40,9 +40,18 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
+          remarkPlugins: [
+            [
+              require('@docusaurus/remark-plugin-npm2yarn'),
+              {
+                sync: true,
+                converters: ['yarn', 'pnpm'],
+              },
+            ],
+          ],
         },
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: ['./src/css/custom.css'],
         },
       }),
     ],
@@ -87,7 +96,7 @@ const config = {
             type: 'docSidebar',
             sidebarId: 'documentations',
             position: 'left',
-            label: 'Docs',
+            label: 'Documentation',
           },
           {
             type: 'docSidebar',

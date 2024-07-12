@@ -1,0 +1,11 @@
+.docs-table th,
+.docs-table td {
+  padding: 4px 8px;
+  font-size: 14px;
+  border-left: 0;
+  border-right: 0;
+}
+
+.docs-table th {
+  color: rgb(120, 120, 120);
+}

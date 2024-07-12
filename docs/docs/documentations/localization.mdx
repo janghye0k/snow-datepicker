@@ -1,0 +1,57 @@
+---
+sidebar_position: 3
+---
+
+# Localization
+
+Snow DatePicker supports localization. You can change the language of the calendar by passing the locale object to the `locale` option. The available localizations are located in the 'locales/' directory.
+
+#### Example of localization object
+
+```javascript
+export default {
+  name: 'en',
+  weekdays: [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ],
+  months: [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ],
+  weekStart: 1,
+  weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  monthsShort: [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ],
+  weekdaysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+  formats: { time: 'HH:mm', date: 'DD/MM/YYYY' },
+  placeholder: 'Choose date',
+};
+```
