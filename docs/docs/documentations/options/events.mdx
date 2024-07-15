@@ -1,0 +1,119 @@
+---
+sidebar_position: 4
+---
+
+# Events
+
+### onChangeView
+
+An instance receives a `changeView` event when the user change the view (`days`, `months`, `years`) of the calendar.
+
+```typescript
+({ view, prevView, datepicker }: PickerViewEvent) => void
+```
+
+- `view` - The current view of the calendar.
+- `prevView` - The previous view of the calendar.
+- `datepicker` - The datepicker instance.
+
+### onChangeViewDate
+
+An instance receives a `changeViewDate` event when the user change the view date of the calendar.
+
+```typescript
+({ date, prevDate, datepicker }: PickerDateEvent) => void
+```
+
+- `date` - The current view date of the calendar.
+- `prevDate` - The previous view date of the calendar.
+- `datepicker` - The datepicker instance.
+
+### onSelect
+
+An instance receives a `select` event when the user select a date.
+
+It is possible to prevent the date selection by returning `false` from the event handler.
+
+```typescript
+({ date, prevDate, datepicker }: PickerDateEvent) => void
+```
+
+- `date` - The selected date.
+- `prevDate` - The previous selected date. It can be `null` or `undefined` if there was no selected date.
+- `datepicker` - The datepicker instance.
+
+### onBeforeSelect
+
+An instance receives a `beforeSelect` event before the user select a date.
+
+If the event handler returns `false`, the date will not be selected.
+
+```typescript
+({ date, prevDate, datepicker }: PickerCellEvent) => boolean | void
+```
+
+- `date` - The selected date.
+- `prevDate` - The previous selected date. It can be `null` or `undefined` if there was no selected date.
+- `datepicker` - The datepicker instance.
+
+### onClickCell
+
+An element receives a `clickCell` event when the user clicks on a cell.
+
+```typescript
+({ type, date, $element, nativeEvent, datepicker }: PickerCellEvent) => void
+```
+
+- `type` - The type of the cell. It can be `day`, `month`, or `year`.
+- `date` - The date of the cell.
+- `$element` - The cell element.
+- `nativeEvent` - The native event object.
+- `datepicker` - The datepicker instance.
+
+### onRenderCell
+
+An instance receives a `renderCell` event when the cell is rendered.
+
+```typescript
+({ type, date, $element, datepicker }: PickerCellEvent) => void
+```
+
+- `type` - The type of the cell. It can be `day`, `month`, or `year`.
+- `date` - The date of the cell.
+- `$element` - The cell element.
+- `datepicker` - The datepicker instance.
+
+### onFocus
+
+An instance receives a `focus` event when the calendar cell is focused.
+
+```typescript
+({ type, date, $element, datepicker }: PickerCellEvent) => void
+```
+
+- `type` - The type of the cell. It can be `day`, `month`, or `year`.
+- `date` - The date of the cell.
+- `$element` - The cell element.
+- `datepicker` - The datepicker instance.
+
+### onShow
+
+An instance receives a `show` event when the calendar is shown.
+If `inline` option is enabled, the event does not fire.
+
+```typescript
+({ datepicker }: PickerEvent) => void
+```
+
+- `datepicker` - The datepicker instance.
+
+### onHide
+
+An instance receives a `hide` event when the calendar is hidden.
+If `inline` option is enabled, the event does not fire.
+
+```typescript
+({ datepicker }: PickerEvent) => void
+```
+
+- `datepicker` - The datepicker instance.

@@ -1,0 +1,66 @@
+---
+sidebar_position: 5
+---
+
+import OptionTable from '@site/src/components/OptionTable/index';
+
+import Link from '@docusaurus/Link';
+
+# Converter
+
+Converter instance for convert date to datepicker's locale format
+
+## Methods
+
+### format
+
+Convert date to given format string.
+
+```typescript
+(value: DateLike, format: string) => string;
+```
+
+- `value` - The date to format. If date value is not valid, function will return `Invalid Date`.
+- `format` - The format string to convert. (e.g. `YYYY-MM-DD`). [dateFormat](../options/setup-options#dateFormat) options can be used.
+
+### time
+
+Convert date to time format string.
+
+```typescript
+(value: DateLike) => string;
+```
+
+- `value` - The date to format. If date value is not valid, function will return `Invalid Date`.
+
+### date
+
+Convert date to date format string.
+
+```typescript
+(value: DateLike) => string;
+```
+
+- `value` - The date to format. If date value is not valid, function will return `Invalid Date`.
+
+### localeMonth
+
+Convert month index to locale month name.
+
+```typescript
+(monthindex: number, short?: boolean) => string;
+```
+
+- `monthindex` - The month index to convert.
+- `short` - If `true`, short month name will be returned.
+
+### localeWeekday
+
+Convert weekday index to locale weekday name.
+
+```typescript
+(weekdayindex: number, options?: 'short' | 'min') => string;
+```
+
+- `weekdayindex` - The weekday index to convert.
+- `options` - If `short`, short weekday name will be returned. If `min`, min weekday name will be returned.

@@ -2,21 +2,23 @@
 sidebar_position: 2
 ---
 
-import Table from '@site/src/components/Table/index';
+import OptionTable from '@site/src/components/OptionTable/index';
 
-# Options
+import Link from '@docusaurus/Link';
+
+# Setup Options
 
 These options are the properties that can be passed to the datepicker to customize its behavior.
 
 ### className
 
-<Table type="string" />
+<OptionTable type="string" />
 
 Add custom classes.
 
 ### dateFormat
 
-<Table type="string" defaults="YYYY-MM-DD" />
+<OptionTable type="string" defaults="YYYY-MM-DD" />
 
 Get the formatted date according to the string of tokens passed in.
 
@@ -39,7 +41,7 @@ Get the formatted date according to the string of tokens passed in.
 
 ### locale
 
-<Table type="Locale" />
+<OptionTable type={<Link to="./localization">Locale</Link>} />
 
 Language of the calendar. By default, english language is used.
 
@@ -59,85 +61,85 @@ interface Locale {
 
 ### inline
 
-<Table type="boolean" defaults="false" />
+<OptionTable type="boolean" defaults="false" />
 
 Makes the calendar to be permanently visible.
 
 ### selectedDate
 
-<Table type="Date" />
+<OptionTable type="Date" />
 
 The active date.
 
 ### minDate
 
-<Table type="Date" />
+<OptionTable type="Date" />
 
 The minimum date of calendar, Can't be set to less than `0100-01-01`
 
 ### maxDate
 
-<Table type="Date" />
+<OptionTable type="Date" />
 
 The maximum date of calendar, Can't be set to more than `9999-12-31`
 
 ### view
 
-<Table type="Date" defaults="days" />
+<OptionTable type="Date" defaults="days" />
 
 The initial view of the calendar. (e.g. `days` | `months` | `years`)
 
 ### minView
 
-<Table type="Date" defaults="days" />
+<OptionTable type="Date" defaults="days" />
 
 The minimum view of the calendar. The values are same as view.
 
 ### showOtherMonths
 
-<Table type="boolean" defaults="true" />
+<OptionTable type="boolean" defaults="true" />
 
 If `true`, dates from other months will be displayed in days view.
 
 ### selectOtherMonths
 
-<Table type="boolean" defaults="true" />
+<OptionTable type="boolean" defaults="true" />
 
 If `true`, it will be possible to select dates from other months.
 
 ### moveOtherMonths
 
-<Table type="boolean" defaults="true" />
+<OptionTable type="boolean" defaults="true" />
 
 If `true` , then selecting dates from another month will be causing transition to this month.
 
 ### shortcuts
 
-<Table type="boolean" defaults="true" />
+<OptionTable type="boolean" defaults="true" />
 
 Enables keyboard navigation.
 
 ### navigationLoop
 
-<Table type="boolean" defaults="true" />
+<OptionTable type="boolean" defaults="true" />
 
 Whether to enable navigation when the maximum/minimum date is exceeded.
 
 ### autoClose
 
-<Table type="boolean" defaults="true" />
+<OptionTable type="boolean" defaults="true" />
 
 If `true`, the calendar will be hidden after selecting the date.
 
 ### toggleSelected
 
-<Table type="boolean" defaults="true" />
+<OptionTable type="boolean" defaults="true" />
 
 If `true`, then clicking on the active cell will remove the selection from it.
 
 ### titleFormat
 
-<Table
+<OptionTable
   type="TitleFormat"
   defaults="{ days: 'MMMM, <i>YYYY</i>', months: 'YYYY', years: 'YYYY1 - YYYY2' }"
 />
@@ -154,7 +156,7 @@ interface TitleFormat {
 
 ### position
 
-<Table type="string" defaults="bottom-start" />
+<OptionTable type="string" defaults="bottom-start" />
 
 Position of the calendar relative to the input field.
 
@@ -165,36 +167,60 @@ Position of the calendar relative to the input field.
 
 ### animation
 
-<Table type="boolean" defaults="true" />
+<OptionTable type="boolean" defaults="true" />
 
 If `true`, the calendar will open & close with animation.
 
 ### backdrop
 
-<Table type="boolean" defaults="false" />
+<OptionTable type="boolean" defaults="false" />
 
 If `true`, calendar apper with backdrop
 
 ### readOnly
 
-<Table type="boolean" defaults="false" />
+<OptionTable type="boolean" defaults="false" />
 
 If `true`, it will not be able to edit dates at input field.
 
 ### placeHolder
 
-<Table type="string" />
+<OptionTable type="string" />
 
 Datepicker placeholder
 
 ### theme
 
-<Table type="light | dark" defaults="light" />
+<OptionTable type="light | dark" defaults="light" />
 
 If, `dark`, datepicker's color scheme set to dark mode
 
 ### size
 
-<Table type="small | normal" defaults="normal" />
+<OptionTable type="small | normal" defaults="normal" />
 
 The size of datepicker input.
+
+### buttons
+
+<OptionTable type="ButtonPresetType | ButtonPresetType[] | ButtonOptions | ButtonOptions[]" />
+
+Add action buttons to the calendar. You could add two pre defined buttons or custom buttons.
+
+#### ButtonPresetType
+
+- `clear`: add "Clear" button. Clear the selected date
+- `today`: add "Today" button. Set the selected date to today
+
+#### ButtonOptions
+
+```typescript
+interface ButtonPresetOptions {
+  id?: string; // button id
+  className?: string; // button class
+  dataset?: Record<string, string>; // button data attributes
+  attrs?: Record<string, string>; // button attributes
+  innerHTML?: string; // button inner html
+  onClick?: (event: MouseEvent, datepicker: SnowDatePicker) => any; // button click event
+}
+```

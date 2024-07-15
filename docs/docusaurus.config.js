@@ -100,9 +100,9 @@ const config = {
           },
           {
             type: 'docSidebar',
-            sidebarId: 'api',
+            sidebarId: 'examples',
             position: 'left',
-            label: 'API',
+            label: 'Examples',
           },
           {
             type: 'docSidebar',

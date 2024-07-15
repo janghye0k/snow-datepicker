@@ -1,0 +1,133 @@
+---
+sidebar_position: 4
+---
+
+# Methods
+
+### setCurrentView
+
+Set current view of datepicker
+
+```typescript
+(value: 'years' | 'months' | 'days') => void
+```
+
+- `value` - The view to change. (e.g. `days` | `months` | `years`)
+
+### setViewDate
+
+Set view date of datepicker
+
+```typescript
+(value: DateLike) => void
+```
+
+- `value` - The view date to change.
+
+### setSelectedDate
+
+Set selected date of datepicker
+
+```typescript
+(value: any) => void
+```
+
+- `value` - The date to select, If date value is not valid, it will be set to `null`
+
+```javascript
+setSelectedDate(new Date(2024, 01, 01, 12)); // Thu Feb 01 2024 12:00:00
+setSelectedDate('invalid'); // null
+```
+
+### setFocusDate
+
+Set focus date of datepicker
+
+```typescript
+(value: any) => void
+```
+
+- `value` - The value to change
+
+### next
+
+Move to next `month` | `years` | `decade`
+
+### next
+
+Move to previous `month` | `years` | `decade`
+
+### hide
+
+Hide calendar
+
+### show
+
+Show calendar
+
+### setTheme
+
+Set datepicker theme mode
+
+```typescript
+(theme: 'light' | 'dark') => void
+```
+
+- `theme` - The theme to change
+
+### setSize
+
+Set focus date of datepicker
+
+```typescript
+(size: 'small' | 'normal') => void
+```
+
+- `size` - The size to change
+
+### isSameDate
+
+Check arguments date is same date in given view.
+
+```typescript
+(date: Date, compare: Date, view?: `days` | `months` | `years`) => boolean;
+```
+
+- `date` - The value to check
+
+- `compare` - The value to compare
+
+- `view` - The view state to use for comparison.
+
+- Returns the value and compare in the same view
+
+```javascript
+isSameDate(new Date('2024-01-01'), new Date('2024-01-30')); // false
+isSameDate(new Date('2024-01-01'), new Date('2024-01-30'), 'months'); // true
+```
+
+### isShow
+
+Get datepicker calendar visible state. If calendar is visible, returns `true`, otherwise `false`.
+
+```typescript
+() => boolean;
+```
+
+### on/off
+
+Add/Remove event listener to datepicker instance
+
+```typescript
+(eventName: string, listener: Function) => void
+```
+
+- `eventName` - The event name to listen. (e.g. `select`, `changeView`)
+
+- `listener` - The listener function.
+
+- Detail of event is here. [Events](/docs/documentations/events)
+
+### destroy
+
+Destroy datepicker instance

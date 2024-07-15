@@ -4,6 +4,7 @@ import SnowDatePicker from '@/datepicker';
 
 class PickerEvent {
   declare datepicker: SnowDatePicker;
+  declare nativeEvent?: Event | null;
 
   constructor({ event, ...props }: PickerEventProps = {}) {
     if (event) this.assignData({ nativeEvent: event });

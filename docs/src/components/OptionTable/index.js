@@ -1,6 +1,6 @@
 import './index.css';
 
-export default function Table({ type, defaults }) {
+export default function OptionTable({ type, defaults }) {
   return (
     <table class="docs-table">
       <tbody>

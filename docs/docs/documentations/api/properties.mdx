@@ -1,0 +1,57 @@
+---
+sidebar_position: 3
+---
+
+import OptionTable from '@site/src/components/OptionTable/index';
+
+# Properties
+
+### $target
+
+<OptionTable type="HTMLElement" />
+
+Element on which datepicker was initialized.
+
+### $input
+
+<OptionTable type="HTMLInputElement" />
+
+Datepicker input element
+
+### $datepicker
+
+<OptionTable type="HTMLDivElement" />
+
+Datepicker calendar element
+
+### currentView
+
+<OptionTable type="'years' | 'months' | 'days'" />
+
+Current view of calendar
+
+### viewDate
+
+<OptionTable type="Date" />
+
+Current view date
+
+### selectedDate
+
+<OptionTable type="Date | null" />
+
+Selected date of calendar, if not selected returns `null`
+
+### focusDate
+
+<OptionTable type="Date | null" />
+
+Focus date of calendar, if not focused returns `null`
+
+import Link from '@docusaurus/Link';
+
+### converter
+
+<OptionTable type={<Link to="docs/documentations/api">Converter</Link>} />
+
+Converter instance for convert date to datepicker's locale format
