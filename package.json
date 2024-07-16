@@ -6,12 +6,6 @@
   "main": "snow-datepicker.js",
   "types": "index.d.ts",
   "module": "index.esm.js",
-  "exports": {
-    ".": {
-      "import": "./index.esm.js",
-      "browser": "./snow-datepicker.js"
-    }
-  },
   "keywords": [
     "snow-datepicker",
     "datepicker",
