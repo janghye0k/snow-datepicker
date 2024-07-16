@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.1.3](https://github.com/janghye0k/snow-datepicker/compare/v1.1.2...v1.1.3) (2024-07-16)
+
+
+### Bug Fixes
+
+* resolve datelike selection error ([eb4ade6](https://github.com/janghye0k/snow-datepicker/commit/eb4ade623326c4031ac46ccec3d3ddc856572352))
+
 ## [1.1.2](https://github.com/janghye0k/snow-datepicker/compare/v1.1.1...v1.1.2) (2024-07-16)
 
 
