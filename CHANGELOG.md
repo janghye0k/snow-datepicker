@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.1.2](https://github.com/janghye0k/snow-datepicker/compare/v1.1.1...v1.1.2) (2024-07-16)
+
+
+### Bug Fixes
+
+* resolve the error that sets the date when the input element is blurred when there is no date selected ([61b6c10](https://github.com/janghye0k/snow-datepicker/commit/61b6c109aa31d9029ce3faf4d78036471ce820e1))
+
 ## [1.1.1](https://github.com/janghye0k/snow-datepicker/compare/v1.1.0...v1.1.1) (2024-07-16)
 
 
