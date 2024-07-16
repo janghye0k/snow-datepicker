@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "snow-datepicker",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Pure (vanilla) javascript datepicker",
   "main": "snow-datepicker.js",
   "types": "index.d.ts",
