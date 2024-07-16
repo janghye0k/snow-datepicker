@@ -44,7 +44,7 @@ function createInputState(
     day: '',
   };
   let keyOrders: ValueKey[] = [];
-  const valueMap = { year: 0, month: 0, day: 0 };
+  const valueMap = {} as Record<'year' | 'month' | 'day', number>;
 
   let prevIdx = 0;
   const rest = dateFormat.replace(DATEFORMAT_REGEXP, (match, idx) => {

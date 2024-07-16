@@ -7,7 +7,5 @@ document.body.innerHTML = `
     <div id="${id}"></div>
 `;
 
-const picker = new SnowDatePicker(selector, {
-  selectedDate: new Date('2024-01-01'),
-});
+const picker = new SnowDatePicker(selector, {});
 picker;
