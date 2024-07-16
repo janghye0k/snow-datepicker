@@ -33,9 +33,7 @@
   "scripts": {
     "dev": "vite",
     "clean": "rimraf dist dist_zip",
-    "prebuild": "pnpm clean",
-    "build": "rollup --config",
-    "postbuild": "node ./scripts/setupPublish.js",
+    "build": "pnpm clean && rollup --config && node ./scripts/setupPublish.js",
     "lint:prettier": "prettier --list-different .",
     "lint:js": "eslint --cache .",
     "lint": "pnpm lint:prettier && pnpm lint:js",
@@ -45,7 +43,6 @@
     "test": "pnpm test:coverage",
     "prepare": "husky install",
     "release": "semantic-release",
-    "prepublishOnly": "pnpm build",
     "doc": "pnpm -C ./docs"
   },
   "devDependencies": {

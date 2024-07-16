@@ -1,4 +1,16 @@
 import {
+  BUTTON_PRESETS,
+  DEFAULT_TITLE_FORMAT,
+  DEFUALT_OPTIONS,
+  MAX_DATE,
+  MIN_DATE,
+  OPTION_EVENT_KEYS,
+  VIEW_LIST,
+  VIEW_ORDER,
+} from '@/helpers/consts';
+import { error } from '@/helpers/util';
+import type { InternalOptions, Options, View } from '@t/options';
+import {
   assign,
   forEach,
   isArray,
@@ -12,18 +24,6 @@ import {
   reduce,
   values,
 } from 'doumi';
-import type { InternalOptions, Options, View } from '@t/options';
-import { error } from '@/helpers/util';
-import {
-  VIEW_ORDER,
-  VIEW_LIST,
-  MIN_DATE,
-  MAX_DATE,
-  BUTTON_PRESETS,
-  DEFUALT_OPTIONS,
-  DEFAULT_TITLE_FORMAT,
-  OPTION_EVENT_KEYS,
-} from '@/helpers/consts';
 
 export function isView(view: any) {
   return isString(view) && VIEW_LIST.includes(view);

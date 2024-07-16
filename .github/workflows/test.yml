@@ -9,7 +9,6 @@ on:
       - '!docs/**'
     branches:
       - 'main'
-      - 'release'
     pull_request:
       - 'main'
 

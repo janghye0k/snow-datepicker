@@ -1,6 +1,6 @@
+import SnowDatePicker from '@/datepicker';
 import type { PickerEventProps } from '@t/event';
 import { assign } from 'doumi';
-import SnowDatePicker from '@/datepicker';
 
 class PickerEvent {
   declare datepicker: SnowDatePicker;

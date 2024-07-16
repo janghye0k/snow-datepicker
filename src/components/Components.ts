@@ -1,7 +1,7 @@
+import SnowDatePicker from '@/index';
+import type { EventManager } from '@t/event';
 import type { Instance } from '@t/instance';
 import type { InternalOptions } from '@t/options';
-import type { EventManager } from '@t/event';
-import SnowDatePicker from '@/index';
 import { assign } from 'doumi';
 
 interface DefaultProps {

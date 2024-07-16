@@ -1,10 +1,10 @@
-import { ChevronLeft, ChevronRight } from '@/icons';
-import Components from './Components';
 import { cn } from '@/helpers/selectors';
-import { effect } from '@janghye0k/observable';
-import { create$, on } from 'doumi';
-import { View } from '@t/options';
 import { decade, parseDate } from '@/helpers/util';
+import { ChevronLeft, ChevronRight } from '@/icons';
+import { effect } from '@janghye0k/observable';
+import { View } from '@t/options';
+import { create$, on } from 'doumi';
+import Components from './Components';
 
 class Controls extends Components {
   declare $title: HTMLElement;

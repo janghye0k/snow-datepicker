@@ -1,7 +1,7 @@
-import type { InternalOptions } from '@t/options';
 import type { Instance } from '@t/instance';
-import { createStore } from './store';
+import type { InternalOptions } from '@t/options';
 import { craeteConverter } from './converter';
+import { createStore } from './store';
 
 function createInstance(options: InternalOptions): Instance {
   const { minView, locale, dateFormat } = options;
