@@ -1,5 +1,12 @@
 # Change Log
 
+# [1.1.0](https://github.com/janghye0k/snow-datepicker/compare/v1.0.0...v1.1.0) (2024-07-16)
+
+
+### Features
+
+* options.button - add style option ([92f587d](https://github.com/janghye0k/snow-datepicker/commit/92f587d799e575e08c9a9008003f0642da54b5b8))
+
 # 1.0.0 (2024-07-16)
 
 ### Bug Fixes
