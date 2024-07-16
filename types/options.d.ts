@@ -36,6 +36,7 @@ export type ButtonOptions = {
   className?: string;
   dataset?: Record<string, string>;
   attrs?: Record<string, string>;
+  style?: Record<string, string>;
   innerHTML?: string;
   onClick?: (event: MouseEvent, datepicker: SnowDatePicker) => any;
 };

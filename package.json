@@ -28,6 +28,7 @@
     "email": "d0oR.hyeok@gmail.com",
     "url": "https://github.com/janghye0k/snow-datepicker/issues"
   },
+  "homepage": "https://janghye0k.github.io/snow-datepicker",
   "author": "JangHyeok Kim",
   "license": "MIT",
   "scripts": {
@@ -106,7 +107,7 @@
     "@floating-ui/dom": "^1.6.1",
     "@fontsource/permanent-marker": "^5.0.12",
     "@janghye0k/observable": "^1.0.2",
-    "doumi": "^1.1.6",
+    "doumi": "^1.1.7",
     "pretendard": "^1.3.9"
   }
 }
