@@ -136,7 +136,7 @@ class Target extends Components {
   }
 
   bindEvents(): void {
-    on(find$('.' + cn('calendarBtn')), 'click', () =>
+    on(find$('.' + cn('calendarBtn'), this.dp.$target), 'click', () =>
       this.handleClickCalendarButton()
     );
     on(this.$input, 'drop', (event: any) => {
