@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.1.1](https://github.com/janghye0k/snow-datepicker/compare/v1.1.0...v1.1.1) (2024-07-16)
+
+
+### Bug Fixes
+
+* resolve invalid export settings ([41c9ce6](https://github.com/janghye0k/snow-datepicker/commit/41c9ce64dd15f67e13fc0f9027e682b5667be8df))
+
 # [1.1.0](https://github.com/janghye0k/snow-datepicker/compare/v1.0.0...v1.1.0) (2024-07-16)
 
 
