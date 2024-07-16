@@ -39,7 +39,7 @@ module.exports = {
       '@semantic-release/github',
       {
         assets: [
-          { path: `dist_zip/${pkg.name}.zip`, label: 'DatePicker build files' },
+          { path: `dist_zip/${pkg.name}.zip`, label: 'snow-datepicker' },
         ],
       },
     ],
