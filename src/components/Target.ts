@@ -170,17 +170,19 @@ class Target extends Components {
 
   private formatTargetValue(key: ValueKey) {
     const { valueMap, formatStrMap } = this.inputState;
+    const targetValue = valueMap[key];
+    const targetFormat = formatStrMap[key];
+    if (!targetValue) return targetFormat;
     if (key !== 'month') {
-      return String(valueMap[key]).padStart(formatStrMap[key].length, '0');
+      return String(targetValue).padStart(targetFormat.length, '0');
     }
 
-    const formatMonthSize = formatStrMap.month.length;
+    const formatMonthSize = targetFormat.length;
     if (formatMonthSize <= 2) {
-      return String(valueMap.month).padStart(formatMonthSize, '0');
+      return String(targetValue).padStart(formatMonthSize, '0');
     }
-    if (valueMap.month === 0) return formatStrMap.month;
     const { converter } = this.instance;
-    return converter.localeMonth(valueMap.month - 1, formatMonthSize === 3);
+    return converter.localeMonth(targetValue - 1, formatMonthSize === 3);
   }
 
   private getIndexMap(): IndexMap {
