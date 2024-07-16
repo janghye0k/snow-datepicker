@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.1.4](https://github.com/janghye0k/snow-datepicker/compare/v1.1.3...v1.1.4) (2024-07-16)
+
+
+### Bug Fixes
+
+* resolve an error in which calendar does not work properly when there are multiple datepickers ([e461efe](https://github.com/janghye0k/snow-datepicker/commit/e461efe5f1885e2f899db2636b5e6fb3bc0913f4))
+
 ## [1.1.3](https://github.com/janghye0k/snow-datepicker/compare/v1.1.2...v1.1.3) (2024-07-16)
 
 
