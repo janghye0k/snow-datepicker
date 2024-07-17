@@ -95,6 +95,13 @@ class Target extends Components {
     return new Date(y, month - 1, day);
   }
 
+  get displayFormat() {
+    const { keyOrders, beforeStrMap, formatStrMap } = this.inputState;
+    return keyOrders.reduce((acc, key) => {
+      return acc + beforeStrMap[key] + formatStrMap[key];
+    }, '');
+  }
+
   beforeDestroy(): void {
     this.$el = create$('input');
   }
@@ -108,7 +115,7 @@ class Target extends Components {
           if (!date)
             return (this.$input.value = converter.format(
               date,
-              this.inputState.format
+              this.displayFormat
             ));
           const [year, monthindex, day] = parseDate(date);
           const { valueMap } = this.inputState;
@@ -119,7 +126,7 @@ class Target extends Components {
           }
           valueMap.day = day;
           valueMap.month = monthindex + 1;
-          this.$input.value = converter.format(date, this.inputState.format);
+          this.$input.value = converter.format(date, this.displayFormat);
         },
         [store.state.date]
       )
@@ -146,7 +153,7 @@ class Target extends Components {
         this.instance.converter.locale.placeholder ??
         'Choose a date',
       readOnly: this.options.readOnly,
-      value: this.instance.converter.format(null, this.inputState.format),
+      value: this.instance.converter.format(null, this.displayFormat),
     });
     assignIn(this, { $input, $inputBox });
     const $iconBox = create$('button', {
@@ -415,7 +422,7 @@ class Target extends Components {
   private resetDate() {
     const { converter } = this.instance;
     const selectedDate = this.dp.selectedDate;
-    this.$input.value = converter.format(selectedDate, this.inputState.format);
+    this.$input.value = converter.format(selectedDate, this.displayFormat);
   }
 
   /** Set datepicker's selected date to input value date */
