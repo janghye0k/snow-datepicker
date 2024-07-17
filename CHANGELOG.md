@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.1.5](https://github.com/janghye0k/snow-datepicker/compare/v1.1.4...v1.1.5) (2024-07-17)
+
+
+### Bug Fixes
+
+* resolve formatting error when escape string is exist, add a class when the user provides the custom button option, fix the navigation up/down key changed during month/year/decade ([34854aa](https://github.com/janghye0k/snow-datepicker/commit/34854aa04bdc22b690d7c2ecfc722e4159c8a3e0))
+
 ## [1.1.4](https://github.com/janghye0k/snow-datepicker/compare/v1.1.3...v1.1.4) (2024-07-16)
 
 
