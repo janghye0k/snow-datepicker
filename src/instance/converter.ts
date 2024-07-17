@@ -1,8 +1,8 @@
-import { DEFAULT_FORMAT, FORMAT_REGEXP, INVALID_DATE } from '@/helpers/consts';
+import { DEFAULT_FORMAT, FORMAT_REGEXP } from '@/helpers/consts';
 import { decade } from '@/helpers/util';
 import LocaleEn from '@/locale/en';
 import type { Converter } from '@t/instance';
-import type { DateLike, Options } from '@t/options';
+import type { Options } from '@t/options';
 import { isDateLike, range } from 'doumi';
 
 type Prams = Pick<Options, 'locale' | 'dateFormat'>;
@@ -36,12 +36,17 @@ export function craeteConverter({
     },
     /**
      * Format date
-     * @param {DateLike} value The value to format.
+     * @param {any} value The value to format.
      * @param {string} formatStr The format string for formating value.
      * @returns {string} Returns formatted value.
      */
-    format(value: DateLike, formatStr: string = DEFAULT_FORMAT): string {
-      if (!isDateLike(value)) return INVALID_DATE;
+    format(value: any, formatStr: string = DEFAULT_FORMAT): string {
+      if (!isDateLike(value)) {
+        return formatStr.replace(FORMAT_REGEXP, (match, escapeStr) => {
+          if (escapeStr) return escapeStr;
+          return match;
+        });
+      }
       const date = new Date(value);
       const Y = date.getFullYear();
       const M = date.getMonth();
@@ -122,19 +127,19 @@ export function craeteConverter({
 
     /**
      * Convert date to locale time format
-     * @param {DateLike} value The value to convert
+     * @param {any} value The value to convert
      * @returns {string} Returns formatted time
      */
-    time(value: DateLike): string {
+    time(value: any): string {
       return this.format(value, locale.formats.time);
     },
 
     /**
      * Convert date to options date format (defaults locale date format)
-     * @param {DateLike} value The value to convert.
+     * @param {any} value The value to convert.
      * @returns {string} Returns formatted date.
      */
-    date(value: DateLike): string {
+    date(value: any): string {
       return this.format(value, dateFormat ?? locale.formats.date);
     },
 

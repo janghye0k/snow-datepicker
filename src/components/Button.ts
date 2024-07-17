@@ -16,7 +16,9 @@ class Button extends Components<ButtonProps> {
     if (isObject(this.buttonOption)) {
       const { id, className, innerHTML, style, dataset, attrs, onClick } =
         this.buttonOption;
-      $el = create$('button', { id, className, innerHTML, dataset, style });
+      const classList = [cn('button')];
+      if (className) classList.push(className);
+      $el = create$('button', { id, classList, innerHTML, dataset, style });
       if (attrs) {
         forEach(attrs, (value, key) => $el.setAttribute(key, value));
       }

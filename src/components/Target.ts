@@ -47,27 +47,35 @@ function createInputState(
   const valueMap = {} as Record<'year' | 'month' | 'day', number>;
 
   let prevIdx = 0;
-  const rest = dateFormat.replace(DATEFORMAT_REGEXP, (match, idx) => {
-    const length = match.length;
-    const prevStr = dateFormat.slice(prevIdx, idx);
-    prevIdx = idx + length;
-    const has = (val: string) => match.includes(val);
-    const target = has('Y') ? 'year' : has('M') ? 'month' : 'day';
-    formatStrMap[target] = match;
-    beforeStrMap[target] = prevStr;
-    keyOrders.push(target);
-    return ''.padStart(length, ' ');
-  });
+  const rest = dateFormat.replace(
+    DATEFORMAT_REGEXP,
+    (match, escapeStr, idx) => {
+      if (escapeStr) {
+        return `[${escapeStr}]`;
+      }
+      const length = match.length;
+      const prevStr = dateFormat.slice(prevIdx, idx);
+      prevIdx = idx + length;
+      const has = (val: string) => match.includes(val);
+      const target = has('Y') ? 'year' : has('M') ? 'month' : 'day';
+      formatStrMap[target] = match;
+      beforeStrMap[target] = prevStr;
+      keyOrders.push(target);
+      return ''.padStart(length, ' ');
+    }
+  );
   beforeStrMap.rest = rest.slice(prevIdx);
 
   const minOrder = VIEW_ORDER[minView];
   keyOrders = keyOrders.filter((key) => VIEW_ORDER[key + 's'] >= minOrder);
 
-  const format = keyOrders.reduce(
-    (acc, key) => acc + beforeStrMap[key] + formatStrMap[key],
-    ''
-  );
-  return { beforeStrMap, formatStrMap, keyOrders, valueMap, format };
+  return {
+    beforeStrMap,
+    formatStrMap,
+    keyOrders,
+    valueMap,
+    format: dateFormat,
+  };
 }
 
 class Target extends Components {
@@ -78,7 +86,13 @@ class Target extends Components {
 
   get inputDate() {
     const { year, month, day } = this.inputState.valueMap;
-    return new Date(year, month - 1, day);
+    let y = year;
+    if (this.inputState.formatStrMap.year.length === 2) {
+      y = Number(
+        `${new Date().getFullYear()?.toString().slice(0, 2)}${year?.toString().padStart(2, '0')}`
+      );
+    }
+    return new Date(y, month - 1, day);
   }
 
   beforeDestroy(): void {
@@ -91,10 +105,19 @@ class Target extends Components {
     this.unsubscribers.push(
       effect(
         (date) => {
-          if (!date) return (this.$input.value = this.inputState.format);
+          if (!date)
+            return (this.$input.value = converter.format(
+              date,
+              this.inputState.format
+            ));
           const [year, monthindex, day] = parseDate(date);
           const { valueMap } = this.inputState;
-          (valueMap.year = year), (valueMap.day = day);
+          if (this.inputState.formatStrMap.year.length === 2) {
+            valueMap.year = Number(year.toString().slice(-2));
+          } else {
+            valueMap.year = year;
+          }
+          valueMap.day = day;
           valueMap.month = monthindex + 1;
           this.$input.value = converter.format(date, this.inputState.format);
         },
@@ -123,7 +146,7 @@ class Target extends Components {
         this.instance.converter.locale.placeholder ??
         'Choose a date',
       readOnly: this.options.readOnly,
-      value: this.inputState.format,
+      value: this.instance.converter.format(null, this.inputState.format),
     });
     assignIn(this, { $input, $inputBox });
     const $iconBox = create$('button', {
@@ -190,7 +213,10 @@ class Target extends Components {
     const indexMap = {} as IndexMap;
     let idx = 0;
     keyOrders.forEach((key) => {
-      const beforeStr = beforeStrMap[key];
+      const beforeStr = beforeStrMap[key].replace(
+        /\[([^\]]+)]/g,
+        (_, escapeStr) => escapeStr
+      );
       idx += beforeStr.length;
       const valueSize = this.formatTargetValue(key).length;
       indexMap[key] = [idx, (idx += valueSize)];
@@ -249,10 +275,16 @@ class Target extends Components {
 
   /** Make input[type="text"] like input[type="date"] */
   private handleKeydownInput(event: Evt<'keydown', HTMLInputElement>) {
-    if (this.options.readOnly) return;
+    if (this.options.readOnly || event.isComposing) return;
     if (!event.ctrlKey || event.key !== 'v') event.preventDefault();
     const num = Number(event.key); // Current key number
-    if (isNaN(num)) return; // If not a number, return
+    if (!/\d/g.test(event.key)) {
+      // If not a number, return
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      return;
+    }
 
     const { value } = this.$input;
     const { formatStrMap, valueMap, keyOrders } = this.inputState;
@@ -383,9 +415,7 @@ class Target extends Components {
   private resetDate() {
     const { converter } = this.instance;
     const selectedDate = this.dp.selectedDate;
-    this.$input.value = !selectedDate
-      ? this.inputState.format
-      : converter.format(selectedDate, this.inputState.format);
+    this.$input.value = converter.format(selectedDate, this.inputState.format);
   }
 
   /** Set datepicker's selected date to input value date */

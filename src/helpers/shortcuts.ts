@@ -95,7 +95,7 @@ export function createShortcutsHandler(dp: SnowDatePicker) {
     const parsed = parseDate(date);
     const [year, monthindex, day] = parsed;
     const [startYear, endYear] = decade(date);
-    const isUp = key === 'ArrowRight' || key === 'ArrowUp';
+    const isUp = key === 'ArrowRight' || key === 'ArrowDown';
 
     if (!ctrlKey && !shiftKey && !altKey) {
       // Move focus cell

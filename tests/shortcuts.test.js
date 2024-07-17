@@ -99,9 +99,9 @@ describe('SHORTCUTS TEST', () => {
     };
 
     exec('ArrowLeft', -1);
-    exec('ArrowDown', -1);
+    exec('ArrowDown', 1);
     exec('ArrowRight', 1);
-    exec('ArrowUp', 1);
+    exec('ArrowUp', -1);
   });
 
   it('should be change year, when press `ArrowKey` with `shiftKey`', () => {
@@ -116,9 +116,9 @@ describe('SHORTCUTS TEST', () => {
     };
 
     exec('ArrowLeft', -1);
-    exec('ArrowDown', -1);
+    exec('ArrowDown', 1);
     exec('ArrowRight', 1);
-    exec('ArrowUp', 1);
+    exec('ArrowUp', -1);
   });
 
   it('should be change year, when press `ArrowKey` with `altKey`', () => {
@@ -133,9 +133,9 @@ describe('SHORTCUTS TEST', () => {
     };
 
     exec('ArrowLeft', -10);
-    exec('ArrowDown', -10);
+    exec('ArrowDown', 10);
     exec('ArrowRight', 10);
-    exec('ArrowUp', 10);
+    exec('ArrowUp', -10);
   });
 
   it('should be change viewDate, when move ohter month', () => {
