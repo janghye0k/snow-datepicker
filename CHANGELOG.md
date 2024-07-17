@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.1.6](https://github.com/janghye0k/snow-datepicker/compare/v1.1.5...v1.1.6) (2024-07-17)
+
+
+### Bug Fixes
+
+* fix minView is not applied at calednar input ([200bbd3](https://github.com/janghye0k/snow-datepicker/commit/200bbd3db7ea6cbc283105974bba9d2d8b7a2665))
+
 ## [1.1.5](https://github.com/janghye0k/snow-datepicker/compare/v1.1.4...v1.1.5) (2024-07-17)
 
 
