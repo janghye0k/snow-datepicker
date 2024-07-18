@@ -1,0 +1,14 @@
+{
+  "title": {
+    "message": "Snow Datepicker",
+    "description": "The title in the navbar"
+  },
+  "item.label.Documentation": {
+    "message": "문서",
+    "description": "Navbar item with label Documentation"
+  },
+  "item.label.Examples": {
+    "message": "예제",
+    "description": "Navbar item with label Examples"
+  }
+}

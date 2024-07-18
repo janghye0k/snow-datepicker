@@ -4,49 +4,49 @@ sidebar_position: 2
 
 import OptionTable from '@site/src/components/OptionTable/index';
 
-# Properties
+# 속성
 
 ### $target
 
 <OptionTable type="HTMLElement" />
 
-Element on which datepicker was initialized.
+datepicker가 초기화된 요소입니다.
 
 ### $input
 
 <OptionTable type="HTMLInputElement" />
 
-Datepicker input element
+datepicker 입력 요소입니다.
 
 ### $datepicker
 
 <OptionTable type="HTMLDivElement" />
 
-Datepicker calendar element
+datepicker 달력 요소입니다.
 
 ### currentView
 
 <OptionTable type="'years' | 'months' | 'days'" />
 
-Current view of calendar
+달력의 현재 뷰입니다.
 
 ### viewDate
 
 <OptionTable type="Date" />
 
-Current view date
+달력의 현재 뷰 날짜입니다.
 
 ### selectedDate
 
 <OptionTable type="Date | null" />
 
-Selected date of calendar, if not selected returns `null`
+선택된 날짜입니다. 선택되지 않은 경우 `null`을 반환합니다.
 
 ### focusDate
 
 <OptionTable type="Date | null" />
 
-Focus date of calendar, if not focused returns `null`
+달력의 포커스 날짜입니다. 포커스가 없으면 `null`을 반환합니다.
 
 import Link from '@docusaurus/Link';
 
@@ -56,4 +56,4 @@ import Link from '@docusaurus/Link';
   type={<Link to="/docs/documentations/api/converter">Converter</Link>}
 />
 
-Converter instance for convert date to datepicker's locale format
+datepicker의 현재 현지화된 날짜를 datepicker의 로케일 형식으로 변환하는 Converter 인스턴스입니다.

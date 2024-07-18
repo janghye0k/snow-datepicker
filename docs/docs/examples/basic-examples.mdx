@@ -1,0 +1,77 @@
+---
+sidebar_position: 1
+---
+
+import DatePicker from '@site/src/components/DatePicker';
+
+# Basic Examples
+
+### Default options
+
+<DatePicker />
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element');
+```
+
+### Inline calendar
+
+If you want to display the calendar always visible, you can set the `inline` option to `true`.
+
+<DatePicker options={{ inline: true }} />
+
+<br />
+
+```javascript
+new SnowDatePicker('#element', { inline: true });
+```
+
+### With default selected date
+
+You can set the default selected date by passing value to the `selectedDate` option.
+
+<DatePicker options={{ selectedDate: new Date() }} />
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element', { selectedDate: new Date() });
+```
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### Month/Year Picker
+
+You can enable the month/year picker by setting the `minView` option to `months | years`.
+
+<Tabs>
+  <TabItem value="monthview" label="Month Picker" default>
+    
+<DatePicker options={{ minView: 'months' }} />
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element', { minView: 'months' });
+```
+
+  </TabItem>
+  <TabItem value="yearview" label="Year Picker">
+    
+<DatePicker options={{ minView: 'years' }} />
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element', { minView: 'years' });
+```
+
+  </TabItem>
+</Tabs>

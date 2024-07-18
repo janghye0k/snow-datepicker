@@ -1,0 +1,14 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.documentations.category.Options": {
+    "message": "Options",
+    "description": "The label for category Options in sidebar documentations"
+  },
+  "sidebar.documentations.category.API": {
+    "message": "API",
+    "description": "The label for category API in sidebar documentations"
+  }
+}

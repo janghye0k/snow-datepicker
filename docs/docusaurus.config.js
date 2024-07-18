@@ -105,12 +105,6 @@ const config = {
             label: 'Examples',
           },
           {
-            type: 'docSidebar',
-            sidebarId: 'temp',
-            position: 'left',
-            label: 'Temp',
-          },
-          {
             href: 'https://github.com/janghye0k/snow-datepicker',
             className: 'header-github-link',
             'aria-label': 'GitHub repository',

@@ -1,0 +1,137 @@
+---
+sidebar_position: 2
+---
+
+import DatePicker from '@site/src/components/DatePicker';
+import localeKo from 'snow-datepicker/locale/ko';
+
+# 현지화
+
+`locale` 옵션을 설정하여 현지화할 수 있습니다.
+
+### 미리 정의된 로케일 사용
+
+다음 언어에 대한 미리 정의된 로케일을 제공합니다:
+[locale.json](https://github.com/janghye0k/snow-datepicker/blob/main/src/locale.json)
+
+<DatePicker options={{ locale: localeKo, inline: true }} />
+
+<br />
+<br />
+
+```javascript
+import SnowDatePicker from 'snow-datepicker';
+import localeKo from 'snow-datepicker/locale/ko';
+
+new SnowDatePicker('#element', { locale: localeKo, inline: true });
+```
+
+### 로케일 사용자 정의
+
+`locale` 옵션에 객체를 전달하여 로케일을 사용자 정의할 수 있습니다.
+
+로케일 객체의 자세한 내용은 [현지화](../documentations/options/localization.mdx) 섹션에서 설명합니다.
+
+<DatePicker
+  options={{
+    locale: {
+      name: 'en',
+      weekdays: [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+      ],
+      months: [
+        'month1',
+        'month2',
+        'month3',
+        'month4',
+        'month5',
+        'month6',
+        'month7',
+        'month8',
+        'month9',
+        'month10',
+        'month11',
+        'month12',
+      ],
+      weekStart: 1,
+      weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      monthsShort: [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ],
+      weekdaysMin: ['🌞', '☕', '😵', '👧🏻', '🪐', '🎅', '👻'],
+      formats: { time: 'HH:mm', date: 'DD/MM/YYYY' },
+      placeholder: 'Choose date',
+    },
+    inline: true,
+  }}
+/>
+
+<br />
+<br />
+
+```javascript
+const locale = {
+  name: 'en',
+  weekdays: [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ],
+  months: [
+    'month1',
+    'month2',
+    'month3',
+    'month4',
+    'month5',
+    'month6',
+    'month7',
+    'month8',
+    'month9',
+    'month10',
+    'month11',
+    'month12',
+  ],
+  weekStart: 1,
+  weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  monthsShort: [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ],
+  weekdaysMin: ['🌞', '☕', '😵', '👧🏻', '🪐', '🎅', '👻'],
+  formats: { time: 'HH:mm', date: 'DD/MM/YYYY' },
+  placeholder: 'Choose date',
+};
+
+new SnowDatePicker('#element', { locale, inline: true });
+```

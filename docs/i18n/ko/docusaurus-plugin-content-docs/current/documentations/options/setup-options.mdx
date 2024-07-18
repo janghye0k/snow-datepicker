@@ -6,47 +6,47 @@ import OptionTable from '@site/src/components/OptionTable/index';
 
 import Link from '@docusaurus/Link';
 
-# Setup Options
+# 설정 옵션
 
-These options are the properties that can be passed to the datepicker to customize its behavior.
+DatePicker를 사용할 때 설정할 수 있는 옵션들입니다.
 
 ### className
 
 <OptionTable type="string" />
 
-Add custom classes.
+DatePicker의 클래스 이름을 설정합니다.
 
 ### dateFormat
 
 <OptionTable type="string" defaults="YYYY-MM-DD" />
 
-Get the formatted date according to the string passed in.
+날짜 형식을 설정합니다.
 
-If you want to pass escape characters, you can use `square brackets` to wrap the text.
+사용하고 싶은 문자가 있다면 `대괄호`로 감싸서 표현할 수 있습니다.
 (e.g. `YYYY [escaped text] MM` will output `2024 escaped text 01`)
 
-- `YY` - _2-digit year_
-- `YY1` - _2-digit year of the first year in current decade_
-- `YY2` - _2-digit year of the last year in current decade_
-- `YYYY` - _full year_
-- `YYYY1` - _full year of the first year in current decade_
-- `YYYY2` - _full year of the last year in current decade_
-- `M` - _month_
-- `MM` - _month with leading zero_
-- `MMM` - _short month name_
-- `MMMM` - _full month name_
-- `D` - _day_
-- `DD` - _day with leading zero_
-- `d` - _weekday index_
-- `dd` - _min weekday name_
-- `ddd` - _short weekday name_
-- `dddd` - _full weekday name_
+- `YY` - _두자리 수 연도_
+- `YY1` - _현재 10년 중 첫 해의 두 자리 수 연도_
+- `YY2` - _현재 10년 중 마지막 해의 두 자리 수 연도_
+- `YYYY` - _연도_
+- `YYYY1` - _현재 10년 중 첫 해의 연도_
+- `YYYY2` - _현재 10년 중 마지막 해의 연도_
+- `M` - _달_
+- `MM` - _두자리 수 달_
+- `MMM` - _해달 월의 짧은 명칭_
+- `MMMM` - _해달 월 명칭_
+- `D` - _일_
+- `DD` - _두자리 수 일_
+- `d` - _요일 인덱스_
+- `dd` - _최소 요일명_
+- `ddd` - _짧은 요일명_
+- `dddd` - _요일명_
 
 ### locale
 
 <OptionTable type={<Link to="./localization">Locale</Link>} />
 
-Language of the calendar. By default, english language is used.
+DatePicker의 언어를 설정합니다. 기본값은 영어입니다.
 
 ```typescript
 interface Locale {
@@ -66,61 +66,61 @@ interface Locale {
 
 <OptionTable type="boolean" defaults="false" />
 
-Makes the calendar to be permanently visible.
+DatePicker를 항상 표시합니다.
 
 ### selectedDate
 
 <OptionTable type="Date" />
 
-The active date.
+선택 날짜를 설정합니다.
 
 ### minDate
 
 <OptionTable type="Date" />
 
-The minimum date of calendar, Can't be set to less than `0100-01-01`
+DatePicker의 최소 날짜를 설정합니다. `0100-01-01`보다 작을 수 없습니다.
 
 ### maxDate
 
 <OptionTable type="Date" />
 
-The maximum date of calendar, Can't be set to more than `9999-12-31`
+DatePicker의 최대 날짜를 설정합니다. `9999-12-31`보다 클 수 없습니다.
 
 ### view
 
 <OptionTable type="Date" defaults="days" />
 
-The initial view of the calendar. (e.g. `days` | `months` | `years`)
+DatePicker의 초기 뷰를 설정합니다. (e.g. `days` | `months` | `years`)
 
 ### minView
 
 <OptionTable type="Date" defaults="days" />
 
-The minimum view of the calendar. The values are same as view.
+DatePicker의 최소 뷰를 설정합니다. 뷰와 동일한 값입니다.
 
 ### showOtherMonths
 
 <OptionTable type="boolean" defaults="true" />
 
-If `true`, dates from other months will be displayed in `days` view.
+`true`로 설정하면 다른 달의 날짜가 `days` 뷰에 표시됩니다.
 
 ### selectOtherMonths
 
 <OptionTable type="boolean" defaults="true" />
 
-If `true`, it will be possible to select dates from other months.
+`true`로 설정하면 다른 달의 날짜를 선택할 수 있습니다.
 
 ### moveOtherMonths
 
 <OptionTable type="boolean" defaults="true" />
 
-If `true` , then selecting dates from another month will be causing transition to this month.
+`true`로 설정하면 다른 달의 날짜를 선택하면 해당 달로 이동합니다.
 
 ### shortcuts
 
 <OptionTable type="boolean" defaults="true" />
 
-Enables keyboard navigation.
+키보드 탐색을 활성화합니다.
 
 Move cell focus.
 
@@ -138,19 +138,19 @@ Move cell focus.
 
 <OptionTable type="boolean" defaults="true" />
 
-Whether to enable navigation when the maximum/minimum date is exceeded.
+최대/최소 날짜를 초과할 때 탐색을 활성화할지 여부를 설정합니다.
 
 ### autoClose
 
 <OptionTable type="boolean" defaults="true" />
 
-If `true`, the calendar will be hidden after selecting the date.
+`true`로 설정하면 날짜를 선택한 후 달력이 숨겨집니다.
 
 ### toggleSelected
 
 <OptionTable type="boolean" defaults="true" />
 
-If `true`, then clicking on the active cell will remove the selection from it.
+`true`로 설정하면 선택된 셀을 클릭하면 선택이 제거됩니다.
 
 ### titleFormat
 
@@ -159,7 +159,7 @@ If `true`, then clicking on the active cell will remove the selection from it.
   defaults="{ days: 'MMMM, <i>YYYY</i>', months: 'YYYY', years: 'YYYY1 - YYYY2' }"
 />
 
-Title templates in the calendar navigation.
+달력 탐색에 사용되는 제목 템플릿을 설정합니다.
 
 ```typescript
 interface TitleFormat {
@@ -173,7 +173,7 @@ interface TitleFormat {
 
 <OptionTable type="string" defaults="bottom-start" />
 
-Position of the calendar relative to the input field.
+입력 필드를 기준으로 달력의 위치를 설정합니다.
 
 - `top` | `top-start` | `top-end`
 - `bottom` | `bottom-start` | `bottom-end`
@@ -184,48 +184,48 @@ Position of the calendar relative to the input field.
 
 <OptionTable type="boolean" defaults="true" />
 
-If `true`, the calendar will open & close with animation.
+`true`로 설정하면 달력이 애니메이션으로 열리고 닫힙니다.
 
 ### backdrop
 
 <OptionTable type="boolean" defaults="false" />
 
-If `true`, calendar apper with backdrop
+`true`로 설정하면 달력이 배경과 함께 표시됩니다.
 
 ### readOnly
 
 <OptionTable type="boolean" defaults="false" />
 
-If `true`, it will not be able to edit dates at input field.
+`true`로 설정하면 `input`에서 날짜를 편집할 수 없습니다.
 
 ### placeHolder
 
 <OptionTable type="string" />
 
-Datepicker placeholder
+DatePicker의 `input`에 표시되는 플레이스홀더를 설정합니다.
 
 ### theme
 
 <OptionTable type="light | dark" defaults="light" />
 
-If, `dark`, datepicker's color scheme set to dark mode
+DatePicker의 테마를 설정합니다.
 
 ### size
 
 <OptionTable type="small | normal" defaults="normal" />
 
-The size of datepicker input.
+DatePicker의 크기를 설정합니다.
 
 ### buttons
 
 <OptionTable type="ButtonPresetType | ButtonPresetType[] | ButtonOptions | ButtonOptions[]" />
 
-Add action buttons to the calendar. You could add two pre defined buttons or custom buttons.
+달력에 버튼을 추가할 수 있습니다. 미리 정의된 버튼 또는 사용자 정의 버튼을 추가할 수 있습니다.
 
 #### ButtonPresetType
 
-- `clear`: add "Clear" button. Clear the selected date
-- `today`: add "Today" button. Set the selected date to today
+- `clear`: "Clear" 버튼을 추가합니다. 선택된 날짜를 제거합니다.
+- `today`: "Today" 버튼을 추가합니다. 오늘 날짜를 선택합니다.
 
 #### ButtonOptions
 

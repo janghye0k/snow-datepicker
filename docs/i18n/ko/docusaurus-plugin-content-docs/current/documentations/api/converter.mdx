@@ -1,0 +1,88 @@
+---
+sidebar_position: 5
+---
+
+import OptionTable from '@site/src/components/OptionTable/index';
+
+import Link from '@docusaurus/Link';
+
+# Converter
+
+datepicker의 로케일 형식으로 날짜를 변환하는 Converter 인스턴스입니다.
+
+## Methods
+
+### format
+
+주어진 형식으로 날짜를 변환합니다.
+
+```typescript
+(value: any, format: string) => string;
+```
+
+- `value` - 변환할 날짜입니다. 날짜 값이 유효하지 않으면 주어진 `format`을 반환합니다.
+- `format` - 변환할 형식 문자열입니다. (e.g. `YYYY-MM-DD`). [dateFormat](../options/setup-options.mdx#dateFormat) 옵션을 사용할 수 있습니다.
+
+주어진 문자열에 따라 형식화된 날짜를 가져옵니다.
+
+사용하고 싶은 문자가 있다면 `대괄호`로 감싸서 표현할 수 있습니다.
+(e.g. `YYYY [escaped text] MM` will output `2024 escaped text 01`)
+
+- `YY` - _두자리 수 연도_
+- `YY1` - _현재 10년 중 첫 해의 두 자리 수 연도_
+- `YY2` - _현재 10년 중 마지막 해의 두 자리 수 연도_
+- `YYYY` - _연도_
+- `YYYY1` - _현재 10년 중 첫 해의 연도_
+- `YYYY2` - _현재 10년 중 마지막 해의 연도_
+- `M` - _달_
+- `MM` - _두자리 수 달_
+- `MMM` - _해달 월의 짧은 명칭_
+- `MMMM` - _해달 월 명칭_
+- `D` - _일_
+- `DD` - _두자리 수 일_
+- `d` - _요일 인덱스_
+- `dd` - _최소 요일명_
+- `ddd` - _짧은 요일명_
+- `dddd` - _요일명_
+
+### time
+
+주어진 값을 시간 형식 문자열로 변환합니다.
+
+```typescript
+(value: any) => string;
+```
+
+- `value` - The date to format.
+
+### date
+
+주어진 값을 날짜 형식 문자열로 변환합니다.
+
+```typescript
+(value: any) => string;
+```
+
+- `value` - The date to format.
+
+### localeMonth
+
+월 인덱스를 로케일 월 이름으로 변환합니다.
+
+```typescript
+(monthindex: number, short?: boolean) => string;
+```
+
+- `monthindex` - 변환할 월 인덱스입니다.
+- `short` - `true`로 설정하면 짧은 월 이름이 반환됩니다.
+
+### localeWeekday
+
+요일 인덱스를 로케일 요일 이름으로 변환합니다.
+
+```typescript
+(weekdayindex: number, options?: 'short' | 'min') => string;
+```
+
+- `weekdayindex` - 변환할 요일 인덱스입니다.
+- `options` - `short`로 설정하면 짧은 요일 이름이 반환됩니다. `min`으로 설정하면 최소 요일 이름이 반환됩니다.

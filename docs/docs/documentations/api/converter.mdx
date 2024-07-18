@@ -17,31 +17,53 @@ Converter instance for convert date to datepicker's locale format
 Convert date to given format string.
 
 ```typescript
-(value: DateLike, format: string) => string;
+(value: any, format: string) => string;
 ```
 
-- `value` - The date to format. If date value is not valid, function will return `Invalid Date`.
-- `format` - The format string to convert. (e.g. `YYYY-MM-DD`). [dateFormat](../options/setup-options#dateFormat) options can be used.
+- `value` - The date to format. If date value is not valid, function will return given `format`.
+- `format` - The format string to convert. (e.g. `YYYY-MM-DD`). [dateFormat](../options/setup-options.mdx#dateFormat) options can be used.
+
+Get the formatted date according to the string.
+
+If you want to pass escape characters, you can use `square brackets` to wrap the text.
+(e.g. `YYYY [escaped text] MM` will output `2024 escaped text 01`)
+
+- `YY` _2-digit year_
+- `YY1` _2-digit year of the first year in current decade_
+- `YY2` _2-digit year of the last year in current decade_
+- `YYYY` _full year_
+- `YYYY1` _full year of the first year in current decade_
+- `YYYY2` _full year of the last year in current decade_
+- `M` _month_
+- `MM` _month with leading zero_
+- `MMM` _short month name_
+- `MMMM` _full month name_
+- `D` _day_
+- `DD` _day with leading zero_
+- `d` _weekday index_
+- `dd` _min weekday name_
+- `ddd` _short weekday name_
+- `dddd` _full weekday name_
 
 ### time
 
 Convert date to time format string.
 
 ```typescript
-(value: DateLike) => string;
+(value: any) => string;
 ```
 
-- `value` - The date to format. If date value is not valid, function will return `Invalid Date`.
+- `value` - The date to format.
 
 ### date
 
 Convert date to date format string.
 
 ```typescript
-(value: DateLike) => string;
+(value: any) => string;
 ```
 
-- `value` - The date to format. If date value is not valid, function will return `Invalid Date`.
+- `value` - The date to format.
 
 ### localeMonth
 

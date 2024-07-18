@@ -41,6 +41,9 @@ dependencies:
   react-dom:
     specifier: ^18.0.0
     version: 18.2.0(react@18.2.0)
+  snow-datepicker:
+    specifier: ^1.1.5
+    version: 1.1.5
 
 devDependencies:
   '@docusaurus/module-type-aliases':
@@ -3202,6 +3205,39 @@ packages:
       - webpack-cli
     dev: false
 
+  /@floating-ui/core@1.6.4:
+    resolution:
+      {
+        integrity: sha512-a4IowK4QkXl4SCWTGUR0INAfEOX3wtsYw3rKK5InQEHMGObkR8Xk44qYQD9P4r6HHw0iIfK6GUKECmY8sTkqRA==,
+      }
+    dependencies:
+      '@floating-ui/utils': 0.2.4
+    dev: false
+
+  /@floating-ui/dom@1.6.7:
+    resolution:
+      {
+        integrity: sha512-wmVfPG5o2xnKDU4jx/m4w5qva9FWHcnZ8BvzEe90D/RpwsJaTAVYPEPdQ8sbr/N8zZTAHlZUTQdqg8ZUbzHmng==,
+      }
+    dependencies:
+      '@floating-ui/core': 1.6.4
+      '@floating-ui/utils': 0.2.4
+    dev: false
+
+  /@floating-ui/utils@0.2.4:
+    resolution:
+      {
+        integrity: sha512-dWO2pw8hhi+WrXq1YJy2yCuWoL20PddgGaqTgVe4cOS9Q6qklXCiA1tJEqX6BEwRNSCP84/afac9hd4MS+zEUA==,
+      }
+    dev: false
+
+  /@fontsource/permanent-marker@5.0.12:
+    resolution:
+      {
+        integrity: sha512-oWzi2gy3SuuhDbxB/eIh09CmhUnijM1heZsRSzV4o5HMSX7IEWjJTaZ8f1pdmwlmG02N21FGiCC5HsttiuJaKA==,
+      }
+    dev: false
+
   /@hapi/hoek@9.3.0:
     resolution:
       {
@@ -3215,6 +3251,13 @@ packages:
       }
     dependencies:
       '@hapi/hoek': 9.3.0
+
+  /@janghye0k/observable@1.0.2:
+    resolution:
+      {
+        integrity: sha512-RGAK7uVAzLjbS0Ao+yXBJvEoZNOqCmtcwO20uQS/8qdeUHTncCUewYQvrolUTZJGmVISIUmDhHjpyfpTlIbyRA==,
+      }
+    dev: false
 
   /@jest/schemas@29.6.3:
     resolution:
@@ -6564,6 +6607,13 @@ packages:
     engines: { node: '>=10' }
     dependencies:
       is-obj: 2.0.0
+    dev: false
+
+  /doumi@1.1.7:
+    resolution:
+      {
+        integrity: sha512-wpR788AuMq3KSQ3U7stKSf1qd4USkEMGeDeTvuL1zsw6B/oXsaSazORqCQOF0Trt/MLSf3yYIELaOJIOpr8RIw==,
+      }
     dev: false
 
   /duplexer@0.1.2:
@@ -11860,6 +11910,13 @@ packages:
       source-map-js: 1.2.0
     dev: false
 
+  /pretendard@1.3.9:
+    resolution:
+      {
+        integrity: sha512-PaQAADyLY5v4kYFwkpSJHbSSYIkiriY/1xXw75TKoZ9UQQqeU+tvP05yTdZAWibiIYoo8ZKtRv8PM7w0IaywSw==,
+      }
+    dev: false
+
   /pretty-error@4.0.0:
     resolution:
       {
@@ -13084,6 +13141,19 @@ packages:
     dependencies:
       dot-case: 3.0.4
       tslib: 2.6.2
+    dev: false
+
+  /snow-datepicker@1.1.5:
+    resolution:
+      {
+        integrity: sha512-Ak5SxcrlRwll2UM90NhrOk6dmeezW+5nLVb7qtVEdCTYbrTU4Mc9LbX5mfcijcRE1Vw/+eeKS8q5GVhbUqBcgg==,
+      }
+    dependencies:
+      '@floating-ui/dom': 1.6.7
+      '@fontsource/permanent-marker': 5.0.12
+      '@janghye0k/observable': 1.0.2
+      doumi: 1.1.7
+      pretendard: 1.3.9
     dev: false
 
   /sockjs@0.3.24:

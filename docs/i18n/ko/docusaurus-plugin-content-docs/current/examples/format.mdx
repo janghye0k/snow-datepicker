@@ -1,0 +1,39 @@
+---
+sidebar_position: 3
+---
+
+# 포맷팅
+
+import DatePicker from '@site/src/components/DatePicker';
+
+### 날짜 형식
+
+날짜 형식을 `dateFormat` 옵션을 설정하여 사용자 정의할 수 있습니다.
+
+<DatePicker options={{ dateFormat: 'YY % MM % DD' }} />
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element', { dateFormat: 'YY % MM % DD' });
+```
+
+### 제목 형식
+
+<DatePicker
+  options={{
+    titleFormat: { days: '[<b>]YYYY[</b>] MM', months: 'YY' },
+    inline: true,
+  }}
+/>
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element', {
+  titleFormat: { days: '[<b>]YYYY[</b>] MM', months: 'YY' },
+  inline: true,
+});
+```

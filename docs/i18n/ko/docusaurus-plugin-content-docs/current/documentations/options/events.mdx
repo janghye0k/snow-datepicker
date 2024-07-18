@@ -1,0 +1,117 @@
+---
+sidebar_position: 4
+---
+
+# 이벤트
+
+### onChangeView
+
+사용자가 달력의 뷰(`days`, `months`, `years`)를 변경할 때 `changeView` 이벤트를 받습니다.
+
+```typescript
+({ view, prevView, datepicker }: PickerViewEvent) => void
+```
+
+- `view` - 달력의 현재 뷰입니다.
+- `prevView` - 달력의 이전 뷰입니다.
+- `datepicker` - datepicker 인스턴스입니다.
+
+### onChangeViewDate
+
+사용자가 달력의 뷰 날짜를 변경할 때 `changeViewDate` 이벤트를 받습니다.
+
+```typescript
+({ date, prevDate, datepicker }: PickerDateEvent) => void
+```
+
+- `date` - 달력의 현재 뷰 날짜입니다.
+- `prevDate` - 달력의 이전 뷰 날짜입니다.
+- `datepicker` - datepicker 인스턴스입니다.
+
+### onSelect
+
+사용자가 날짜를 선택할 때 `select` 이벤트를 받습니다.
+
+```typescript
+({ date, prevDate, datepicker }: PickerDateEvent) => void
+```
+
+- `date` - 선택된 날짜입니다.
+- `prevDate` - 이전 선택된 날짜입니다. 이전 선택된 날짜가 없는 경우 `null` 또는 `undefined`일 수 있습니다.
+- `datepicker` - datepicker 인스턴스입니다.
+
+### onBeforeSelect
+
+사용자가 날짜를 선택하기 전에 `beforeSelect` 이벤트를 받습니다.
+
+이벤트 핸들러가 `false`를 반환하면 날짜가 선택되지 않습니다.
+
+```typescript
+({ date, prevDate, datepicker }: PickerCellEvent) => boolean | void
+```
+
+- `date` - 선택된 날짜입니다.
+- `prevDate` - 이전 선택된 날짜입니다. 이전 선택된 날짜가 없는 경우 `null` 또는 `undefined`일 수 있습니다.
+- `datepicker` - datepicker 인스턴스입니다.
+
+### onClickCell
+
+사용자가 셀을 클릭할 때 `clickCell` 이벤트를 받습니다.
+
+```typescript
+({ type, date, $element, nativeEvent, datepicker }: PickerCellEvent) => void
+```
+
+- `type` - 셀의 타입입니다. `day`, `month`, 또는 `year`일 수 있습니다.
+- `date` - 셀의 날짜입니다.
+- `$element` - 셀 엘리먼트입니다.
+- `nativeEvent` - 원본 이벤트 객체입니다.
+- `datepicker` - datepicker 인스턴스입니다.
+
+### onRenderCell
+
+셀이 렌더링될 때 `renderCell` 이벤트를 받습니다.
+
+```typescript
+({ type, date, $element, datepicker }: PickerCellEvent) => void
+```
+
+- `type` - 셀의 타입입니다. `day`, `month`, 또는 `year`일 수 있습니다.
+- `date` - 셀의 날짜입니다.
+- `$element` - 셀 엘리먼트입니다.
+- `datepicker` - datepicker 인스턴스입니다.
+
+### onFocus
+
+셀이 포커스될 때 `focus` 이벤트를 받습니다.
+
+```typescript
+({ type, date, $element, datepicker }: PickerCellEvent) => void
+```
+
+- `type` - 셀의 타입입니다. `day`, `month`, 또는 `year`일 수 있습니다.
+- `date` - 셀의 날짜입니다.
+- `$element` - 셀 엘리먼트입니다.
+- `datepicker` - datepicker 인스턴스입니다.
+
+### onShow
+
+달력이 표시될 때 `show` 이벤트를 받습니다.
+`inline` 옵션이 활성화된 경우 이벤트가 발생하지 않습니다.
+
+```typescript
+({ datepicker }: PickerEvent) => void
+```
+
+- `datepicker` - datepicker 인스턴스입니다.
+
+### onHide
+
+달력이 숨겨질 때 `hide` 이벤트를 받습니다.
+`inline` 옵션이 활성화된 경우 이벤트가 발생하지 않습니다.
+
+```typescript
+({ datepicker }: PickerEvent) => void
+```
+
+- `datepicker` - datepicker 인스턴스입니다.

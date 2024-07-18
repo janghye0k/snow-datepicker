@@ -1,0 +1,39 @@
+---
+sidebar_position: 3
+---
+
+# Format
+
+import DatePicker from '@site/src/components/DatePicker';
+
+### Date format
+
+You can customize the date format by setting the `dateFormat` option.
+
+<DatePicker options={{ dateFormat: 'YY % MM % DD' }} />
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element', { dateFormat: 'YY % MM % DD' });
+```
+
+### Title format
+
+<DatePicker
+  options={{
+    titleFormat: { days: '[<b>]YYYY[</b>] MM', months: 'YY' },
+    inline: true,
+  }}
+/>
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element', {
+  titleFormat: { days: '[<b>]YYYY[</b>] MM', months: 'YY' },
+  inline: true,
+});
+```

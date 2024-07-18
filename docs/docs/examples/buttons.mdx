@@ -1,0 +1,59 @@
+---
+sidebar_position: 4
+---
+
+import DatePicker from '@site/src/components/DatePicker';
+
+# Buttons
+
+You can add buttons to the date picker by setting the `buttons` option. For more information, see the [buttons](../documentations/options/setup-options.mdx#buttons) section.
+
+### Pre defined buttons
+
+<DatePicker options={{ buttons: ['today', 'clear'] }} />
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element', { buttons: ['today', 'clear'] });
+```
+
+### Custom buttons
+
+You can add custom buttons by passing an object.
+
+<DatePicker
+  options={{
+    buttons: [
+      {
+        innerHTML: 'First Day',
+        onClick: (event, datepicker) => {
+          datepicker.setSelectedDate(
+            new Date((datepicker.currentDate || new Date()).getFullYear(), 0, 1)
+          );
+        },
+      },
+      'clear',
+    ],
+  }}
+/>
+
+<br />
+<br />
+
+```javascript
+new SnowDatePicker('#element', {
+  buttons: [
+    {
+      innerHTML: 'First Day',
+      onClick: (event, datepicker) => {
+        datepicker.setSelectedDate(
+          new Date((datepicker.currentDate || new Date()).getFullYear(), 0, 1)
+        );
+      },
+    },
+    'clear',
+  ],
+});
+```

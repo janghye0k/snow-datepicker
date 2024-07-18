@@ -2,9 +2,10 @@ import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
-
 import Heading from '@theme/Heading';
 import styles from './index.module.css';
+
+import DatePicker from '@site/src/components/DatePicker';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -32,7 +33,17 @@ export default function Home() {
   return (
     <Layout description="Pure (vanilla) javascript datepicker">
       <HomepageHeader />
-      <main></main>
+      <main>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <DatePicker options={{ inline: true, selectedDate: new Date() }} />
+        </div>
+      </main>
     </Layout>
   );
 }

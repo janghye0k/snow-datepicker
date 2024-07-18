@@ -1,0 +1,117 @@
+---
+sidebar_position: 3
+---
+
+# 현지화
+
+Snow DatePicker는 현지화를 지원합니다. `locale` 옵션에 객체를 전달하여 달력의 언어를 변경할 수 있습니다. 사용 가능한 옵션은 'locales/' 디렉토리에 있습니다.
+
+#### Example of localization object
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="localeEnglish" label="English" default>
+
+```javascript
+export default {
+  name: 'en',
+  weekdays: [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ],
+  months: [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ],
+  weekStart: 1,
+  weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  monthsShort: [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ],
+  weekdaysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+  formats: { time: 'HH:mm', date: 'DD/MM/YYYY' },
+  placeholder: 'Choose date',
+};
+```
+
+  </TabItem>
+
+  <TabItem value="localeKorean" label="한국어" >
+
+```javascript
+export default {
+  name: 'ko',
+  weekdays: [
+    '일요일',
+    '월요일',
+    '화요일',
+    '수요일',
+    '목요일',
+    '금요일',
+    '토요일',
+  ],
+  months: [
+    '1월',
+    '2월',
+    '3월',
+    '4월',
+    '5월',
+    '6월',
+    '7월',
+    '8월',
+    '9월',
+    '10월',
+    '11월',
+    '12월',
+  ],
+  weekdaysShort: ['일', '월', '화', '수', '목', '금', '토'],
+  monthsShort: [
+    '1월',
+    '2월',
+    '3월',
+    '4월',
+    '5월',
+    '6월',
+    '7월',
+    '8월',
+    '9월',
+    '10월',
+    '11월',
+    '12월',
+  ],
+  weekdaysMin: ['일', '월', '화', '수', '목', '금', '토'],
+  formats: { time: 'A h:mm', date: 'YYYY-MM-DD' },
+  placeholder: '날짜 선택',
+};
+```
+
+  </TabItem>
+</Tabs>
